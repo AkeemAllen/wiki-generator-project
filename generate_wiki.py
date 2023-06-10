@@ -63,6 +63,7 @@ def generate_yaml(
         ],
         "plugins": [{"search": {"lang": "en"}}],
         "markdown_extensions": [
+            "admonition",
             {"pymdownx.tasklist": {"custom_checkbox": True}},
             "pymdownx.superfences",
             {"pymdownx.tabbed": {"alternate_style": True}},
