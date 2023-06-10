@@ -1,6 +1,0 @@
-[submodule "pokemon-game-wiki-generator"]
-	path = pokemon-game-wiki-generator
-	url = https://github.com/AkeemAllen/pokemon-game-wiki-generator
-[submodule "wiki-generator-interface"]
-	path = wiki-generator-interface
-	url = https://github.com/AkeemAllen/wiki-generator-interface
