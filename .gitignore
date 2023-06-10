@@ -9,6 +9,7 @@ pyvenv.cfg
 venv
 dist
 docs_old
+backups
 
 dist-ssr
 *.local
