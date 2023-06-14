@@ -7,9 +7,14 @@ import GameRoutesDetails, {
 import Moves from "./pages/Moves";
 import MultiplePokemon from "./pages/MultiplePokemon";
 import Pokemon from "./pages/Pokemon";
+import SelectWiki from "./pages/SelectWiki";
 import ErrorPage from "./pages/error-page";
 
 const router = createBrowserRouter([
+  {
+    path: "/select-wiki",
+    element: <SelectWiki />,
+  },
   {
     path: "/",
     element: <App />,
