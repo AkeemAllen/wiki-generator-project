@@ -86,3 +86,16 @@ export type RouteProperties = {
 export type Routes = {
   [key: string]: RouteProperties;
 };
+
+export type Wiki = {
+  name: string;
+  description: string;
+  author: string;
+  site_name: string;
+  repo_url: string;
+  site_url: string;
+};
+
+export type Wikis = {
+  [key: string]: Wiki;
+};

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import matchups, move, pokemon, game_route, items, natures, abilities
+from routes import matchups, move, pokemon, game_route, items, natures, abilities, wikis
 
 app = FastAPI()
 
@@ -28,3 +28,4 @@ app.include_router(game_route.router)
 app.include_router(items.router)
 app.include_router(natures.router)
 app.include_router(abilities.router)
+app.include_router(wikis.router)
