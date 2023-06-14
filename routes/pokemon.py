@@ -6,11 +6,15 @@ from models.pokemon_models import PokemonChanges
 
 router = APIRouter()
 
+temp_folders_route = "temp_folders"
+
 
 # Get all pokemon and return by dict with name and id
-@router.get("/pokemon")
-async def get_pokemon_list():
-    with open(f"temp/pokemon.json", encoding="utf-8") as pokemon_file:
+@router.get("/pokemon/{wiki_name}")
+async def get_pokemon_list(wiki_name: str):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/pokemon.json", encoding="utf-8"
+    ) as pokemon_file:
         pokemon = json.load(pokemon_file)
         pokemon_file.close()
 
@@ -21,9 +25,11 @@ async def get_pokemon_list():
 
 
 # Get sprite url for pokemon
-@router.get("/pokemon/{pokemon_name}/sprite")
-async def get_pokemon_sprite(pokemon_name: str):
-    with open(f"temp/pokemon.json", encoding="utf-8") as pokemon_file:
+@router.get("/pokemon/{wiki_name}/{pokemon_name}/sprite")
+async def get_pokemon_sprite(pokemon_name: str, wiki_name: str):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/pokemon.json", encoding="utf-8"
+    ) as pokemon_file:
         pokemon = json.load(pokemon_file)
         pokemon_file.close()
 
@@ -38,9 +44,11 @@ async def get_pokemon_sprite(pokemon_name: str):
 
 
 # Get pokemon by name
-@router.get("/pokemon/{pokemon_name}")
-async def get_pokemon(pokemon_name: str):
-    with open(f"temp/pokemon.json", encoding="utf-8") as pokemon_file:
+@router.get("/pokemon/{wiki_name}/{pokemon_name}")
+async def get_pokemon(pokemon_name: str, wiki_name: str):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/pokemon.json", encoding="utf-8"
+    ) as pokemon_file:
         pokemon = json.load(pokemon_file)
         pokemon_file.close()
 
@@ -50,9 +58,13 @@ async def get_pokemon(pokemon_name: str):
 
 
 # Save Changes to pokemon
-@router.post("/pokemon/edit/{pokemon_name}")
-async def save_pokemon_changes(changes: PokemonChanges, pokemon_name: str):
-    with open(f"temp/pokemon.json", encoding="utf-8") as pokemon_file:
+@router.post("/pokemon/edit/{wiki_name}/{pokemon_name}")
+async def save_pokemon_changes(
+    changes: PokemonChanges, pokemon_name: str, wiki_name: str
+):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/pokemon.json", encoding="utf-8"
+    ) as pokemon_file:
         pokemon = json.load(pokemon_file)
         pokemon_file.close()
 
@@ -82,11 +94,13 @@ async def save_pokemon_changes(changes: PokemonChanges, pokemon_name: str):
                 "learn_method": value.learn_method,
             }
 
-    with open(f"temp/pokemon.json", "w") as pokemon_file:
+    with open(f"{temp_folders_route}/{wiki_name}/pokemon.json", "w") as pokemon_file:
         pokemon_file.write(json.dumps(pokemon))
         pokemon_file.close()
 
-    with open(f"temp/updates/modified_pokemon.json", "r+") as changes_file:
+    with open(
+        f"{temp_folders_route}/{wiki_name}/updates/modified_pokemon.json", "r+"
+    ) as changes_file:
         current_changes = json.load(changes_file)
         if pokemon_name not in current_changes["changed_pokemon"]:
             current_changes["changed_pokemon"].append(pokemon_name)

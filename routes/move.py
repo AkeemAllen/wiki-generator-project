@@ -6,11 +6,15 @@ from models.move_models import MoveDetails
 
 router = APIRouter()
 
+temp_folders_route = "temp_folders"
+
 
 # Get all move names, which is the key of the move dict
-@router.get("/moves")
-async def get_moves_list():
-    with open(f"temp/moves.json", encoding="utf-8") as moves_file:
+@router.get("/moves/{wiki_name}")
+async def get_moves_list(wiki_name: str):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/moves.json", encoding="utf-8"
+    ) as moves_file:
         moves = json.load(moves_file)
         moves_file.close()
 
@@ -18,9 +22,11 @@ async def get_moves_list():
 
 
 # Get move by name
-@router.get("/moves/{move_name}")
-async def get_moves(move_name: str):
-    with open(f"temp/moves.json", encoding="utf-8") as moves_file:
+@router.get("/moves/{wiki_name}/{move_name}")
+async def get_moves(move_name: str, wiki_name: str):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/moves.json", encoding="utf-8"
+    ) as moves_file:
         moves = json.load(moves_file)
         moves_file.close()
 
@@ -28,9 +34,11 @@ async def get_moves(move_name: str):
 
 
 # Save Changes to move
-@router.post("/moves/edit/{move_name}")
-def save_move_changes(move_details: MoveDetails, move_name: str):
-    with open(f"temp/moves.json", encoding="utf-8") as moves_file:
+@router.post("/moves/edit/{wiki_name}/{move_name}")
+def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/moves.json", encoding="utf-8"
+    ) as moves_file:
         moves = json.load(moves_file)
         moves_file.close()
 
@@ -49,11 +57,13 @@ def save_move_changes(move_details: MoveDetails, move_name: str):
     if move_details.damage_class:
         moves[move_name]["damage_class"] = move_details.damage_class
 
-    with open(f"temp/moves.json", "w") as moves_file:
+    with open(f"{temp_folders_route}/{wiki_name}/moves.json", "w") as moves_file:
         moves_file.write(json.dumps(moves))
         moves_file.close()
 
-    with open(f"temp/updates/modified_moves.json", "r+") as moves_changes_file:
+    with open(
+        f"{temp_folders_route}/{wiki_name}/updates/modified_moves.json", "r+"
+    ) as moves_changes_file:
         current_changes = json.load(moves_changes_file)
         if move_name not in current_changes["changed_moves"]:
             current_changes["changed_moves"].append(move_name)

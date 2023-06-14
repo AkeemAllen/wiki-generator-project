@@ -10,6 +10,7 @@ venv
 dist
 docs_old
 backups
+temp_folders
 
 dist-ssr
 *.local

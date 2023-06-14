@@ -8,11 +8,15 @@ from utils import get_sorted_routes
 
 router = APIRouter()
 
+temp_folders_route = "temp_folders"
+
 
 # Get all routes and return them as sorted dict
-@router.get("/game-routes")
-async def get_game_route_list():
-    with open(f"temp/routes.json", encoding="utf-8") as routes_file:
+@router.get("/game-routes/{wiki_name}")
+async def get_game_route_list(wiki_name: str):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/routes.json", encoding="utf-8"
+    ) as routes_file:
         routes = json.load(routes_file)
         routes_file.close()
 
@@ -20,9 +24,11 @@ async def get_game_route_list():
 
 
 # Get route by name
-@router.get("/game-route/{route_name}")
-async def get_game_route(route_name: str):
-    with open(f"temp/routes.json", encoding="utf-8") as routes_file:
+@router.get("/game-route/{wiki_name}/{route_name}")
+async def get_game_route(route_name: str, wiki_name: str):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/routes.json", encoding="utf-8"
+    ) as routes_file:
         routes = json.load(routes_file)
         routes_file.close()
 
@@ -31,9 +37,11 @@ async def get_game_route(route_name: str):
     return routes[route_name]
 
 
-@router.post("/game-route")
-async def create_game_route(new_route: NewRoute):
-    with open(f"temp/routes.json", encoding="utf-8") as routes_file:
+@router.post("/game-route/{wiki_name}")
+async def create_game_route(new_route: NewRoute, wiki_name: str):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/routes.json", encoding="utf-8"
+    ) as routes_file:
         routes = json.load(routes_file)
         routes_file.close()
 
@@ -42,7 +50,9 @@ async def create_game_route(new_route: NewRoute):
 
     routes[new_route.new_route_name] = {"position": len(routes) + 1}
 
-    with open(f"temp/routes.json", "w", encoding="utf-8") as routes_file:
+    with open(
+        f"{temp_folders_route}/{wiki_name}/routes.json", "w", encoding="utf-8"
+    ) as routes_file:
         routes_file.write(json.dumps(routes))
         routes_file.close()
 
@@ -54,9 +64,11 @@ async def create_game_route(new_route: NewRoute):
 
 
 # Edit route name
-@router.post("/game-route/edit-route-name/")
-async def edit_game_route(new_route: NewRoute):
-    with open(f"temp/routes.json", encoding="utf-8") as routes_file:
+@router.post("/game-route/{wiki_name}/edit-route-name/")
+async def edit_game_route(new_route: NewRoute, wiki_name: str):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/routes.json", encoding="utf-8"
+    ) as routes_file:
         routes = json.load(routes_file)
         routes_file.close()
 
@@ -67,7 +79,9 @@ async def edit_game_route(new_route: NewRoute):
 
     del routes[new_route.current_route_name]
 
-    with open(f"temp/routes.json", "w", encoding="utf-8") as routes_file:
+    with open(
+        f"{temp_folders_route}/{wiki_name}/routes.json", "w", encoding="utf-8"
+    ) as routes_file:
         routes_file.write(json.dumps(routes))
         routes_file.close()
 
@@ -79,9 +93,13 @@ async def edit_game_route(new_route: NewRoute):
 
 
 # Save changes to route
-@router.patch("/game-route/edit/{route_name}")
-async def save_single_route_changes(route_name: str, route_properties: RouteProperties):
-    with open(f"temp/routes.json", encoding="utf-8") as routes_file:
+@router.patch("/game-route/{wiki_name}/edit/{route_name}")
+async def save_single_route_changes(
+    route_name: str, route_properties: RouteProperties, wiki_name: str
+):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/routes.json", encoding="utf-8"
+    ) as routes_file:
         routes = json.load(routes_file)
         routes_file.close()
 
@@ -90,7 +108,9 @@ async def save_single_route_changes(route_name: str, route_properties: RouteProp
 
     routes[route_name] = route_properties.dict(exclude_none=True)
 
-    with open(f"temp/routes.json", "w", encoding="utf-8") as routes_file:
+    with open(
+        f"{temp_folders_route}/{wiki_name}/routes.json", "w", encoding="utf-8"
+    ) as routes_file:
         routes_file.write(json.dumps(routes))
         routes_file.close()
 
@@ -102,9 +122,11 @@ async def save_single_route_changes(route_name: str, route_properties: RouteProp
 
 
 # Delete route by name
-@router.delete("/game-route/delete/{route_name}")
-async def delete_route(route_name: str):
-    with open(f"temp/routes.json", encoding="utf-8") as routes_file:
+@router.delete("/game-route/{wiki_name}/delete/{route_name}")
+async def delete_route(route_name: str, wiki_name: str):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/routes.json", encoding="utf-8"
+    ) as routes_file:
         routes = json.load(routes_file)
         routes_file.close()
 
@@ -113,7 +135,9 @@ async def delete_route(route_name: str):
 
     del routes[route_name]
 
-    with open(f"temp/routes.json", "w", encoding="utf-8") as routes_file:
+    with open(
+        f"{temp_folders_route}/{wiki_name}/routes.json", "w", encoding="utf-8"
+    ) as routes_file:
         routes_file.write(json.dumps(routes))
         routes_file.close()
 
@@ -124,9 +148,11 @@ async def delete_route(route_name: str):
     }
 
 
-@router.post("/game-route/duplicate/{route_name}/{new_route_name}")
-async def duplicate_route(route_name: str, new_route_name: str):
-    with open(f"temp/routes.json", encoding="utf-8") as routes_file:
+@router.post("/game-route/{wiki_name}/duplicate/{route_name}/{new_route_name}")
+async def duplicate_route(route_name: str, new_route_name: str, wiki_name: str):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/routes.json", encoding="utf-8"
+    ) as routes_file:
         routes = json.load(routes_file)
         routes_file.close()
 
@@ -138,7 +164,9 @@ async def duplicate_route(route_name: str, new_route_name: str):
     }
     routes[new_route_name]["position"] = len(routes)
 
-    with open(f"temp/routes.json", "w", encoding="utf-8") as routes_file:
+    with open(
+        f"{temp_folders_route}/{wiki_name}/routes.json", "w", encoding="utf-8"
+    ) as routes_file:
         routes_file.write(json.dumps(routes))
         routes_file.close()
 
@@ -149,16 +177,22 @@ async def duplicate_route(route_name: str, new_route_name: str):
     }
 
 
-@router.patch("/game-route/edit-route-positions")
-async def edit_route_positions(organized_routes_list: Optional[list[str]]):
-    with open(f"temp/routes.json", encoding="utf-8") as routes_file:
+@router.patch("/game-route/{wiki_name}/edit-route-positions")
+async def edit_route_positions(
+    organized_routes_list: Optional[list[str]], wiki_name: str
+):
+    with open(
+        f"{temp_folders_route}/{wiki_name}/routes.json", encoding="utf-8"
+    ) as routes_file:
         routes = json.load(routes_file)
         routes_file.close()
 
     for index, name in enumerate(organized_routes_list):
         routes[name]["position"] = index + 1
 
-    with open(f"temp/routes.json", "w", encoding="utf-8") as routes_file:
+    with open(
+        f"{temp_folders_route}/{wiki_name}/routes.json", "w", encoding="utf-8"
+    ) as routes_file:
         routes_file.write(json.dumps(routes))
         routes_file.close()
 
