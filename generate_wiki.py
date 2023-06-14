@@ -2,6 +2,7 @@ import os
 import shutil
 import json
 import argparse
+import time
 import yaml
 
 # focus on generating more general wiki pages. I.e. changes to pokemon, moves, trainers, encounters
@@ -128,6 +129,11 @@ def create_boiler_plate(
     with open(f"{base_path}/mkdocs.yml", "w") as mkdocs_yaml_file:
         yaml.dump(mkdocs_yaml, mkdocs_yaml_file, sort_keys=False, indent=4)
         mkdocs_yaml_file.close()
+
+    # create temp folder to store data
+    shutil.copytree(
+        "generator_assets/temp_folder_starting_assets", f"temp_folders/{wiki_name}"
+    )
 
 
 def main():

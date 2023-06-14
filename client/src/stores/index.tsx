@@ -4,6 +4,7 @@ import { useMovesStore } from "./movesStore";
 import { useNatureStore } from "./naturesStore";
 import { usePokemonStore } from "./pokemonStore";
 import { useRouteStore } from "./routesStore";
+import { useWikiStore } from "./wikisStore";
 
 export {
   usePokemonStore,
@@ -12,4 +13,5 @@ export {
   useItemsStore,
   useAbilityStore,
   useNatureStore,
+  useWikiStore,
 };

@@ -1,12 +1,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useLocalStorage } from "usehooks-ts";
 import { PokemonChanges } from "../types";
 
 export const useGetPokemon = (onSuccess: (data: any) => void) => {
+  const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useQuery({
     queryKey: ["pokemon"],
     queryFn: () =>
-      fetch(`${import.meta.env.VITE_BASE_URL}/pokemon`).then((res) =>
-        res.json()
+      fetch(`${import.meta.env.VITE_BASE_URL}/pokemon/${currentWiki}`).then(
+        (res) => res.json()
       ),
     onSuccess,
     refetchOnWindowFocus: false,
@@ -14,12 +16,13 @@ export const useGetPokemon = (onSuccess: (data: any) => void) => {
 };
 
 export const useGetPokemonByName = ({ pokemonName, onSuccess }: any) => {
+  const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useQuery({
     queryKey: ["pokemon", pokemonName],
     queryFn: () =>
-      fetch(`${import.meta.env.VITE_BASE_URL}/pokemon/${pokemonName}`).then(
-        (res) => res.json()
-      ),
+      fetch(
+        `${import.meta.env.VITE_BASE_URL}/pokemon/${currentWiki}/${pokemonName}`
+      ).then((res) => res.json()),
     onSuccess,
     refetchOnWindowFocus: false,
     enabled: false,
@@ -32,10 +35,13 @@ type SavePokemonProps = {
 };
 
 export const useSavePokemonChanges = ({ onSuccess, onError }: any) => {
+  const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
     mutationFn: ({ pokemonName, pokemonChanges }: SavePokemonProps) => {
       return fetch(
-        `${import.meta.env.VITE_BASE_URL}/pokemon/edit/${pokemonName}`,
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/pokemon/edit/${currentWiki}/${pokemonName}`,
         {
           method: "POST",
           body: JSON.stringify(pokemonChanges),
