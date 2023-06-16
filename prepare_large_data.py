@@ -77,7 +77,7 @@ def prepare_items_data():
     fh.close()
 
 
-def prepare_ability_data():
+def prepare_ability_data(wiki_name: str):
     ability_range = range(1, 359)
     abilities = {}
 
@@ -102,12 +102,12 @@ def prepare_ability_data():
             "effect": ability_effect,
         }
 
-    fh = open(f"temp/abilities.json", "w")
+    fh = open(f"temp_folders/{wiki_name}/abilities.json", "w")
     fh.write(json.dumps(abilities))
     fh.close()
 
 
-def prepare_nature_data():
+def prepare_nature_data(wiki_name: str):
     nature_range = range(1, 26)
     natures = []
 
@@ -125,23 +125,30 @@ def prepare_nature_data():
 
         natures.append(nature["name"])
 
-    fh = open(f"temp/natures.json", "w")
+    fh = open(f"temp_folders/{wiki_name}/natures.json", "w")
     fh.write(json.dumps(natures))
     fh.close()
 
 
-def prepare_items_natures_abilities_data():
+def prepare_items_natures_abilities_data(wiki_name: str):
     # prepare_items_data()
-    prepare_ability_data()
-    prepare_nature_data()
+    prepare_ability_data(wiki_name)
+    prepare_nature_data(wiki_name)
 
 
-def download_pokemon_data(pokemon_range_start: int = 1, pokemon_range_end: int = 650):
+def download_pokemon_data(
+    wiki_name: str, pokemon_range_start: int = 1, pokemon_range_end: int = 650
+):
     pokedex_numbers = range(pokemon_range_start, pokemon_range_end + 1)
 
     pokemon = {}
     for dex_number in tqdm.tqdm(pokedex_numbers):
-        response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{dex_number}")
+        response = "Not Found"
+        try:
+            response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{dex_number}")
+        except requests.exceptions.ConnectionError as err:
+            print(f"Pokemon with id {dex_number} failed: {err}")
+            continue
 
         if response == "Not Found":
             continue
@@ -207,7 +214,7 @@ def download_pokemon_data(pokemon_range_start: int = 1, pokemon_range_end: int =
         del pokemon_data["sprites"]
         pokemon[pokemon_data["name"]] = pokemon_data
 
-    fh = open(f"temp/pokemon.json", "w")
+    fh = open(f"temp_folders/{wiki_name}/pokemon.json", "w")
     fh.write(json.dumps(pokemon))
     fh.close()
 
@@ -294,7 +301,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-wn",
-        "--wiki_name",
+        "--wiki-name",
         help="Specify the name of the wiki to download data from",
         type=str,
     )
@@ -303,7 +310,7 @@ if __name__ == "__main__":
 
     if args.pokemon:
         if args.range:
-            download_pokemon_data(args.range[0], args.range[1])
+            download_pokemon_data(args.wiki_name, args.range[0], args.range[1])
         else:
             download_pokemon_data()
 
@@ -317,4 +324,4 @@ if __name__ == "__main__":
         prepare_move_data()
 
     if args.accessories:
-        prepare_items_natures_abilities_data()
+        prepare_items_natures_abilities_data(args.wiki_name)

@@ -99,3 +99,9 @@ export type Wiki = {
 export type Wikis = {
   [key: string]: Wiki;
 };
+
+export type PreparationData = {
+  wipe_current_data: boolean;
+  range_start: number;
+  range_end: number;
+};

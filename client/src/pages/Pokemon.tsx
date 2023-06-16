@@ -1,8 +1,19 @@
-import { Autocomplete, Button, Grid, Image, Tabs } from "@mantine/core";
+import {
+  Autocomplete,
+  Button,
+  Checkbox,
+  Grid,
+  Image,
+  NumberInput,
+  Tabs,
+  Text,
+} from "@mantine/core";
+import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import {
   useGetPokemonByName,
+  usePreparePokemonData,
   useSavePokemonChanges,
 } from "../apis/pokemonApis";
 import MovesTab from "../components/PokemonTabs/MovesTab";
@@ -19,6 +30,10 @@ const Pokemon = () => {
   );
   const [activeTab, setActiveTab] = useState<string | null>("moves");
   const pokemonList = usePokemonStore((state) => state.pokemonList);
+  const setPokemonList = usePokemonStore((state) => state.setPokemonList);
+  const [rangeStart, setRangeStart] = useInputState<number>(0);
+  const [rangeEnd, setRangeEnd] = useInputState<number>(0);
+  const [wipeCurrentData, setWipeCurrentData] = useState<boolean>(false);
 
   const { refetch, isLoading } = useGetPokemonByName({
     pokemonName,
@@ -35,6 +50,25 @@ const Pokemon = () => {
     },
   });
 
+  const {
+    mutate: mutatePreparePokemonData,
+    isLoading: isLoadingPreparePokemonData,
+  } = usePreparePokemonData({
+    onSuccess: (data: any) => {
+      notifications.show({ message: "Data Prepared" });
+      setPokemonList(data.pokemon);
+    },
+    onError: () => {},
+  });
+
+  const handlePrepareInitialData = () => {
+    mutatePreparePokemonData({
+      range_end: rangeEnd,
+      range_start: rangeStart,
+      wipe_current_data: wipeCurrentData,
+    });
+  };
+
   const handleSearch = () => {
     setPokemonData(null);
     refetch();
@@ -49,34 +83,94 @@ const Pokemon = () => {
 
   return (
     <>
-      <Grid>
-        <Grid.Col span={6}>
-          <Autocomplete
-            placeholder="Pokemon Name"
-            onChange={(value) => setPokemonName(value)}
-            data={
-              pokemonList === undefined ? [] : pokemonList.map((p) => p.name)
-            }
-          />
-        </Grid.Col>
-        <Grid.Col span={3}>
-          <Button
-            fullWidth
-            onClick={handleSearch}
-            disabled={isNullEmptyOrUndefined(pokemonName)}
-          >
-            Search
-          </Button>
-        </Grid.Col>
-        <Grid.Col span={3}>
-          <Button
-            fullWidth
-            disabled={pokemonChanges === null}
-            onClick={saveChanges}
-          >
-            Save Changes
-          </Button>
-        </Grid.Col>
+      <Grid columns={12}>
+        {pokemonList.length === 0 ? (
+          <>
+            <Grid.Col>
+              <Text>
+                We detected that there is no pokemon data in this wiki right
+                now. Do you want to prepare initial data with original pokemon
+                data?
+              </Text>
+            </Grid.Col>
+            <Grid.Col>
+              <Text color="red">
+                NOTE: THIS WILL TAKE SEVERAL MINUTES TO PREPARE ALL THE DATA.
+                The pokemon data set is being downloaded from pokeapi and
+                modified through the download_pokemon_data funtion in the
+                backend.
+              </Text>
+            </Grid.Col>
+            <Grid.Col>
+              <NumberInput
+                label="Range Start"
+                onChange={(value: number) => setRangeStart(value)}
+                value={rangeStart}
+                min={0}
+              />
+            </Grid.Col>
+            <Grid.Col>
+              <NumberInput
+                label="Range End"
+                onChange={(value: number) => setRangeEnd(value)}
+                value={rangeEnd}
+                min={0}
+              />
+            </Grid.Col>
+            <Grid.Col>
+              <Checkbox
+                label="Wipe Current Data (Needs to be checked actually run the operation)"
+                checked={wipeCurrentData}
+                onChange={(event) =>
+                  setWipeCurrentData(event.currentTarget.checked)
+                }
+              />
+            </Grid.Col>
+            <Grid.Col>
+              <Button
+                disabled={
+                  rangeStart >= rangeEnd || rangeStart <= 0 || rangeEnd <= 0
+                }
+                onClick={handlePrepareInitialData}
+                loading={isLoadingPreparePokemonData}
+              >
+                Prepare Initial Data
+              </Button>
+            </Grid.Col>
+          </>
+        ) : (
+          <>
+            <Grid.Col span={6}>
+              <Autocomplete
+                placeholder="Pokemon Name"
+                onChange={(value) => setPokemonName(value)}
+                data={
+                  pokemonList === undefined
+                    ? []
+                    : pokemonList.map((p) => p.name)
+                }
+              />
+            </Grid.Col>
+            <Grid.Col span={3}>
+              <Button
+                fullWidth
+                onClick={handleSearch}
+                disabled={isNullEmptyOrUndefined(pokemonName)}
+              >
+                Search
+              </Button>
+            </Grid.Col>
+            <Grid.Col span={3}>
+              <Button
+                fullWidth
+                disabled={pokemonChanges === null}
+                onClick={saveChanges}
+              >
+                Save Changes
+              </Button>
+            </Grid.Col>
+          </>
+        )}
       </Grid>
       <Image src={pokemonData?.sprite} maw={200} />
       {!isLoading && pokemonData && (

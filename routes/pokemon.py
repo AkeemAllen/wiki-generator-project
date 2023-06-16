@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 import json
 
-from models.pokemon_models import PokemonChanges
+from models.pokemon_models import PokemonChanges, PreparationData
+from prepare_large_data import download_pokemon_data
 
 
 router = APIRouter()
@@ -110,3 +111,29 @@ async def save_pokemon_changes(
         changes_file.close()
 
     return {"message": "Changes Saved"}
+
+
+@router.post("/pokemon/{wiki_name}/prepare-data")
+async def prepare_data(preparation_data: PreparationData, wiki_name: str):
+    if preparation_data.wipe_current_data:
+        try:
+            download_pokemon_data(
+                wiki_name, preparation_data.range_start, preparation_data.range_end
+            )
+        except Exception as e:
+            return {"message": str(e)}
+
+    with open(
+        f"temp_folders/{wiki_name}/pokemon.json", encoding="utf-8"
+    ) as pokemon_file:
+        pokemon = json.load(pokemon_file)
+        pokemon_file.close()
+
+    return {
+        "message": "Data Prepared",
+        "status": 200,
+        "pokemon": [
+            {"name": pokemon_name, "id": attributes["id"]}
+            for pokemon_name, attributes in pokemon.items()
+        ],
+    }

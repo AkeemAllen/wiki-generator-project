@@ -11,6 +11,7 @@ dist
 docs_old
 backups
 temp_folders
+data
 
 dist-ssr
 *.local

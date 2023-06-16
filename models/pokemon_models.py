@@ -43,14 +43,22 @@ class PokemonChanges(BaseModel):
 class PokemonData(BaseModel):
     id: Optional[int]
     name: Optional[str]
-    types:Optional[list[str]]
+    types: Optional[list[str]]
     abilities: Optional[list[str]]
     stats: Optional[Stats]
     moves: Optional[Move]
     sprite: Optional[str]
     evolution: Optional[str]
 
-class PokemonVersions (Enum):
+
+class PreparationData(BaseModel):
+    wiki_name: Optional[str]
+    range_start: int
+    range_end: int
+    wipe_current_data: bool = False
+
+
+class PokemonVersions(Enum):
     RED_BLUE = "red-blue"
     YELLOW = "yellow"
     GOLD_SILVER = "gold-silver"
@@ -85,5 +93,5 @@ pokemon_versions_ordered = {
     PokemonVersions.OMEGARUBY_ALPHASAPPHIRE: 11,
     PokemonVersions.SUN_MOON: 12,
     PokemonVersions.ULTRASUN_ULTRAMOON: 13,
-    PokemonVersions.SWORD_SHEILD: 14
+    PokemonVersions.SWORD_SHEILD: 14,
 }

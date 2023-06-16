@@ -29,30 +29,27 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
   const [siteUrl, setSiteUrl] = useInputState<string>(
     "https://__author__.github.io/__name__"
   );
-  const [wikiList, setWikiList] = useLocalStorage("wikiList", {});
-  const [currentWiki, setCurrentWikiLocalstore] = useLocalStorage(
-    "currentWiki",
-    "none"
-  );
+  const [_, setWikiList] = useLocalStorage("wikiList", {});
+  const [__, setCurrentWikiLocalstore] = useLocalStorage("currentWiki", "none");
 
   const navigate = useNavigate();
   const { mutate } = useCreateWiki((data) => setWikiList(data.wikis));
   const createNewWiki = () => {
     mutate({
-      name: wikiName.toLowerCase().replace(" ", "-"),
+      name: wikiName.toLowerCase().replaceAll(" ", "-"),
       description: wikiDescription,
       author: wikiAuthor,
       repo_url: repoUrl,
       site_url: siteUrl,
       site_name: wikiName,
     });
-    setCurrentWikiLocalstore(wikiName.toLowerCase().replace(" ", "-"));
+    setCurrentWikiLocalstore(wikiName.toLowerCase().replaceAll(" ", "-"));
     navigate("/");
     onClose();
   };
 
   useUpdateEffect(() => {
-    let codeName = wikiName.toLowerCase().replace(" ", "-");
+    let codeName = wikiName.toLowerCase().replaceAll(" ", "-");
     setRepoUrl(`https://github.com/${wikiAuthor}/${codeName}`);
     setSiteUrl(`https://${wikiAuthor}.github.io/${codeName}`);
   }, [wikiAuthor, wikiName]);
@@ -75,7 +72,7 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
           label="Code Name"
           readOnly
           disabled
-          value={wikiName.toLowerCase().replace(" ", "-")}
+          value={wikiName.toLowerCase().replaceAll(" ", "-")}
         />
         <Textarea
           label="Wiki Description"

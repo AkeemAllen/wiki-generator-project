@@ -131,7 +131,7 @@ const MainAppshell = () => {
             <Navbar.Section>
               <Popover withArrow>
                 <Popover.Target>
-                  <Button sx={{ backgroundColor: "rgba(0,0,0,50%)" }}>
+                  <Button fullWidth sx={{ backgroundColor: "rgba(0,0,0,50%)" }}>
                     {currentWiki}
                   </Button>
                 </Popover.Target>
@@ -144,6 +144,7 @@ const MainAppshell = () => {
                             setCurrentWiki(wiki);
                             location.reload();
                           }}
+                          fullWidth
                         >
                           {wiki}
                         </Button>
