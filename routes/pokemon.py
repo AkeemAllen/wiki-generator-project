@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 import json
 
-from models.pokemon_models import PokemonChanges, PreparationData
+from models.pokemon_models import PokemonChanges
+from models.wikis_models import PreparationData
 from prepare_large_data import download_pokemon_data
 
 
@@ -99,16 +100,16 @@ async def save_pokemon_changes(
         pokemon_file.write(json.dumps(pokemon))
         pokemon_file.close()
 
-    with open(
-        f"{temp_folders_route}/{wiki_name}/updates/modified_pokemon.json", "r+"
-    ) as changes_file:
-        current_changes = json.load(changes_file)
-        if pokemon_name not in current_changes["changed_pokemon"]:
-            current_changes["changed_pokemon"].append(pokemon_name)
-            changes_file.seek(0)
-            changes_file.truncate()
-            changes_file.write(json.dumps(current_changes))
-        changes_file.close()
+    # with open(
+    #     f"{temp_folders_route}/{wiki_name}/updates/modified_pokemon.json", "r+"
+    # ) as changes_file:
+    #     current_changes = json.load(changes_file)
+    #     if pokemon_name not in current_changes["changed_pokemon"]:
+    #         current_changes["changed_pokemon"].append(pokemon_name)
+    #         changes_file.seek(0)
+    #         changes_file.truncate()
+    #         changes_file.write(json.dumps(current_changes))
+    #     changes_file.close()
 
     return {"message": "Changes Saved"}
 
@@ -124,13 +125,13 @@ async def prepare_data(preparation_data: PreparationData, wiki_name: str):
             return {"message": str(e)}
 
     with open(
-        f"temp_folders/{wiki_name}/pokemon.json", encoding="utf-8"
+        f"{temp_folders_route}/{wiki_name}/pokemon.json", encoding="utf-8"
     ) as pokemon_file:
         pokemon = json.load(pokemon_file)
         pokemon_file.close()
 
     return {
-        "message": "Data Prepared",
+        "message": "Pokemon Data Prepared",
         "status": 200,
         "pokemon": [
             {"name": pokemon_name, "id": attributes["id"]}

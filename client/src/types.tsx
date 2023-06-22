@@ -105,3 +105,30 @@ export type PreparationData = {
   range_start: number;
   range_end: number;
 };
+
+export enum PokemonVersions {
+  RED_BLUE = "red-blue",
+  YELLOW = "yellow",
+  GOLD_SILVER = "gold-silver",
+  CRYSTAL = "crystal",
+  RUBY_SAPPHIRE = "ruby-sapphire",
+  EMERALD = "emerald",
+  FIRERED_LEAFGREEN = "firered-leafgreen",
+  DIAMOND_PEARL = "diamond-pearl",
+  PLATINUM = "platinum",
+  HEARTGOLD_SOULSILVER = "heartgold-soulsilver",
+  BLACK_WHITE = "black-white",
+  BLACKTWO_WHITETWO = "black-2-white-2",
+  X_Y = "x-y",
+  OMEGARUBY_ALPHASAPPHIRE = "omega-ruby-alpha-sapphire",
+  SUN_MOON = "sun-moon",
+  ULTRASUN_ULTRAMOON = "ultra-sun-ultra-moon",
+  SWORD_SHEILD = "sword-shield",
+}
+
+export type GenerationData = {
+  wiki_name: string;
+  version_group: string;
+  range_start: number;
+  range_end: number;
+};

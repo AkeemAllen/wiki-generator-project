@@ -8,14 +8,42 @@ from snakemd import Document, InlineText, Table, Paragraph
 from models.pokemon_models import (
     PokemonData,
     MoveDetails,
+    PokemonVersions,
 )
 from pydantic import ValidationError
+from routes.matchups import get_defensive_matchups, get_defensive_matchups_synchronous
 
 from utils import get_pokemon_dex_formatted_name
 
 
 def get_markdown_image_for_type(_type: str):
     return f"![{_type}](../img/types/{_type}.png)"
+
+
+# TODO: These functions are meant to dynamically get and set the Pokemon specific changes
+#       from the yaml file. There should a more elegant way to do this.
+#    get_specific_changes_from_yaml(yaml) and set_specific_changes_in_yaml(yaml, specific_changes)
+def get_specific_changes_from_yaml(yaml):
+    specific_changes = None
+    for nav_item in yaml["nav"]:
+        for nav_key, nav_value in nav_item.items():
+            if nav_key == "Pokemon":
+                for item in nav_value:
+                    for key, value in item.items():
+                        if key == "Specific Changes":
+                            specific_changes = value
+
+    return specific_changes
+
+
+def set_specific_changes_in_yaml(yaml, specific_changes):
+    for nav_item in yaml["nav"]:
+        for nav_key, nav_value in nav_item.items():
+            if nav_key == "Pokemon":
+                for item in nav_value:
+                    for key, value in item.items():
+                        if key == "Specific Changes":
+                            item[key] = specific_changes
 
 
 def generate_moves_array(moves, table_type):
@@ -38,14 +66,17 @@ def generate_moves_array(moves, table_type):
     return table_array_for_moves
 
 
+# TODO: This class isn't really necessary. Remove later and have standalone functions
 class Pokemon:
     def __init__(self, pokemon_name: str):
         self.pokemon_data = PokemonData()
         self.pokemon_name = pokemon_name
         self.dex_number = int(pokebase.pokemon(pokemon_name).id)
 
-    def get_pokemon_data(self):
-        with open(f"temp/pokemon.json", encoding="utf-8") as pokemon_data_file:
+    def get_pokemon_data(self, wiki_name: str):
+        with open(
+            f"temp_folders/{wiki_name}/pokemon.json", encoding="utf-8"
+        ) as pokemon_data_file:
             pokemon = json.load(pokemon_data_file)
             pokemon_data_file.close()
 
@@ -84,9 +115,11 @@ class Pokemon:
         types = [_type for _type in data.types]
         query_string = f"{types[0]}+{types[1]}" if len(types) > 1 else f"{types[0]}"
 
-        response = requests.get(
-            f"http://localhost:8081/matchups/defensive?types={query_string}"
-        ).json()
+        response = get_defensive_matchups_synchronous(query_string)
+
+        # Converting int keys to string so that the keys can actually be checked for
+        response = {str(k): v for k, v in response.items()}
+
         immunities = ""
         normal_resists = ""
         two_weak_resists = ""
@@ -193,11 +226,15 @@ class Pokemon:
         doc.add_header("Evolution Change", 2)
         doc.add_paragraph(data.evolution)
 
-    def create_level_up_moves_table(self, doc: Document, version_group: str):
+    def create_level_up_moves_table(
+        self, doc: Document, version_group: PokemonVersions, wiki_name: str
+    ):
         data = self.pokemon_data
         moves = {}
 
-        with open(f"temp/moves.json", encoding="utf-8") as moves_file:
+        with open(
+            f"temp_folders/{wiki_name}/moves.json", encoding="utf-8"
+        ) as moves_file:
             file_moves = json.load(moves_file)
             moves_file.close()
 
@@ -261,15 +298,21 @@ class Pokemon:
             generate_moves_array(sorted_moves, table_type="level_up"),
         )
 
-    def create_learnable_moves(self, doc: Document, version_group: str):
+    def create_learnable_moves(
+        self, doc: Document, version_group: PokemonVersions, wiki_name: str
+    ):
         data = self.pokemon_data
         moves = {}
 
-        with open("temp/machines.json", encoding="utf-8") as machines_file:
+        with open(
+            f"temp_folders/{wiki_name}/machines.json", encoding="utf-8"
+        ) as machines_file:
             machines = json.load(machines_file)
             machines_file.close()
 
-        with open(f"temp/moves.json", encoding="utf-8") as moves_file:
+        with open(
+            f"temp_folders/{wiki_name}/moves.json", encoding="utf-8"
+        ) as moves_file:
             file_moves = json.load(moves_file)
             moves_file.close()
 
@@ -339,19 +382,38 @@ class Pokemon:
         )
 
 
-def main(wiki_name: str, range_start: int = 1, range_end: int = 650):
+def get_updated_dict(dict_to_update, path, value):
+    obj = dict_to_update
+    key_list = path.split(".")
+
+    print(key_list)
+    for key in key_list[:-1]:
+        print(key)
+        obj = obj[key]
+
+    print("Before", obj)
+    obj[key_list[-1]] = value
+    print("After", obj)
+
+
+def generate_pokemon(
+    wiki_name: str,
+    version_group: PokemonVersions,
+    range_start: int = 1,
+    range_end: int = 650,
+):
     pokemon_range = range(range_start, range_end + 1)
 
     with open(f"dist/{wiki_name}/mkdocs.yml", "r") as mkdocs_file:
         mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
         mkdocs_file.close()
 
-    specifc_changes = mkdocs_yaml_dict["nav"][1]["Pokemon"][0]["Specific Changes"]
+    specific_changes = get_specific_changes_from_yaml(mkdocs_yaml_dict)
 
     for pokedex_number in tqdm.tqdm(pokemon_range):
         pokemon_name = pokebase.pokemon(pokedex_number).name
         pokemon = Pokemon(pokemon_name)
-        pokemon_data = pokemon.get_pokemon_data()
+        pokemon_data = pokemon.get_pokemon_data(wiki_name)
 
         pokedex_markdown_file_name = get_pokemon_dex_formatted_name(pokedex_number)
 
@@ -367,8 +429,8 @@ def main(wiki_name: str, range_start: int = 1, range_end: int = 650):
         pokemon.create_ability_table(doc)
         pokemon.create_stats_table(doc)
         pokemon.create_evolution_note(doc)
-        pokemon.create_level_up_moves_table(doc, version_group="black-white")
-        pokemon.create_learnable_moves(doc, version_group="black-white")
+        pokemon.create_level_up_moves_table(doc, version_group, wiki_name)
+        pokemon.create_learnable_moves(doc, version_group, wiki_name)
 
         doc.output_page(markdown_file_path)
 
@@ -376,14 +438,12 @@ def main(wiki_name: str, range_start: int = 1, range_end: int = 650):
             f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}": f"pokemon/{pokedex_markdown_file_name}.md"
         }
 
-        if specific_change_entry not in specifc_changes:
-            specifc_changes.append(specific_change_entry)
+        if specific_change_entry not in specific_changes:
+            specific_changes.append(specific_change_entry)
 
-    sorted_specific_changes = sorted(specifc_changes, key=lambda x: list(x.keys())[0])
+    sorted_specific_changes = sorted(specific_changes, key=lambda x: list(x.keys())[0])
 
-    mkdocs_yaml_dict["nav"][1]["Pokemon"][0][
-        "Specific Changes"
-    ] = sorted_specific_changes
+    set_specific_changes_in_yaml(mkdocs_yaml_dict, sorted_specific_changes)
 
     with open(f"dist/{wiki_name}/mkdocs.yml", "w") as mkdocs_file:
         yaml.dump(mkdocs_yaml_dict, mkdocs_file, sort_keys=False, indent=4)
@@ -394,6 +454,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-wn", "--wiki_name", help="The name of the wiki")
     parser.add_argument(
+        "-vg",
+        "--version-group",
+        help="The version group where the moves will come from",
+    )
+    parser.add_argument(
         "-r",
         "--range",
         nargs=2,
@@ -403,6 +468,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.range:
-        main(args.wiki_name, args.range[0], args.range[1])
+        generate_pokemon(
+            args.wiki_name, args.version_group, args.range[0], args.range[1]
+        )
     else:
-        main(args.wiki_name)
+        generate_pokemon(args.wiki_name, args.version_group)

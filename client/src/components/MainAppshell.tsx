@@ -14,6 +14,7 @@ import {
   IconBallBasketball,
   IconDisc,
   IconGitBranch,
+  IconSettings,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -101,14 +102,6 @@ const MainAppshell = () => {
                   icon={<IconBallBasketball size={"1rem"} />}
                 />
               </Link>
-              <Link to={"/multiple-pokemon"} style={{ textDecoration: "none" }}>
-                <NavButton
-                  text="Multiple Pokemon"
-                  color="blue"
-                  isActive={pathname.includes("/multiple-pokemon")}
-                  icon={<IconBallBasketball size={"1rem"} />}
-                />
-              </Link>
 
               <Link to={"/moves"} style={{ textDecoration: "none" }}>
                 <NavButton
@@ -121,10 +114,19 @@ const MainAppshell = () => {
 
               <Link to={"/game-routes"} style={{ textDecoration: "none" }}>
                 <NavButton
-                  text="GameRoutes"
+                  text="Game Routes"
                   color="yellow"
                   isActive={pathname.includes("/game-routes")}
                   icon={<IconGitBranch size={"1rem"} />}
+                />
+              </Link>
+
+              <Link to={"/generate-wiki"} style={{ textDecoration: "none" }}>
+                <NavButton
+                  text="Generate Wiki"
+                  color="orange"
+                  isActive={pathname.includes("/generate-wiki")}
+                  icon={<IconSettings size={"1rem"} />}
                 />
               </Link>
             </Navbar.Section>
@@ -137,8 +139,8 @@ const MainAppshell = () => {
                 </Popover.Target>
                 <Popover.Dropdown>
                   <Grid>
-                    {Object.keys(wikiList).map((wiki) => (
-                      <Grid.Col>
+                    {Object.keys(wikiList).map((wiki, index) => (
+                      <Grid.Col key={index}>
                         <Button
                           onClick={() => {
                             setCurrentWiki(wiki);

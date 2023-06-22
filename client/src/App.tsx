@@ -11,7 +11,6 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("currentWiki", currentWiki);
     if (currentWiki === "none") {
       navigate("/select-wiki");
     }

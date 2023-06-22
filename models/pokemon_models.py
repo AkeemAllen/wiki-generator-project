@@ -51,13 +51,6 @@ class PokemonData(BaseModel):
     evolution: Optional[str]
 
 
-class PreparationData(BaseModel):
-    wiki_name: Optional[str]
-    range_start: int
-    range_end: int
-    wipe_current_data: bool = False
-
-
 class PokemonVersions(Enum):
     RED_BLUE = "red-blue"
     YELLOW = "yellow"

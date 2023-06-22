@@ -1,0 +1,84 @@
+import { Button, Grid, NumberInput, Select, Tabs } from "@mantine/core";
+import { useInputState } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
+import { useState } from "react";
+import { useLocalStorage } from "usehooks-ts";
+import { useGeneratePokemon } from "../apis/wikiApis";
+import { PokemonVersions } from "../types";
+
+const GenerateWiki = () => {
+  const [activeTab, setActiveTab] = useState<string | null>("generate-pokemon");
+  const [rangeStart, setRangeStart] = useInputState<number>(0);
+  const [rangeEnd, setRangeEnd] = useInputState<number>(0);
+  const [currentWiki, _] = useLocalStorage("currentWiki", "none");
+  const [versionGroup, setVersionGroup] = useInputState<string>("black-white");
+
+  const { mutate, isLoading: isLoadingGeneratePokemonData } =
+    useGeneratePokemon((data: any) => {
+      notifications.show({ message: data.message });
+    });
+
+  const handleGeneratePokemonData = () => {
+    mutate({
+      wiki_name: currentWiki,
+      version_group: versionGroup,
+      range_start: rangeStart,
+      range_end: rangeEnd,
+    });
+  };
+
+  return (
+    <Tabs value={activeTab} onTabChange={setActiveTab}>
+      <Tabs.List>
+        <Tabs.Tab value="generate-pokemon">Generate Pokemon</Tabs.Tab>
+        <Tabs.Tab value="generate-routes">Generate Routes</Tabs.Tab>
+      </Tabs.List>
+      <Tabs.Panel value="generate-pokemon">
+        <Grid mt={20}>
+          <Grid.Col>
+            <Select
+              label="Version Group"
+              onChange={setVersionGroup}
+              value={versionGroup}
+              data={(
+                Object.keys(PokemonVersions) as (keyof typeof PokemonVersions)[]
+              ).map((key, index) => {
+                return PokemonVersions[key];
+              })}
+            />
+          </Grid.Col>
+          <Grid.Col>
+            <NumberInput
+              label="Range Start"
+              onChange={(value: number) => setRangeStart(value)}
+              value={rangeStart}
+              min={0}
+            />
+          </Grid.Col>
+          <Grid.Col>
+            <NumberInput
+              label="Range End"
+              onChange={(value: number) => setRangeEnd(value)}
+              value={rangeEnd}
+              min={0}
+            />
+          </Grid.Col>{" "}
+          <Grid.Col>
+            <Button
+              disabled={
+                rangeStart >= rangeEnd || rangeStart <= 0 || rangeEnd <= 0
+              }
+              onClick={handleGeneratePokemonData}
+              loading={isLoadingGeneratePokemonData}
+            >
+              Generate
+            </Button>
+          </Grid.Col>
+        </Grid>
+      </Tabs.Panel>
+      <Tabs.Panel value="generate-routes">test2</Tabs.Panel>
+    </Tabs>
+  );
+};
+
+export default GenerateWiki;

@@ -47,7 +47,7 @@ const MultiplePokemon = () => {
 
   return (
     <>
-      <Grid>
+      <Grid mt={20}>
         <Grid.Col span={4}>
           <Autocomplete
             placeholder="Moves"

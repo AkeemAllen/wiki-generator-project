@@ -4,8 +4,8 @@ import GameRoutes from "./pages/GameRoutes";
 import GameRoutesDetails, {
   loader as routeLoader,
 } from "./pages/GameRoutesDetails";
+import GenerateWiki from "./pages/GenerateWiki";
 import Moves from "./pages/Moves";
-import MultiplePokemon from "./pages/MultiplePokemon";
 import Pokemon from "./pages/Pokemon";
 import SelectWiki from "./pages/SelectWiki";
 import ErrorPage from "./pages/error-page";
@@ -25,8 +25,8 @@ const router = createBrowserRouter([
         element: <Pokemon />,
       },
       {
-        path: "multiple-pokemon",
-        element: <MultiplePokemon />,
+        path: "generate-wiki",
+        element: <GenerateWiki />,
       },
       {
         path: "moves",

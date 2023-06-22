@@ -4,7 +4,6 @@ import { useRouteStore } from "../stores";
 
 export const useGetRoutes = (onSuccess: (data: any) => void) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
-  console.log(currentWiki);
   return useQuery({
     queryKey: ["routes"],
     queryFn: () =>

@@ -65,6 +65,27 @@ def group_matchups_by_effectiveness(matchups, effectiveness):
     return mapped_matchups
 
 
+# Kind of a hack to avoid dealing with async and coroutines
+# TODO: Figure out how to do this properly
+def get_defensive_matchups_synchronous(types: str):
+    type_array = types.split("+")
+    effectiveness_levels = [8, 4, 2, 1, 0.5, 0.25, 0.125, 0]
+
+    matchups = list(defensive_matchups(1, type_array))
+
+    matchups_by_effectiveness = {}
+    for effectiveness in effectiveness_levels:
+        grouped_matchups = group_matchups_by_effectiveness(matchups, effectiveness)
+        matchups_by_effectiveness[effectiveness] = list(grouped_matchups)
+
+    filtered_matchups_by_effectiveness = {}
+    for key, value in matchups_by_effectiveness.items():
+        if len(value) != 0:
+            filtered_matchups_by_effectiveness[key] = value
+
+    return filtered_matchups_by_effectiveness
+
+
 @router.get("/matchups/defensive")
 async def get_defensive_matchups(types: str):
     type_array = types.split()

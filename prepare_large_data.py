@@ -17,8 +17,8 @@ def get_markdown_file_name(pokedex_number):
     return file_name
 
 
-def prepare_move_data():
-    move_range = range(1, 903)
+def prepare_move_data(wiki_name: str, range_start: int, range_end: int):
+    move_range = range(range_start, range_end + 1)
     moves = {}
     for move_id in tqdm.tqdm(move_range):
         response = requests.get(f"https://pokeapi.co/api/v2/move/{move_id}")
@@ -41,7 +41,7 @@ def prepare_move_data():
             "past_values": move["past_values"],
         }
 
-    fh = open(f"temp/moves.json", "w")
+    fh = open(f"temp_folders/{wiki_name}/moves.json", "w")
     fh.write(json.dumps(moves))
     fh.close()
 
@@ -220,7 +220,9 @@ def download_pokemon_data(
 
 
 def download_pokemon_sprites(wiki_name: str):
-    with open(f"temp/pokemon.json", encoding="utf-8") as pokemon_file:
+    with open(
+        f"temp_folders/{wiki_name}/pokemon.json", encoding="utf-8"
+    ) as pokemon_file:
         all_downloaded_pokemon = json.load(pokemon_file)
         pokemon_file.close()
 
@@ -321,7 +323,7 @@ if __name__ == "__main__":
         prepare_technical_and_hidden_machines_data()
 
     if args.moves:
-        prepare_move_data()
+        prepare_move_data(args.wiki_name, args.range[0], args.range[1])
 
     if args.accessories:
         prepare_items_natures_abilities_data(args.wiki_name)
