@@ -2,6 +2,8 @@ from fastapi import APIRouter
 import json
 
 from models.move_models import MoveDetails
+from models.wikis_models import PreparationData
+from prepare_large_data import prepare_move_data
 
 
 router = APIRouter()
@@ -73,3 +75,26 @@ def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str)
         moves_changes_file.close()
 
     return {"message": "Changes Saved"}
+
+
+@router.post("/moves/{wiki_name}/prepare-data")
+async def prepare_data(preparation_data: PreparationData, wiki_name: str):
+    if preparation_data.wipe_current_data:
+        try:
+            prepare_move_data(
+                wiki_name, preparation_data.range_start, preparation_data.range_end
+            )
+        except Exception as e:
+            return {"message": str(e)}
+
+    with open(
+        f"{temp_folders_route}/{wiki_name}/moves.json", encoding="utf-8"
+    ) as moves_file:
+        moves = json.load(moves_file)
+        moves_file.close()
+
+    return {
+        "message": "Move Data Prepared",
+        "status": 200,
+        "moves": list(moves.keys()),
+    }

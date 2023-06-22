@@ -336,7 +336,7 @@ def create_trainer_table(route_name: str, route_directory: str, trainers: Traine
 # endregion
 
 
-def main(wiki_name: str):
+def generate_routes(wiki_name: str):
     with open(f"dist/{wiki_name}/mkdocs.yml", "r") as mkdocs_file:
         mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
         mkdocs_file.close()
@@ -385,6 +385,7 @@ def main(wiki_name: str):
         if formatted_path_name not in existing_routes:
             shutil.rmtree(f"dist/{wiki_name}/docs/routes/{path}")
 
+    # TODO: Modify line to search for Routes
     mkdocs_yaml_dict["nav"][2]["Routes"] = mkdoc_routes
 
     with open(f"dist/{wiki_name}/mkdocs.yml", "w") as mkdocs_file:
@@ -403,4 +404,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    main(args.wiki_name)
+    generate_routes(args.wiki_name)
