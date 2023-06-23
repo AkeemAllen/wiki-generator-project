@@ -38,3 +38,16 @@ export const useGeneratePokemon = (onSuccess: (data: any) => void) => {
     onSuccess,
   });
 };
+export const useGenerateRoutes = (onSuccess: (data: any) => void) => {
+  return useMutation({
+    mutationFn: (generateData: GenerationData) =>
+      fetch(`${import.meta.env.VITE_BASE_URL}/wikis/generate/routes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(generateData),
+      }).then((res) => res.json()),
+    onSuccess,
+  });
+};

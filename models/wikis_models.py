@@ -23,5 +23,5 @@ class PreparationData(BaseModel):
 class GenerationData(BaseModel):
     wiki_name: str
     version_group: Optional[PokemonVersions]
-    range_start: int
-    range_end: int
+    range_start: Optional[int]
+    range_end: Optional[int]

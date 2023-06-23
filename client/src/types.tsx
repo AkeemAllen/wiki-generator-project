@@ -128,7 +128,7 @@ export enum PokemonVersions {
 
 export type GenerationData = {
   wiki_name: string;
-  version_group: string;
-  range_start: number;
-  range_end: number;
+  version_group?: string;
+  range_start?: number;
+  range_end?: number;
 };

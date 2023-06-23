@@ -1,9 +1,9 @@
-import { Button, Grid, NumberInput, Select, Tabs } from "@mantine/core";
+import { Button, Grid, NumberInput, Select, Tabs, Text } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
-import { useGeneratePokemon } from "../apis/wikiApis";
+import { useGeneratePokemon, useGenerateRoutes } from "../apis/wikiApis";
 import { PokemonVersions } from "../types";
 
 const GenerateWiki = () => {
@@ -13,17 +13,32 @@ const GenerateWiki = () => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   const [versionGroup, setVersionGroup] = useInputState<string>("black-white");
 
-  const { mutate, isLoading: isLoadingGeneratePokemonData } =
-    useGeneratePokemon((data: any) => {
-      notifications.show({ message: data.message });
-    });
+  const {
+    mutate: mutateGeneratePokemon,
+    isLoading: isLoadingGeneratePokemonData,
+  } = useGeneratePokemon((data: any) => {
+    notifications.show({ message: data.message });
+  });
+
+  const {
+    mutate: mutateGenerateRoutes,
+    isLoading: isLoadingGenerateRoutesData,
+  } = useGenerateRoutes((data: any) => {
+    notifications.show({ message: data.message });
+  });
 
   const handleGeneratePokemonData = () => {
-    mutate({
+    mutateGeneratePokemon({
       wiki_name: currentWiki,
       version_group: versionGroup,
       range_start: rangeStart,
       range_end: rangeEnd,
+    });
+  };
+
+  const handleGenerateRoutesData = () => {
+    mutateGenerateRoutes({
+      wiki_name: currentWiki,
     });
   };
 
@@ -76,7 +91,22 @@ const GenerateWiki = () => {
           </Grid.Col>
         </Grid>
       </Tabs.Panel>
-      <Tabs.Panel value="generate-routes">test2</Tabs.Panel>
+      <Tabs.Panel value="generate-routes">
+        <Grid mt={20}>
+          <Grid.Col>
+            <Text>This will generate the routes of the current wiki</Text>
+          </Grid.Col>
+
+          <Grid.Col>
+            <Button
+              onClick={handleGenerateRoutesData}
+              loading={isLoadingGenerateRoutesData}
+            >
+              Generate Routes
+            </Button>
+          </Grid.Col>
+        </Grid>
+      </Tabs.Panel>
     </Tabs>
   );
 };

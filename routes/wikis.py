@@ -66,5 +66,10 @@ async def generate_wiki(generation_data: GenerationData):
 
 
 @router.post("/wikis/generate/routes")
-async def generate_wiki(wiki: Wiki):
-    generate_routes()
+async def generate_wiki(generation_data: GenerationData):
+    generate_routes(generation_data.wiki_name)
+
+    return {
+        "message": f"Routes generated",
+        "status": 200,
+    }
