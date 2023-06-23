@@ -45,6 +45,7 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
     });
     setCurrentWikiLocalstore(wikiName.toLowerCase().replaceAll(" ", "-"));
     navigate("/");
+    window.location.reload();
     onClose();
   };
 

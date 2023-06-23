@@ -3,7 +3,7 @@ import json
 
 from models.pokemon_models import PokemonChanges
 from models.wikis_models import PreparationData
-from prepare_large_data import download_pokemon_data
+from prepare_large_data import download_pokemon_data, download_pokemon_sprites
 
 
 router = APIRouter()
@@ -121,8 +121,11 @@ async def prepare_data(preparation_data: PreparationData, wiki_name: str):
             download_pokemon_data(
                 wiki_name, preparation_data.range_start, preparation_data.range_end
             )
+            download_pokemon_sprites(wiki_name)
         except Exception as e:
             return {"message": str(e)}
+    else:
+        return {"message": "Pokemon Data Not Prepared"}
 
     with open(
         f"{temp_folders_route}/{wiki_name}/pokemon.json", encoding="utf-8"
