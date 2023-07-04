@@ -8,6 +8,8 @@ import yaml
 # focus on generating more general wiki pages. I.e. changes to pokemon, moves, trainers, encounters
 # focus on pokemon for now
 
+data_folder_route = "data"
+
 
 def generate_yaml(
     site_name: str = "Rom Hack Wiki",
@@ -132,7 +134,7 @@ def create_boiler_plate(
 
     # create temp folder to store data
     shutil.copytree(
-        "generator_assets/temp_folder_starting_assets", f"temp_folders/{wiki_name}"
+        "generator_assets/starting_data", f"{data_folder_route}/{wiki_name}"
     )
 
 

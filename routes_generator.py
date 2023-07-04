@@ -22,6 +22,8 @@ from utils import (
     get_link_to_pokemon_page,
 )
 
+data_folder_route = "data"
+
 # region
 with open(f"temp/pokemon.json", encoding="utf-8") as pokemon_file:
     pokemon = json.load(pokemon_file)
@@ -341,7 +343,9 @@ def generate_routes(wiki_name: str):
         mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
         mkdocs_file.close()
 
-    with open(f"temp_folders/{wiki_name}/routes.json", encoding="utf-8") as routes_file:
+    with open(
+        f"{data_folder_route}/{wiki_name}/routes.json", encoding="utf-8"
+    ) as routes_file:
         routes = json.load(routes_file)
         routes = Route.parse_raw(json.dumps(routes))
         routes_file.close()

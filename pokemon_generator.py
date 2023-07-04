@@ -15,6 +15,8 @@ from routes.matchups import get_defensive_matchups, get_defensive_matchups_synch
 
 from utils import get_pokemon_dex_formatted_name
 
+data_folder_route = "data"
+
 
 def get_markdown_image_for_type(_type: str):
     return f"![{_type}](../img/types/{_type}.png)"
@@ -75,7 +77,7 @@ class Pokemon:
 
     def get_pokemon_data(self, wiki_name: str):
         with open(
-            f"temp_folders/{wiki_name}/pokemon.json", encoding="utf-8"
+            f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
         ) as pokemon_data_file:
             pokemon = json.load(pokemon_data_file)
             pokemon_data_file.close()
@@ -233,7 +235,7 @@ class Pokemon:
         moves = {}
 
         with open(
-            f"temp_folders/{wiki_name}/moves.json", encoding="utf-8"
+            f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
         ) as moves_file:
             file_moves = json.load(moves_file)
             moves_file.close()
@@ -305,13 +307,13 @@ class Pokemon:
         moves = {}
 
         with open(
-            f"temp_folders/{wiki_name}/machines.json", encoding="utf-8"
+            f"{data_folder_route}/{wiki_name}/machines.json", encoding="utf-8"
         ) as machines_file:
             machines = json.load(machines_file)
             machines_file.close()
 
         with open(
-            f"temp_folders/{wiki_name}/moves.json", encoding="utf-8"
+            f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
         ) as moves_file:
             file_moves = json.load(moves_file)
             moves_file.close()
@@ -448,6 +450,10 @@ def generate_pokemon(
     with open(f"dist/{wiki_name}/mkdocs.yml", "w") as mkdocs_file:
         yaml.dump(mkdocs_yaml_dict, mkdocs_file, sort_keys=False, indent=4)
         mkdocs_file.close()
+
+
+# def generate_type_changes():
+#     # When generating pokemon, check if type has changed from the original and add it to a list.
 
 
 if __name__ == "__main__":

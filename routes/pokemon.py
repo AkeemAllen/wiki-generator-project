@@ -1,21 +1,41 @@
+# from typing import List
 from fastapi import APIRouter
 import json
 
+# from database import SessionLocal, engine
+
 from models.pokemon_models import PokemonChanges
+
+# import database_models, schemas, services
 from models.wikis_models import PreparationData
 from prepare_large_data import download_pokemon_data, download_pokemon_sprites
 
+# database_models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 
-temp_folders_route = "temp_folders"
+data_folder_route = "data"
+
+
+# def get_db():
+#     db = SessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
+
+
+# @router.get("/v2/pokemon/", response_model=list[schemas.PokemonBase])
+# async def get_pokemon(db: SessionLocal = get_db()):
+#     pokemon = services.get_all_pokemon(db)
+#     return pokemon
 
 
 # Get all pokemon and return by dict with name and id
 @router.get("/pokemon/{wiki_name}")
 async def get_pokemon_list(wiki_name: str):
     with open(
-        f"{temp_folders_route}/{wiki_name}/pokemon.json", encoding="utf-8"
+        f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
     ) as pokemon_file:
         pokemon = json.load(pokemon_file)
         pokemon_file.close()
@@ -30,7 +50,7 @@ async def get_pokemon_list(wiki_name: str):
 @router.get("/pokemon/{wiki_name}/{pokemon_name}/sprite")
 async def get_pokemon_sprite(pokemon_name: str, wiki_name: str):
     with open(
-        f"{temp_folders_route}/{wiki_name}/pokemon.json", encoding="utf-8"
+        f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
     ) as pokemon_file:
         pokemon = json.load(pokemon_file)
         pokemon_file.close()
@@ -49,7 +69,7 @@ async def get_pokemon_sprite(pokemon_name: str, wiki_name: str):
 @router.get("/pokemon/{wiki_name}/{pokemon_name}")
 async def get_pokemon(pokemon_name: str, wiki_name: str):
     with open(
-        f"{temp_folders_route}/{wiki_name}/pokemon.json", encoding="utf-8"
+        f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
     ) as pokemon_file:
         pokemon = json.load(pokemon_file)
         pokemon_file.close()
@@ -65,7 +85,7 @@ async def save_pokemon_changes(
     changes: PokemonChanges, pokemon_name: str, wiki_name: str
 ):
     with open(
-        f"{temp_folders_route}/{wiki_name}/pokemon.json", encoding="utf-8"
+        f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
     ) as pokemon_file:
         pokemon = json.load(pokemon_file)
         pokemon_file.close()
@@ -96,12 +116,12 @@ async def save_pokemon_changes(
                 "learn_method": value.learn_method,
             }
 
-    with open(f"{temp_folders_route}/{wiki_name}/pokemon.json", "w") as pokemon_file:
+    with open(f"{data_folder_route}/{wiki_name}/pokemon.json", "w") as pokemon_file:
         pokemon_file.write(json.dumps(pokemon))
         pokemon_file.close()
 
     # with open(
-    #     f"{temp_folders_route}/{wiki_name}/updates/modified_pokemon.json", "r+"
+    #     f"{data_folder_route}/{wiki_name}/updates/modified_pokemon.json", "r+"
     # ) as changes_file:
     #     current_changes = json.load(changes_file)
     #     if pokemon_name not in current_changes["changed_pokemon"]:
@@ -128,7 +148,7 @@ async def prepare_data(preparation_data: PreparationData, wiki_name: str):
         return {"message": "Pokemon Data Not Prepared"}
 
     with open(
-        f"{temp_folders_route}/{wiki_name}/pokemon.json", encoding="utf-8"
+        f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
     ) as pokemon_file:
         pokemon = json.load(pokemon_file)
         pokemon_file.close()

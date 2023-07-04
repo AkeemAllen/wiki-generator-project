@@ -43,6 +43,7 @@ class AreaLevels(BaseModel):
 
 class RouteProperties(BaseModel):
     position: int
+    wiki_name: Optional[str]
     wild_encounters: Optional[Encounters]
     trainers: Optional[Trainers]
     wild_encounters_area_levels: Optional[AreaLevels]

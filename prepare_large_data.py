@@ -7,6 +7,9 @@ import tqdm
 import sys
 
 
+data_folder_route = "data"
+
+
 def get_markdown_file_name(pokedex_number):
     file_name = f"00{pokedex_number}"
     if pokedex_number > 9:
@@ -41,7 +44,7 @@ def prepare_move_data(wiki_name: str, range_start: int, range_end: int):
             "past_values": move["past_values"],
         }
 
-    fh = open(f"temp_folders/{wiki_name}/moves.json", "w")
+    fh = open(f"{data_folder_route}/{wiki_name}/moves.json", "w")
     fh.write(json.dumps(moves))
     fh.close()
 
@@ -102,7 +105,7 @@ def prepare_ability_data(wiki_name: str):
             "effect": ability_effect,
         }
 
-    fh = open(f"temp_folders/{wiki_name}/abilities.json", "w")
+    fh = open(f"{data_folder_route}/{wiki_name}/abilities.json", "w")
     fh.write(json.dumps(abilities))
     fh.close()
 
@@ -125,7 +128,7 @@ def prepare_nature_data(wiki_name: str):
 
         natures.append(nature["name"])
 
-    fh = open(f"temp_folders/{wiki_name}/natures.json", "w")
+    fh = open(f"{data_folder_route}/{wiki_name}/natures.json", "w")
     fh.write(json.dumps(natures))
     fh.close()
 
@@ -214,14 +217,14 @@ def download_pokemon_data(
         del pokemon_data["sprites"]
         pokemon[pokemon_data["name"]] = pokemon_data
 
-    fh = open(f"temp_folders/{wiki_name}/pokemon.json", "w")
+    fh = open(f"{data_folder_route}/{wiki_name}/pokemon.json", "w")
     fh.write(json.dumps(pokemon))
     fh.close()
 
 
 def download_pokemon_sprites(wiki_name: str):
     with open(
-        f"temp_folders/{wiki_name}/pokemon.json", encoding="utf-8"
+        f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
     ) as pokemon_file:
         all_downloaded_pokemon = json.load(pokemon_file)
         pokemon_file.close()

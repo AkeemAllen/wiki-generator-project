@@ -7,7 +7,7 @@ from pokemon_generator import generate_pokemon
 from routes_generator import generate_routes
 
 router = APIRouter()
-temp_folders_route = "temp_folders"
+data_folder_route = "data"
 
 
 @router.get("/wikis")

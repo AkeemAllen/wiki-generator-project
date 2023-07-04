@@ -12,6 +12,7 @@ docs_old
 backups
 temp_folders
 data
+database.db
 
 dist-ssr
 *.local
