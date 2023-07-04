@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends
 import json
+
+# from models.nature_models import NatureBase
+import schemas
 from utils import get_db
 from sqlalchemy.orm import Session
-import schemas
 
-from services.nature_services import get_all_natures, create_nature
+from services import nature_services
 
 router = APIRouter()
 
@@ -25,11 +27,12 @@ async def get_item_list(wiki_name: str):
 
 @router.get("/v2/natures", response_model=list[schemas.NatureBase])
 async def get_natures(db: Session = Depends(get_db)):
-    natures = get_all_natures(db)
+    natures = nature_services.get_all_natures(db)
     return natures
 
 
 @router.post("/v2/natures", response_model=schemas.NatureBase)
 async def create_nature(nature: schemas.NatureBase, db: Session = Depends(get_db)):
-    db_nature = create_nature(db, nature)
+    db_nature = nature_services.create_nature(db, nature)
+    print(db_nature)
     return db_nature
