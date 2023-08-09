@@ -3,9 +3,7 @@ import json
 
 from models.nature_models import NatureBase
 from utils import get_db
-from sqlalchemy.orm import Session
 
-from services import nature_services
 
 router = APIRouter()
 
@@ -22,16 +20,3 @@ async def get_item_list(wiki_name: str):
         natures_file.close()
 
     return natures
-
-
-@router.get("/v2/natures", response_model=list[NatureBase])
-async def get_natures(db: Session = Depends(get_db)):
-    natures = nature_services.get_all_natures(db)
-    return natures
-
-
-@router.post("/v2/natures", response_model=NatureBase)
-async def create_nature(nature: NatureBase, db: Session = Depends(get_db)):
-    db_nature = nature_services.create_nature(db, nature)
-    print(db_nature)
-    return db_nature

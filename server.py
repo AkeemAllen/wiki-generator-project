@@ -2,11 +2,6 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from routes import matchups, move, pokemon, game_route, items, natures, abilities, wikis
 
-import database_models
-from database import engine
-
-database_models.Base.metadata.create_all(bind=engine)
-
 app = FastAPI()
 
 

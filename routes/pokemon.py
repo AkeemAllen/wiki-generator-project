@@ -2,33 +2,16 @@
 from fastapi import APIRouter
 import json
 
-# from database import SessionLocal, engine
 
 from models.pokemon_models import PokemonChanges
 
-# import database_models, schemas, services
 from models.wikis_models import PreparationData
 from prepare_large_data import download_pokemon_data, download_pokemon_sprites
 
-# database_models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 
 data_folder_route = "data"
-
-
-# def get_db():
-#     db = SessionLocal()
-#     try:
-#         yield db
-#     finally:
-#         db.close()
-
-
-# @router.get("/v2/pokemon/", response_model=list[schemas.PokemonBase])
-# async def get_pokemon(db: SessionLocal = get_db()):
-#     pokemon = services.get_all_pokemon(db)
-#     return pokemon
 
 
 # Get all pokemon and return by dict with name and id

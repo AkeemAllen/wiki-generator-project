@@ -1,4 +1,3 @@
-from database import SessionLocal
 from models.game_route_models import TrainerOrWildPokemon
 
 
