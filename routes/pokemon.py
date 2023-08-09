@@ -1,14 +1,15 @@
-# from typing import List
-from fastapi import APIRouter
+from typing import List
+from fastapi import APIRouter, Depends
 import json
-from database import SessionLocal
+from sqlalchemy.orm import Session
 
 from models.pokemon_models import PokemonChanges
 
 from models.wikis_models import PreparationData
 from prepare_large_data import download_pokemon_data, download_pokemon_sprites
+
 from utils import get_db
-from services.pokemon_services import get_all_pokemon
+from services.pokemon_services import get_all_pokemon, create_pokemon
 from schemas.pokemon_schemas import Pokemon
 
 router = APIRouter()
@@ -16,10 +17,21 @@ router = APIRouter()
 data_folder_route = "data"
 
 
-@router.get("/v2/pokemon/", response_model=list[Pokemon])
-async def get_pokemon(db: SessionLocal = get_db()):
+@router.get("/v2/pokemon/", response_model=List[Pokemon])
+async def get_pokemon(db: Session = Depends(get_db)):
     pokemon = get_all_pokemon(db)
+    print(pokemon)
     return pokemon
+
+
+@router.get("/v2/pokemon/{pokemon_id}", response_model=Pokemon)
+async def get_pokemon(pokemon_id: int, db: Session = Depends(get_db)):
+    return db.query(Pokemon).filter(Pokemon.id == pokemon_id).first()
+
+
+@router.post("/v2/pokemon/", response_model=Pokemon)
+async def add_pokemon(pokemon: Pokemon, db: Session = Depends(get_db)):
+    return create_pokemon(db, pokemon)
 
 
 # Get all pokemon and return by dict with name and id

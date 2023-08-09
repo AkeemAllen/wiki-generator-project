@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -11,8 +12,9 @@ class Stats(BaseModel):
 
 
 class Pokemon(BaseModel):
+    # id: int
     dex_number: int
     name: str
     sprite: str
     wiki: str
-    # stats: Optional[Stats]
+    stats: Stats

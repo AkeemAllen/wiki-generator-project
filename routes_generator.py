@@ -23,6 +23,7 @@ from utils import (
 )
 
 data_folder_route = "data"
+g_wiki_name = ""
 
 # region
 with open(f"temp/pokemon.json", encoding="utf-8") as pokemon_file:
@@ -35,7 +36,7 @@ def generate_pokemon_entry_markdown(
 ):
     pokemon_markdown = (
         f"{get_markdown_image_for_pokemon(pokemon, trainer_or_wild_pokemon.name)} <br/>"
-        f"{get_link_to_pokemon_page(pokemon, trainer_or_wild_pokemon.name)} <br/>"
+        f"{get_link_to_pokemon_page(pokemon, trainer_or_wild_pokemon.name, g_wiki_name)} <br/>"
         f"{get_bottom_value_for_pokemon(trainer_or_wild_pokemon, is_trainer_mapping)}"
     )
 
@@ -407,5 +408,5 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-
+    g_wiki_name = args.wiki_name
     generate_routes(args.wiki_name)

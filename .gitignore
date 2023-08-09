@@ -13,6 +13,7 @@ backups
 temp_folders
 data
 database.db
+alembic/*
 
 dist-ssr
 *.local

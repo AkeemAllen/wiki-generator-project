@@ -6,24 +6,25 @@ from database import Base
 class Pokemon(Base):
     __tablename__ = "pokemon"
 
-    id = Column(Integer, primary_key=True, index=True)
-    dex_number = Column(Integer, unique=True, index=True)
-    name = Column(String, unique=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    dex_number = Column(Integer, index=True)
+    name = Column(String, index=True)
     sprite = Column(String)
     wiki = Column(String)
 
-    stats = relationship("Stats", back_populates="pokemon")
+    stats = relationship("Stats", uselist=False, back_populates="pokemon")
 
 
 class Stats(Base):
     __tablename__ = "stats"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     hp = Column(Integer)
     attack = Column(Integer)
     defense = Column(Integer)
     sp_attack = Column(Integer)
     sp_defense = Column(Integer)
+    speed = Column(Integer)
     pokemon_id = Column(Integer, ForeignKey("pokemon.id"))
 
     pokemon = relationship("Pokemon", back_populates="stats")
@@ -38,7 +39,7 @@ class Pokemon_Type(Base):
 class Types(Base):
     __tablename__ = "types"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String, index=True)
 
 
@@ -51,7 +52,7 @@ class Pokemon_Ability(Base):
 class Abilities(Base):
     __tablename__ = "abilities"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String, index=True)
     effect = Column(String)
     wiki = Column(String)
@@ -66,7 +67,7 @@ class Abilities(Base):
 class Nature(Base):
     __tablename__ = "nature"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String, index=True)
     increased_stat = Column(String)
     decreased_stat = Column(String)
@@ -83,7 +84,7 @@ class Pokemon_Move(Base):
 class Moves(Base):
     __tablename__ = "moves"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String, index=True)
     power = Column(Integer)
     accuracy = Column(Integer)
