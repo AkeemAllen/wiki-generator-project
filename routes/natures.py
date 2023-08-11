@@ -1,8 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 import json
-
-from models.nature_models import NatureBase
-from utils import get_db
 
 
 router = APIRouter()
