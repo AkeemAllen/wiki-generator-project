@@ -110,7 +110,11 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
   useEffect(() => {
     setWildEncounters(routes[routeName]?.wild_encounters || {});
     setAreaLevels(routes[routeName]?.wild_encounters_area_levels || {});
-  }, [routeName]);
+    // When the page is refreshed, the routes are not loaded yet, so we also have to listen for
+    // changes to the routes and update the wild encounters when the routes are loaded
+    //
+    // TODO: This causes more rerenders than I'd like so I should find a better way to do this at some point
+  }, [routeName, routes]);
 
   return (
     <>

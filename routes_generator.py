@@ -24,6 +24,10 @@ from utils import (
 
 data_folder_route = "data"
 
+# This variable exists so I can pass down the wiki name to the get_link_to_pokemon_page function
+# Otherwise I'd have to prop drill pretty deep in order to get the wiki name into the function
+g_wiki_name = ""
+
 # region
 with open(f"temp/pokemon.json", encoding="utf-8") as pokemon_file:
     pokemon = json.load(pokemon_file)
@@ -35,7 +39,7 @@ def generate_pokemon_entry_markdown(
 ):
     pokemon_markdown = (
         f"{get_markdown_image_for_pokemon(pokemon, trainer_or_wild_pokemon.name)} <br/>"
-        f"{get_link_to_pokemon_page(pokemon, trainer_or_wild_pokemon.name)} <br/>"
+        f"{get_link_to_pokemon_page(pokemon, trainer_or_wild_pokemon.name, g_wiki_name)} <br/>"
         f"{get_bottom_value_for_pokemon(trainer_or_wild_pokemon, is_trainer_mapping)}"
     )
 
@@ -55,6 +59,12 @@ def map_pokemon_entry_to_markdown(pokemon, is_trainer_mapping=False):
     )
     pokemon_list_markdown = list(pokemon_list_markdown)
     return pokemon_list_markdown
+
+
+# def set_route_changes_in_yaml(yaml, route_changes):
+#     if route_changes:
+#         yaml["changes"] = route_changes
+#     return yaml
 
 
 # endregion
@@ -407,5 +417,5 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-
+    g_wiki_name = args.wiki_name
     generate_routes(args.wiki_name)

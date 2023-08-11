@@ -27,11 +27,10 @@ def get_markdown_image_for_pokemon(pokemon_list, pokemon_name: str):
     return f"![{pokemon_name}](../../img/pokemon/{file_name}.png)"
 
 
-# TODO: I have to prop drill wiki_name pretty far to get it to here. Is there a better way?
-def get_link_to_pokemon_page(pokemon_list, pokemon_name: str):
+def get_link_to_pokemon_page(pokemon_list, pokemon_name: str, wiki_name: str):
     dex_number = pokemon_list[pokemon_name]["id"]
     url_route = get_pokemon_dex_formatted_name(dex_number)
-    return f"[{pokemon_name.capitalize()}](/fire-red-omega-wiki/pokemon/{url_route})"
+    return f"[{pokemon_name.capitalize()}](/{wiki_name}/pokemon/{url_route})"
 
 
 def generate_move_string(moves):
@@ -55,11 +54,3 @@ def get_bottom_value_for_pokemon(
         bottom_value = f"{pokemon.encounter_rate}%"
 
     return bottom_value
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
