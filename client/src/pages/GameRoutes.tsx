@@ -119,12 +119,7 @@ const Routes = () => {
         };
       })
     );
-    console.log("order", order);
   }, [routes]);
-
-  useEffect(() => {
-    console.log("order", order);
-  }, [order]);
 
   return (
     <>
