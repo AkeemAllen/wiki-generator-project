@@ -26,8 +26,6 @@ import global_var
 
 data_folder_route = "data"
 
-# This variable exists so I can pass down the wiki name to the get_link_to_pokemon_page function
-# Otherwise I'd have to prop drill pretty deep in order to get the wiki name into the function
 
 # region
 with open(f"temp/pokemon.json", encoding="utf-8") as pokemon_file:
