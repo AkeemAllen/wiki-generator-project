@@ -22,11 +22,12 @@ from utils import (
     get_link_to_pokemon_page,
 )
 
+import global_var
+
 data_folder_route = "data"
 
 # This variable exists so I can pass down the wiki name to the get_link_to_pokemon_page function
 # Otherwise I'd have to prop drill pretty deep in order to get the wiki name into the function
-g_wiki_name = ""
 
 # region
 with open(f"temp/pokemon.json", encoding="utf-8") as pokemon_file:
@@ -39,7 +40,7 @@ def generate_pokemon_entry_markdown(
 ):
     pokemon_markdown = (
         f"{get_markdown_image_for_pokemon(pokemon, trainer_or_wild_pokemon.name)} <br/>"
-        f"{get_link_to_pokemon_page(pokemon, trainer_or_wild_pokemon.name, g_wiki_name)} <br/>"
+        f"{get_link_to_pokemon_page(pokemon, trainer_or_wild_pokemon.name)} <br/>"
         f"{get_bottom_value_for_pokemon(trainer_or_wild_pokemon, is_trainer_mapping)}"
     )
 
@@ -349,6 +350,8 @@ def create_trainer_table(route_name: str, route_directory: str, trainers: Traine
 
 
 def generate_routes(wiki_name: str):
+    global_var.g_wiki_name = wiki_name
+    print(global_var.g_wiki_name)
     with open(f"dist/{wiki_name}/mkdocs.yml", "r") as mkdocs_file:
         mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
         mkdocs_file.close()
@@ -417,5 +420,4 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    g_wiki_name = args.wiki_name
     generate_routes(args.wiki_name)

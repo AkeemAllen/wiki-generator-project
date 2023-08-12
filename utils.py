@@ -1,4 +1,5 @@
 from models.game_route_models import TrainerOrWildPokemon
+import global_var
 
 
 def get_pokemon_dex_formatted_name(pokedex_number):
@@ -27,10 +28,15 @@ def get_markdown_image_for_pokemon(pokemon_list, pokemon_name: str):
     return f"![{pokemon_name}](../../img/pokemon/{file_name}.png)"
 
 
-def get_link_to_pokemon_page(pokemon_list, pokemon_name: str, wiki_name: str):
+def get_link_to_pokemon_page(pokemon_list, pokemon_name: str):
     dex_number = pokemon_list[pokemon_name]["id"]
     url_route = get_pokemon_dex_formatted_name(dex_number)
-    return f"[{pokemon_name.capitalize()}](/{wiki_name}/pokemon/{url_route})"
+    # passing the wiki name to this function was tricky
+    # using a global variable from a different file that gets updated in the routes_generator file
+    # gets around the need to pass the wiki name to this function (which would require deep prop drilling)
+    return (
+        f"[{pokemon_name.capitalize()}](/{global_var.g_wiki_name}/pokemon/{url_route})"
+    )
 
 
 def generate_move_string(moves):
