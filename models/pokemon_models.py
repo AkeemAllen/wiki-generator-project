@@ -30,6 +30,15 @@ class Move(BaseModel):
     __root__: Dict[str, MoveData]
 
 
+class Evolution(BaseModel):
+    level: Optional[int]
+    item: Optional[str]
+    other: Optional[str]
+    method: Optional[str]
+    evolved_pokemon: Optional[str]
+    delete: Optional[bool] = False
+
+
 class PokemonChanges(BaseModel):
     id: Optional[int]
     types: Optional[list[str]]
@@ -38,6 +47,7 @@ class PokemonChanges(BaseModel):
     moves: Optional[Move]
     machine_moves: Optional[list[str]]
     evolution: Optional[str]
+    det_evolution: Optional[Evolution]
 
 
 class PokemonData(BaseModel):
@@ -49,6 +59,7 @@ class PokemonData(BaseModel):
     moves: Optional[Move]
     sprite: Optional[str]
     evolution: Optional[str]
+    det_evolution: Optional[Evolution]
 
 
 class PokemonVersions(Enum):

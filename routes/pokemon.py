@@ -84,12 +84,31 @@ async def save_pokemon_changes(
         pokemon = json.load(pokemon_file)
         pokemon_file.close()
 
+    if changes.abilities:
+        pokemon[pokemon_name]["abilities"] = changes.abilities
+
+    if changes.stats:
+        for stat, value in changes.stats.dict(exclude_none=True).items():
+            print(stat, value)
+            pokemon[pokemon_name]["stats"][stat] = value
+
+    if changes.moves:
+        for move, value in changes.moves.__root__.items():
+            if value.delete:
+                del pokemon[pokemon_name]["moves"][move]
+                continue
+
+            pokemon[pokemon_name]["moves"][move] = {
+                "level_learned_at": value.level_learned_at,
+                "learn_method": value.learn_method,
+            }
+
     if changes.types:
         # Initialize types in modified_pokemon if not already
         if "types" not in modified_pokemon[pokemon_name]:
             modified_pokemon[pokemon_name]["types"] = {}
 
-        # I needed a way to track the original pokemons types without having it be overwritten.
+        # I needed a way to track the original pokemon types without having it be overwritten.
         # This "original" key is only set once during the first type change and should never be changed again.
         if "original" not in modified_pokemon[pokemon_name]["types"]:
             modified_pokemon[pokemon_name]["types"]["original"] = pokemon[pokemon_name][
@@ -108,26 +127,23 @@ async def save_pokemon_changes(
         ):
             del modified_pokemon[pokemon_name]["types"]
 
-    # if changes.abilities:
-    #     pokemon[pokemon_name]["abilities"] = changes.abilities
+    if changes.det_evolution:
+        if changes.det_evolution.delete:
+            del pokemon[pokemon_name]["det_evolution"]
+            del modified_pokemon[pokemon_name]["evolution"]
+        else:
+            pokemon[pokemon_name]["det_evolution"] = {}
+            for detail, value in changes.det_evolution.dict(exclude_none=True).items():
+                if detail != "delete":
+                    pokemon[pokemon_name]["det_evolution"][detail] = value
 
-    # if changes.stats:
-    #     for stat, value in changes.stats:
-    #         pokemon[pokemon_name]["stats"][stat] = value
+            modified_pokemon[pokemon_name]["evolution"] = pokemon[pokemon_name][
+                "det_evolution"
+            ]
 
+    # Todo: Remove once det_evolution is fully implemented
     # if changes.evolution:
     #     pokemon[pokemon_name]["evolution"] = changes.evolution
-
-    # if changes.moves:
-    #     for move, value in changes.moves.__root__.items():
-    #         if value.delete:
-    #             del pokemon[pokemon_name]["moves"][move]
-    #             continue
-
-    #         pokemon[pokemon_name]["moves"][move] = {
-    #             "level_learned_at": value.level_learned_at,
-    #             "learn_method": value.learn_method,
-    #         }
 
     with open(f"{data_folder_route}/{wiki_name}/pokemon.json", "w") as pokemon_file:
         pokemon_file.write(json.dumps(pokemon))
