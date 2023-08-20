@@ -23,6 +23,15 @@ export type Stats = {
   speed: number;
 };
 
+export type Evolution = {
+  level?: number;
+  item?: string;
+  other?: string;
+  method?: string;
+  evolved_pokemon?: string;
+  delete?: boolean;
+};
+
 export type PokemonChanges = {
   id?: number;
   types?: string[];
@@ -31,6 +40,7 @@ export type PokemonChanges = {
   moves?: Move;
   machineMoves?: string[];
   evolution?: string;
+  det_evolution?: Evolution;
 };
 
 export type PokemonData = {
@@ -42,6 +52,7 @@ export type PokemonData = {
   moves: Move;
   sprite: string;
   evolution?: string;
+  det_evolution?: Evolution;
 };
 
 export type TrainerOrWildPokemon = {
