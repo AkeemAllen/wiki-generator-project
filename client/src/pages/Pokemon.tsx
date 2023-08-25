@@ -54,6 +54,7 @@ const Pokemon = () => {
 
   const handleSearch = () => {
     setPokemonData(null);
+    setPokemonChanges(null);
     refetch();
   };
 
