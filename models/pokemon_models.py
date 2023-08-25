@@ -46,8 +46,7 @@ class PokemonChanges(BaseModel):
     stats: Optional[Stats]
     moves: Optional[Move]
     machine_moves: Optional[list[str]]
-    evolution: Optional[str]
-    det_evolution: Optional[Evolution]
+    evolution: Optional[Evolution]
 
 
 class PokemonData(BaseModel):
@@ -58,8 +57,8 @@ class PokemonData(BaseModel):
     stats: Optional[Stats]
     moves: Optional[Move]
     sprite: Optional[str]
-    evolution: Optional[str]
-    det_evolution: Optional[Evolution]
+    # evolution: Optional[str]
+    evolution: Optional[Evolution]
 
 
 class PokemonVersions(Enum):

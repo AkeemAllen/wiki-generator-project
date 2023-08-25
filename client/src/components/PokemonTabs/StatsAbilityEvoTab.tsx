@@ -37,11 +37,8 @@ const StatsAbilitiesEvoTab = ({
   const [abilityTwo, setAbilityTwo] = useInputState<string>(
     pokemonData.abilities[1] === undefined ? "" : pokemonData.abilities[1]
   );
-  const [evolution, setEvolution] = useInputState<string>(
-    pokemonData.evolution ? pokemonData.evolution : ""
-  );
-  const [detEvolution, setDetEvolution] = useState<Evolution>(
-    pokemonData.det_evolution ? pokemonData.det_evolution : {}
+  const [evolution, setEvolution] = useState<Evolution>(
+    pokemonData.evolution ? pokemonData.evolution : {}
   );
   const [stats, setStats] = useState<Stats>({
     hp: pokemonData.stats.hp,
@@ -84,13 +81,6 @@ const StatsAbilitiesEvoTab = ({
     });
   }, [evolution]);
 
-  useUpdateEffect(() => {
-    setPokemonChanges({
-      ...pokemonChanges,
-      det_evolution: detEvolution,
-    });
-  }, [detEvolution]);
-
   return (
     <>
       <Grid mt="xl" grow>
@@ -130,59 +120,47 @@ const StatsAbilitiesEvoTab = ({
       <Title order={2} mt={20}>
         Evolution Change
       </Title>
-      <Box sx={{ width: 500 }}>
-        <TextInput
-          mt="lg"
-          placeholder="Write a sentence about evolution change here"
-          onChange={setEvolution}
-          value={evolution}
-        />
-      </Box>
       <Box sx={{ width: 700 }}>
         <SimpleGrid cols={3}>
           <NativeSelect
             label="Evolution Method"
             data={["no change", "item", "level-up", "other"]}
-            value={detEvolution.method}
-            onChange={(e) =>
-              setDetEvolution({ ...detEvolution, method: e.target.value })
-            }
+            value={evolution.method}
+            onChange={(e) => setEvolution({ method: e.target.value })}
           />
-          {detEvolution.method === "level-up" && (
+          {evolution.method === "level-up" && (
             <NumberInput
               label="level"
-              value={detEvolution.level}
+              value={evolution.level}
               min={1}
               max={100}
-              onChange={(e: number) =>
-                setDetEvolution({ ...detEvolution, level: e })
-              }
+              onChange={(e: number) => setEvolution({ ...evolution, level: e })}
             />
           )}
-          {detEvolution.method === "item" && (
+          {evolution.method === "item" && (
             <Autocomplete
               label="item"
-              value={detEvolution.item}
-              onChange={(e) => setDetEvolution({ ...detEvolution, item: e })}
+              value={evolution.item}
+              onChange={(e) => setEvolution({ ...evolution, item: e })}
               data={items === undefined ? [] : items}
             />
           )}
-          {detEvolution.method === "other" && (
+          {evolution.method === "other" && (
             <TextInput
               label="other"
-              value={detEvolution.other}
+              value={evolution.other}
               onChange={(e) =>
-                setDetEvolution({ ...detEvolution, other: e.target.value })
+                setEvolution({ ...evolution, other: e.target.value })
               }
             />
           )}
-          {detEvolution.method !== "no change" &&
-            detEvolution.method !== undefined && (
+          {evolution.method !== "no change" &&
+            evolution.method !== undefined && (
               <Autocomplete
                 label="Evolved Pokemon"
-                value={detEvolution.evolved_pokemon}
+                value={evolution.evolved_pokemon}
                 onChange={(e) =>
-                  setDetEvolution({ ...detEvolution, evolved_pokemon: e })
+                  setEvolution({ ...evolution, evolved_pokemon: e })
                 }
                 data={
                   pokemonList === undefined

@@ -127,23 +127,19 @@ async def save_pokemon_changes(
         ):
             del modified_pokemon[pokemon_name]["types"]
 
-    if changes.det_evolution:
-        if changes.det_evolution.delete:
-            del pokemon[pokemon_name]["det_evolution"]
+    if changes.evolution:
+        if changes.evolution.method == "no change":
+            del pokemon[pokemon_name]["evolution"]
             del modified_pokemon[pokemon_name]["evolution"]
         else:
-            pokemon[pokemon_name]["det_evolution"] = {}
-            for detail, value in changes.det_evolution.dict(exclude_none=True).items():
+            pokemon[pokemon_name]["evolution"] = {}
+            for detail, value in changes.evolution.dict(exclude_none=True).items():
                 if detail != "delete":
-                    pokemon[pokemon_name]["det_evolution"][detail] = value
+                    pokemon[pokemon_name]["evolution"][detail] = value
 
             modified_pokemon[pokemon_name]["evolution"] = pokemon[pokemon_name][
-                "det_evolution"
+                "evolution"
             ]
-
-    # Todo: Remove once det_evolution is fully implemented
-    # if changes.evolution:
-    #     pokemon[pokemon_name]["evolution"] = changes.evolution
 
     with open(f"{data_folder_route}/{wiki_name}/pokemon.json", "w") as pokemon_file:
         pokemon_file.write(json.dumps(pokemon))

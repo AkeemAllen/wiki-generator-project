@@ -39,8 +39,7 @@ export type PokemonChanges = {
   stats?: Stats;
   moves?: Move;
   machineMoves?: string[];
-  evolution?: string;
-  det_evolution?: Evolution;
+  evolution?: Evolution;
 };
 
 export type PokemonData = {
@@ -51,8 +50,7 @@ export type PokemonData = {
   stats: Stats;
   moves: Move;
   sprite: string;
-  evolution?: string;
-  det_evolution?: Evolution;
+  evolution?: Evolution;
 };
 
 export type TrainerOrWildPokemon = {
