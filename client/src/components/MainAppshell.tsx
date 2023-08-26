@@ -11,6 +11,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
+  IconArrowBackUp,
   IconBallBasketball,
   IconDisc,
   IconGitBranch,
@@ -127,6 +128,15 @@ const MainAppshell = () => {
                   color="orange"
                   isActive={pathname.includes("/generate-wiki")}
                   icon={<IconSettings size={"1rem"} />}
+                />
+              </Link>
+
+              <Link to={"/backups"} style={{ textDecoration: "none" }}>
+                <NavButton
+                  text="Manage Backups"
+                  color="red"
+                  isActive={pathname.includes("/backups")}
+                  icon={<IconArrowBackUp size={"1rem"} />}
                 />
               </Link>
             </Navbar.Section>

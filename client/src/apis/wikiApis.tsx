@@ -51,3 +51,16 @@ export const useGenerateRoutes = (onSuccess: (data: any) => void) => {
     onSuccess,
   });
 };
+
+export const useBackupWiki = (onSuccess: (data: any) => void) => {
+  return useMutation({
+    mutationFn: () =>
+      fetch(`${import.meta.env.VITE_BASE_URL}/wikis/backup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then((res) => res.json()),
+    onSuccess,
+  });
+};
