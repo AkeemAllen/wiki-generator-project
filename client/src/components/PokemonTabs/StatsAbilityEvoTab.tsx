@@ -6,7 +6,6 @@ import {
   NumberInput,
   SimpleGrid,
   TextInput,
-  Title,
 } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
 import { useState } from "react";
@@ -116,61 +115,62 @@ const StatsAbilitiesEvoTab = ({
             />
           </SimpleGrid>
         </Grid.Col>
-      </Grid>
-      <Title order={2} mt={20}>
-        Evolution Change
-      </Title>
-      <Box sx={{ width: 700 }}>
-        <SimpleGrid cols={3}>
-          <NativeSelect
-            label="Evolution Method"
-            data={["no change", "item", "level-up", "other"]}
-            value={evolution.method}
-            onChange={(e) => setEvolution({ method: e.target.value })}
-          />
-          {evolution.method === "level-up" && (
-            <NumberInput
-              label="level"
-              value={evolution.level}
-              min={1}
-              max={100}
-              onChange={(e: number) => setEvolution({ ...evolution, level: e })}
-            />
-          )}
-          {evolution.method === "item" && (
-            <Autocomplete
-              label="item"
-              value={evolution.item}
-              onChange={(e) => setEvolution({ ...evolution, item: e })}
-              data={items === undefined ? [] : items}
-            />
-          )}
-          {evolution.method === "other" && (
-            <TextInput
-              label="other"
-              value={evolution.other}
-              onChange={(e) =>
-                setEvolution({ ...evolution, other: e.target.value })
-              }
-            />
-          )}
-          {evolution.method !== "no change" &&
-            evolution.method !== undefined && (
-              <Autocomplete
-                label="Evolved Pokemon"
-                value={evolution.evolved_pokemon}
-                onChange={(e) =>
-                  setEvolution({ ...evolution, evolved_pokemon: e })
-                }
-                data={
-                  pokemonList === undefined
-                    ? []
-                    : pokemonList.map((p) => p.name)
-                }
+        <Grid.Col>
+          <Box sx={{ width: 700 }}>
+            <SimpleGrid cols={3}>
+              <NativeSelect
+                label="Evolution Method"
+                data={["no change", "item", "level-up", "other"]}
+                value={evolution.method}
+                onChange={(e) => setEvolution({ method: e.target.value })}
               />
-            )}
-        </SimpleGrid>
-      </Box>
+              {evolution.method === "level-up" && (
+                <NumberInput
+                  label="level"
+                  value={evolution.level}
+                  min={1}
+                  max={100}
+                  onChange={(e: number) =>
+                    setEvolution({ ...evolution, level: e })
+                  }
+                />
+              )}
+              {evolution.method === "item" && (
+                <Autocomplete
+                  label="item"
+                  value={evolution.item}
+                  onChange={(e) => setEvolution({ ...evolution, item: e })}
+                  data={items === undefined ? [] : items}
+                />
+              )}
+              {evolution.method === "other" && (
+                <TextInput
+                  label="other"
+                  value={evolution.other}
+                  onChange={(e) =>
+                    setEvolution({ ...evolution, other: e.target.value })
+                  }
+                />
+              )}
+              {evolution.method !== "no change" &&
+                evolution.method !== undefined && (
+                  <Autocomplete
+                    label="Evolved Pokemon"
+                    value={evolution.evolved_pokemon}
+                    onChange={(e) =>
+                      setEvolution({ ...evolution, evolved_pokemon: e })
+                    }
+                    data={
+                      pokemonList === undefined
+                        ? []
+                        : pokemonList.map((p) => p.name)
+                    }
+                  />
+                )}
+            </SimpleGrid>
+          </Box>
+        </Grid.Col>
+      </Grid>
       <StatsInputs setStats={setStats} stats={stats} />
     </>
   );

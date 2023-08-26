@@ -28,9 +28,6 @@ data_folder_route = "data"
 
 
 # region
-with open(f"temp/pokemon.json", encoding="utf-8") as pokemon_file:
-    pokemon = json.load(pokemon_file)
-    pokemon_file.close()
 
 
 def generate_pokemon_entry_markdown(
@@ -416,6 +413,12 @@ if __name__ == "__main__":
         help="Specify the name of the wiki to download data from",
         type=str,
     )
-
     args = parser.parse_args()
+
+    with open(
+        f"{data_folder_route}/{args.wiki_name}/pokemon.json", encoding="utf-8"
+    ) as pokemon_file:
+        pokemon = json.load(pokemon_file)
+        pokemon_file.close()
+
     generate_routes(args.wiki_name)
