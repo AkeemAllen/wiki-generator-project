@@ -1,3 +1,5 @@
+import datetime
+import shutil
 from fastapi import APIRouter
 import json
 from generate_wiki import create_boiler_plate
@@ -71,5 +73,22 @@ async def generate_wiki(generation_data: GenerationData):
 
     return {
         "message": f"Routes generated",
+        "status": 200,
+    }
+
+
+@router.post("/wikis/backup")
+async def backup_wiki():
+    try:
+        now = datetime.datetime.now()
+        formatted_now = now.strftime("%Y_%m_%d_%H_%M_%S")
+        shutil.copytree("data", f"backups/data_backup_{formatted_now}")
+    except Exception as err:
+        return {
+            "message": f"Backup failed with : {err}",
+            "status": 400,
+        }
+    return {
+        "message": f"Backup generated",
         "status": 200,
     }
