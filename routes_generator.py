@@ -346,7 +346,6 @@ def create_trainer_table(route_name: str, route_directory: str, trainers: Traine
 
 def generate_routes(wiki_name: str):
     global_var.g_wiki_name = wiki_name
-    print(global_var.g_wiki_name)
     with open(f"dist/{wiki_name}/mkdocs.yml", "r") as mkdocs_file:
         mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
         mkdocs_file.close()

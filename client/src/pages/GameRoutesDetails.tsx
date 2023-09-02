@@ -78,6 +78,7 @@ const GameRoutesDetails = () => {
         <Tabs.List>
           <Tabs.Tab value="wild-encounters">Wild Encounters</Tabs.Tab>
           <Tabs.Tab value="trainer-encounters">Trainer Encounters</Tabs.Tab>
+          {/* Revisit Rival Encounter tab idea */}
           {/* <Tabs.Tab value="rival-encounters">Rival Encounters</Tabs.Tab> */}
         </Tabs.List>
 

@@ -64,6 +64,7 @@ export type TrainerOrWildPokemon = {
   encounter_rate?: number;
   area_level?: number;
   trainer_version?: string[];
+  unique_id?: string;
 };
 
 export type Encounters = {

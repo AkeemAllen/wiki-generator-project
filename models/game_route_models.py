@@ -3,7 +3,9 @@ from pydantic import BaseModel
 
 
 class TrainerOrWildPokemon(BaseModel):
+    # The pokemon dex number
     id: Optional[int]
+
     name: Optional[str]
     level: Optional[int]
     moves: Optional[list[str]]
@@ -12,7 +14,12 @@ class TrainerOrWildPokemon(BaseModel):
     ability: Optional[str]
     encounter_rate: Optional[int]
 
-    # the feature below this is shelved for now
+    # Trainers can have the same pokemon appear multiple times
+    # in their team, so we need to differentiate them with a unique_id
+    # Unique id structure: <dex_number>_<number_teammates>_<random_4_digit_number>
+    # unique_id: 259_3_9572
+    unique_id: Optional[str]
+
     # Rivals can have different teams depending on certain factors,
     # such as the chosen starter chosen. rival_version lists which version
     # of the rival's team this pokemon is on

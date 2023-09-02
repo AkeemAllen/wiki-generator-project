@@ -178,22 +178,26 @@ const TrainersEncounterTab = ({ routeName }: TabProps) => {
         {
           name: pokemonName,
           id: pokemonList?.find((p) => p.name === pokemonName)?.id,
+          unique_id: `${pokemonList?.find((p) => p.name === pokemonName)?.id}_${
+            trainers[currentTrainer].pokemon.length
+          }_${Math.floor(Math.random() * 9000 + 1000)}`,
           level,
         },
       ],
     });
-    scrollToBottom();
   };
 
-  const removePokemonFromTrainer = (pokemonName: string, trainer: string) => {
-    let currentTrainers = {
-      ...trainers,
-      [trainer]: {
-        ...trainers[trainer],
-        pokemon: trainers[trainer].pokemon.filter(
-          (p) => p.name !== pokemonName
-        ),
-      },
+  const removePokemonFromTrainer = (
+    unique_id: string,
+    pokemonName: string,
+    trainer: string
+  ) => {
+    let currentTrainers = { ...trainers };
+    currentTrainers[trainer] = {
+      ...trainers[trainer],
+      pokemon: trainers[trainer].pokemon.filter(
+        (p) => p.unique_id !== unique_id
+      ),
     };
     if (currentTrainers[trainer].pokemon.length === 0) {
       delete currentTrainers[trainer];
@@ -309,6 +313,7 @@ const TrainersEncounterTab = ({ routeName }: TabProps) => {
                           pokemonName={pokemon.name as string}
                           removePokemon={() =>
                             removePokemonFromTrainer(
+                              pokemon?.unique_id as string,
                               pokemon.name as string,
                               trainer
                             )
