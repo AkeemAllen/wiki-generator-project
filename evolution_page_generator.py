@@ -122,8 +122,14 @@ def generate_evolution_page(wiki_name: str):
     doc.output_page(markdown_file_path)
 
     # Modify this to search for specific changes
-    specific_changes = mkdocs_yaml_dict["nav"][1]["Pokemon"][1]["Specific Changes"]
+    for nav_item in mkdocs_yaml_dict["nav"][1]["Pokemon"]:
+        if "Specific Changes" in nav_item:
+            specific_changes = nav_item["Specific Changes"]
+
     mkdocs_yaml_dict["nav"][1]["Pokemon"] = [
+        {
+            "Type Changes": "type_changes.md",
+        },
         {
             "Evolution Changes": "evolution_changes.md",
         },
