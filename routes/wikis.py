@@ -3,6 +3,7 @@ import shutil
 from fastapi import APIRouter
 import json
 from evolution_page_generator import generate_evolution_page
+from type_page_generator import generate_type_page
 from wiki_boilerplate_generator import create_boiler_plate
 
 from models.wikis_models import GenerationData, Wiki
@@ -62,6 +63,7 @@ async def generate_pokemon_pages(generation_data: GenerationData):
         generation_data.range_end,
     )
     generate_evolution_page(generation_data.wiki_name)
+    generate_type_page(generation_data.wiki_name)
 
     return {
         "message": f"Pokemon from ranges {generation_data.range_start} to {generation_data.range_end} generated",
