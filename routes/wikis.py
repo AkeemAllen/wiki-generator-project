@@ -2,12 +2,12 @@ import datetime
 import shutil
 from fastapi import APIRouter
 import json
-from generators.evolution_page_generator import generate_evolution_page
-from generators.wiki_boilerplate_generator import create_boiler_plate
+from evolution_page_generator import generate_evolution_page
+from wiki_boilerplate_generator import create_boiler_plate
 
 from models.wikis_models import GenerationData, Wiki
-from generators.pokemon_pages_generator import generate_pokemon
-from generators.route_pages_generator import generate_routes
+from pokemon_pages_generator import generate_pokemon
+from route_pages_generator import generate_routes
 
 router = APIRouter()
 data_folder_route = "data"
