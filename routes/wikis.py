@@ -2,11 +2,12 @@ import datetime
 import shutil
 from fastapi import APIRouter
 import json
-from generate_wiki import create_boiler_plate
+from generators.evolution_page_generator import generate_evolution_page
+from generators.wiki_boilerplate_generator import create_boiler_plate
 
 from models.wikis_models import GenerationData, Wiki
-from pokemon_generator import generate_pokemon
-from routes_generator import generate_routes
+from generators.pokemon_pages_generator import generate_pokemon
+from generators.route_pages_generator import generate_routes
 
 router = APIRouter()
 data_folder_route = "data"
@@ -53,13 +54,14 @@ async def create_wiki(wiki: Wiki):
 
 
 @router.post("/wikis/generate/pokemon")
-async def generate_wiki(generation_data: GenerationData):
+async def generate_pokemon_pages(generation_data: GenerationData):
     generate_pokemon(
         generation_data.wiki_name,
         generation_data.version_group,
         generation_data.range_start,
         generation_data.range_end,
     )
+    generate_evolution_page(generation_data.wiki_name)
 
     return {
         "message": f"Pokemon from ranges {generation_data.range_start} to {generation_data.range_end} generated",
@@ -67,8 +69,18 @@ async def generate_wiki(generation_data: GenerationData):
     }
 
 
+@router.post("/wikis/generate/evolution")
+async def generate_evolution_pages(generation_data: GenerationData):
+    generate_evolution_page(generation_data.wiki_name)
+
+    return {
+        "message": f"Evolution page generated",
+        "status": 200,
+    }
+
+
 @router.post("/wikis/generate/routes")
-async def generate_wiki(generation_data: GenerationData):
+async def generate_route_pages(generation_data: GenerationData):
     generate_routes(generation_data.wiki_name)
 
     return {
