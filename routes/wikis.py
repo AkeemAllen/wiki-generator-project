@@ -71,14 +71,14 @@ async def generate_pokemon_pages(generation_data: GenerationData):
     }
 
 
-@router.post("/wikis/generate/evolution")
-async def generate_evolution_pages(generation_data: GenerationData):
-    generate_evolution_page(generation_data.wiki_name)
+# @router.post("/wikis/generate/evolution")
+# async def generate_evolution_pages(generation_data: GenerationData):
+#     generate_evolution_page(generation_data.wiki_name)
 
-    return {
-        "message": f"Evolution page generated",
-        "status": 200,
-    }
+#     return {
+#         "message": f"Evolution page generated",
+#         "status": 200,
+#     }
 
 
 @router.post("/wikis/generate/routes")

@@ -37,3 +37,6 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Files
+add_tracking_tags.py

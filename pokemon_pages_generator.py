@@ -65,6 +65,7 @@ def generate_moves_array(moves, table_type):
             f"{get_markdown_image_for_type(move_attributes.get('damage_class'))}",
         ]
         table_array_for_moves.append(move_array)
+
     return table_array_for_moves
 
 
@@ -318,15 +319,20 @@ class Pokemon:
             file_moves = json.load(moves_file)
             moves_file.close()
 
+        # print(file_moves["psyblade"])
         for move_name, details in data.moves.__root__.items():
             if move_name not in machines:
                 continue
             if details.learn_method != "machine":
                 continue
 
+            # print(details.learn_method)
             machine_name = ""
             for machine_version in machines[move_name]:
-                if machine_version["game_version"] == version_group:
+                if move_name == "swords-dance":
+                    print(machine_version)
+                    print(version_group.value)
+                if machine_version["game_version"] == version_group.value:
                     machine_name = machine_version["technical_name"]
                     break
 
@@ -336,8 +342,10 @@ class Pokemon:
             relevant_past_value = [
                 value
                 for value in file_moves[move_name]["past_values"]
-                if value["version_group"]["name"] == version_group
+                if value["version_group"]["name"] == version_group.value
             ]
+            # print(file_moves)
+            # print(move_name)
             if len(relevant_past_value) > 0:
                 file_moves[move_name]["accuracy"] = (
                     relevant_past_value[0]["accuracy"]
@@ -360,9 +368,11 @@ class Pokemon:
 
             try:
                 move_data = MoveDetails.parse_raw(json.dumps(file_moves[move_name]))
+
             except ValidationError as err:
                 print(f"Error parsing move {move_name} for {data.name}: {err}")
                 continue
+            # print(move_data)
 
             moves[move_name] = {
                 "machine": machine_name.upper(),
@@ -372,6 +382,7 @@ class Pokemon:
                 "pp": move_data.pp,
                 "damage_class": move_data.damage_class,
             }
+            # print(moves)
 
         sorted_moves = dict(
             sorted(moves.items(), key=lambda x: x[1]["machine"], reverse=False)
