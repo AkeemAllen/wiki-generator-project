@@ -93,7 +93,7 @@ async def edit_game_route(new_route: NewRoute, wiki_name: str):
 
 
 # Save changes to route
-@router.patch("/game-route/{wiki_name}/edit/{route_name}")
+@router.post("/game-route/{wiki_name}/edit/{route_name}")
 async def save_single_route_changes(
     route_name: str, route_properties: RouteProperties, wiki_name: str
 ):

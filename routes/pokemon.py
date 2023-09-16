@@ -89,7 +89,6 @@ async def save_pokemon_changes(
 
     if changes.stats:
         for stat, value in changes.stats.dict(exclude_none=True).items():
-            print(stat, value)
             pokemon[pokemon_name]["stats"][stat] = value
 
     if changes.moves:

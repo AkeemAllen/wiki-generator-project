@@ -44,7 +44,7 @@ export const useEditRoute = ({ routeName, body, onSuccess }: any) => {
           import.meta.env.VITE_BASE_URL
         }/game-route/${currentWiki}/edit/${routeName}`,
         {
-          method: "PATCH",
+          method: "POST",
           body: JSON.stringify({
             ...routes[routeName],
             ...body,

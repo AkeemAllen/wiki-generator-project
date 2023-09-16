@@ -3,6 +3,8 @@ import json
 import os
 import shutil
 from typing import Dict
+
+import tqdm
 from models.game_route_models import TrainerInfo
 import yaml
 from snakemd import Document
@@ -26,13 +28,18 @@ import global_var
 
 data_folder_route = "data"
 
-
 # region
 
 
 def generate_pokemon_entry_markdown(
     trainer_or_wild_pokemon: TrainerOrWildPokemon, is_trainer_mapping=False
 ):
+    with open(
+        f"{data_folder_route}/{global_var.g_wiki_name}/pokemon.json", encoding="utf-8"
+    ) as pokemon_file:
+        pokemon = json.load(pokemon_file)
+        pokemon_file.close()
+
     pokemon_markdown = (
         f"{get_markdown_image_for_pokemon(pokemon, trainer_or_wild_pokemon.name)} <br/>"
         f"{get_link_to_pokemon_page(pokemon, trainer_or_wild_pokemon.name)} <br/>"
@@ -360,7 +367,7 @@ def generate_routes(wiki_name: str):
     sorted_routes = sorted(routes.__root__.items(), key=lambda route: route[1].position)
 
     mkdoc_routes = []
-    for route_name, route_properties in sorted_routes:
+    for route_name, route_properties in tqdm.tqdm(sorted_routes):
         route_directory = f"dist/{wiki_name}/docs/routes/{route_name}"
         if not os.path.exists(route_directory):
             os.makedirs(route_directory)
@@ -413,11 +420,5 @@ if __name__ == "__main__":
         type=str,
     )
     args = parser.parse_args()
-
-    with open(
-        f"{data_folder_route}/{args.wiki_name}/pokemon.json", encoding="utf-8"
-    ) as pokemon_file:
-        pokemon = json.load(pokemon_file)
-        pokemon_file.close()
 
     generate_routes(args.wiki_name)

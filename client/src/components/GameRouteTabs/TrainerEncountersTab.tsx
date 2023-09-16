@@ -156,12 +156,34 @@ const TrainersEncounterTab = ({ routeName }: TabProps) => {
     submitTrainers();
   };
 
+  const setUniqueId = () => {
+    let teamLength = 0;
+
+    console.log(isNullEmptyOrUndefined(trainers[currentTrainer]));
+    console.log(isNullEmptyOrUndefined(trainers[currentTrainer]?.pokemon));
+
+    if (!isNullEmptyOrUndefined(trainers[currentTrainer])) {
+      if (!isNullEmptyOrUndefined(trainers[currentTrainer].pokemon)) {
+        teamLength = trainers[currentTrainer].pokemon.length;
+      }
+    }
+    return `${
+      pokemonList?.find((p) => p.name === pokemonName)?.id
+    }_${teamLength}_${Math.floor(Math.random() * 9000 + 1000)}`;
+  };
+
   const addPokemonToTrainer = () => {
     let sprite_name = "";
     let is_important = false;
-    let existingPokemon = trainers[currentTrainer]?.pokemon ?? [];
-    let trainer_versions = trainers[currentTrainer]?.trainer_versions ?? [];
+    let existingPokemon: any = [];
+    let trainer_versions: any = [];
 
+    if (!isNullEmptyOrUndefined(trainers[currentTrainer]?.pokemon)) {
+      existingPokemon = trainers[currentTrainer].pokemon;
+    }
+    if (!isNullEmptyOrUndefined(trainers[currentTrainer]?.trainer_versions)) {
+      trainer_versions = trainers[currentTrainer].trainer_versions;
+    }
     if (!isNullEmptyOrUndefined(trainers[currentTrainer]?.sprite_name)) {
       sprite_name = trainers[currentTrainer]?.sprite_name;
     }
@@ -178,9 +200,7 @@ const TrainersEncounterTab = ({ routeName }: TabProps) => {
         {
           name: pokemonName,
           id: pokemonList?.find((p) => p.name === pokemonName)?.id,
-          unique_id: `${pokemonList?.find((p) => p.name === pokemonName)?.id}_${
-            trainers[currentTrainer].pokemon.length
-          }_${Math.floor(Math.random() * 9000 + 1000)}`,
+          unique_id: setUniqueId(),
           level,
         },
       ],
