@@ -1,12 +1,14 @@
 import datetime
+import os
 import shutil
+import subprocess
 from fastapi import APIRouter
 import json
 from evolution_page_generator import generate_evolution_page
 from type_page_generator import generate_type_page
 from wiki_boilerplate_generator import create_boiler_plate
 
-from models.wikis_models import GenerationData, Wiki
+from models.wikis_models import DeploymentData, GenerationData, Wiki
 from pokemon_pages_generator import generate_pokemon
 from route_pages_generator import generate_routes
 
@@ -104,5 +106,88 @@ async def backup_wiki():
         }
     return {
         "message": f"Backup generated",
+        "status": 200,
+    }
+
+
+@router.post("/wikis/deploy")
+async def deploy_wiki(deployment_data: DeploymentData):
+    # Add checks for git on their system
+    wiki_name = deployment_data.wiki_name
+    repo_url = deployment_data.repo_url
+
+    if os.path.exists(f"../generated_wikis/{wiki_name}/docs"):
+        shutil.rmtree(f"../generated_wikis/{wiki_name}/docs")
+
+    # Copy the generated wiki to the generated_wikis folder
+    shutil.copytree(f"dist/{wiki_name}/docs", f"../generated_wikis/{wiki_name}/docs")
+    shutil.copy(
+        f"dist/{wiki_name}/mkdocs.yml", f"../generated_wikis/{wiki_name}/mkdocs.yml"
+    )
+    shutil.copy(
+        "generator_assets/requirements.txt",
+        f"../generated_wikis/{wiki_name}/requirements.txt",
+    )
+
+    if not os.path.exists(f"../generated_wikis/{wiki_name}/.git"):
+        initialization_process = subprocess.Popen(
+            f"git init".split(),
+            cwd=f"../generated_wikis/{wiki_name}",
+            stdout=subprocess.PIPE,
+        )
+        initialization_process.wait()
+
+    add_wiki_files = subprocess.Popen(
+        "git add .".split(),
+        cwd=f"../generated_wikis/{wiki_name}",
+        stdout=subprocess.PIPE,
+    )
+    add_wiki_files.wait()
+
+    # Consider having more unique messages for wiki updates
+    save_wiki_state = subprocess.Popen(
+        "git commit -m 'Wiki_Update'".split(),
+        cwd=f"../generated_wikis/{wiki_name}",
+        stdout=subprocess.PIPE,
+    )
+    save_wiki_state.wait()
+
+    is_origin_present = subprocess.Popen(
+        "git remote show origin".split(),
+        cwd=f"../generated_wikis/{wiki_name}",
+        stdout=subprocess.PIPE,
+    )
+    is_origin_present.wait()
+
+    if is_origin_present.returncode != 0:
+        # Add instruction to create repo before running this function
+        repo_addition_process = subprocess.Popen(
+            f"git remote add origin {repo_url}".split(),
+            cwd=f"../generated_wikis/{wiki_name}",
+            stdout=subprocess.PIPE,
+        )
+        repo_addition_process.wait()
+
+    push_wiki = subprocess.Popen(
+        "git push origin main".split(),
+        cwd=f"../generated_wikis/{wiki_name}",
+        stdout=subprocess.PIPE,
+    )
+    push_wiki.wait()
+
+    deploy_process = subprocess.Popen(
+        f"mkdocs gh-deploy".split(),
+        cwd=f"../generated_wikis/{wiki_name}",
+        stdout=subprocess.PIPE,
+    )
+    deploy_process.wait()
+
+    return {
+        # "data": {
+        #     "Initialization": initialization_process.returncode,
+        #     "Repo Addition": repo_addition_process.returncode,
+        #     "Deployment": deploy_process.returncode,
+        # },
+        "message": "Wiki Deployed",
         "status": 200,
     }

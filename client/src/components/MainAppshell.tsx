@@ -13,6 +13,7 @@ import { useDisclosure } from "@mantine/hooks";
 import {
   IconArrowBackUp,
   IconBallBasketball,
+  IconCloudComputing,
   IconDisc,
   IconGitBranch,
   IconSettings,
@@ -107,7 +108,7 @@ const MainAppshell = () => {
               <Link to={"/moves"} style={{ textDecoration: "none" }}>
                 <NavButton
                   text="Moves"
-                  color="teal"
+                  color="grape"
                   isActive={pathname.includes("/moves")}
                   icon={<IconDisc size={"1rem"} />}
                 />
@@ -137,6 +138,14 @@ const MainAppshell = () => {
                   color="red"
                   isActive={pathname.includes("/backups")}
                   icon={<IconArrowBackUp size={"1rem"} />}
+                />
+              </Link>
+              <Link to={"/deployment"} style={{ textDecoration: "none" }}>
+                <NavButton
+                  text="Deployment"
+                  color="green"
+                  isActive={pathname.includes("/deployment")}
+                  icon={<IconCloudComputing size={"1rem"} />}
                 />
               </Link>
             </Navbar.Section>

@@ -25,3 +25,8 @@ class GenerationData(BaseModel):
     version_group: Optional[PokemonVersions]
     range_start: Optional[int]
     range_end: Optional[int]
+
+
+class DeploymentData(BaseModel):
+    wiki_name: str
+    repo_url: str

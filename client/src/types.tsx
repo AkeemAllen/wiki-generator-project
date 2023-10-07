@@ -142,3 +142,8 @@ export type GenerationData = {
   range_start?: number;
   range_end?: number;
 };
+
+export type DeploymentData = {
+  wiki_name: string;
+  repo_url: string;
+};

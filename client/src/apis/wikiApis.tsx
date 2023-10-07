@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { GenerationData, Wiki } from "../types";
+import { DeploymentData, GenerationData, Wiki } from "../types";
 
 export const useGetWikis = (onSuccess: (data: any) => void) => {
   return useQuery({
@@ -60,6 +60,20 @@ export const useBackupWiki = (onSuccess: (data: any) => void) => {
         headers: {
           "Content-Type": "application/json",
         },
+      }).then((res) => res.json()),
+    onSuccess,
+  });
+};
+
+export const useDeployWiki = (onSuccess: (data: any) => void) => {
+  return useMutation({
+    mutationFn: (deploymentData: DeploymentData) =>
+      fetch(`${import.meta.env.VITE_BASE_URL}/wikis/deploy`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(deploymentData),
       }).then((res) => res.json()),
     onSuccess,
   });
