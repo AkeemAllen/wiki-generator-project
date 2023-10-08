@@ -9,6 +9,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
@@ -33,7 +34,10 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
   const [__, setCurrentWikiLocalstore] = useLocalStorage("currentWiki", "none");
 
   const navigate = useNavigate();
-  const { mutate } = useCreateWiki((data) => setWikiList(data.wikis));
+  const { mutate } = useCreateWiki((data: any) => {
+    notifications.show({ message: data.message });
+    setWikiList(data.wikis);
+  });
   const createNewWiki = () => {
     mutate({
       name: wikiName.toLowerCase().replaceAll(" ", "-"),
@@ -45,7 +49,6 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
     });
     setCurrentWikiLocalstore(wikiName.toLowerCase().replaceAll(" ", "-"));
     navigate("/");
-    window.location.reload();
     onClose();
   };
 

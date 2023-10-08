@@ -46,8 +46,7 @@ const MainAppshell = () => {
   const setAbilityList = useAbilityStore((state) => state.setAbilityList);
   const setNatureList = useNatureStore((state) => state.setNaturesList);
 
-  //   const wikiList = useWikiStore((state) => state.wikis);
-  const [wikiList, setWikiList] = useLocalStorage("wikiList", {});
+  const [wikiList, _] = useLocalStorage("wikiList", {});
   const [currentWiki, setCurrentWiki] = useLocalStorage("currentWiki", "none");
 
   const { pathname } = useLocation();
