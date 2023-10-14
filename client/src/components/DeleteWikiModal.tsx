@@ -15,7 +15,6 @@ const DeleteWikiModal = ({ opened, onClose }: DeleteWikiModalProps) => {
   const [selectedWiki, setSelectedWiki] = useInputState<string>("");
 
   const { mutate: deleteWiki } = useDeleteWiki((data: any) => {
-    console.log(data);
     notifications.show({ message: data.message });
     setWikiList(data.wikis);
   });
@@ -26,8 +25,10 @@ const DeleteWikiModal = ({ opened, onClose }: DeleteWikiModalProps) => {
         <Select
           label="Wiki"
           placeholder="Select Wiki to Delete"
+          value={selectedWiki}
           onChange={setSelectedWiki}
           data={Object.keys(wikiList).filter((wiki) => wiki !== currentWiki)}
+          styles={{ dropdown: { position: "unset" } }}
         />
         <Button
           color="red"

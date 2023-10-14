@@ -11,7 +11,6 @@ import {
 import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { IconInfoCircle } from "@tabler/icons-react";
-import { useNavigate } from "react-router-dom";
 import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
 import { useCreateWiki } from "../apis/wikiApis";
 
@@ -31,9 +30,7 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
     "https://__author__.github.io/__name__"
   );
   const [_, setWikiList] = useLocalStorage("wikiList", {});
-  const [__, setCurrentWikiLocalstore] = useLocalStorage("currentWiki", "none");
 
-  const navigate = useNavigate();
   const { mutate } = useCreateWiki((data: any) => {
     notifications.show({ message: data.message });
     setWikiList(data.wikis);
@@ -47,8 +44,6 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
       site_url: siteUrl,
       site_name: wikiName,
     });
-    setCurrentWikiLocalstore(wikiName.toLowerCase().replaceAll(" ", "-"));
-    navigate("/");
     onClose();
   };
 
