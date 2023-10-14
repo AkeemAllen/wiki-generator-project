@@ -14,14 +14,14 @@ import ErrorPage from "./pages/error-page";
 
 const router = createBrowserRouter([
   {
-    path: "/select-wiki",
-    element: <SelectWiki />,
-  },
-  {
     path: "/",
     element: <App />,
     errorElement: <ErrorPage />,
     children: [
+      {
+        path: "select-wiki",
+        element: <SelectWiki />,
+      },
       {
         path: "pokemon",
         element: <Pokemon />,

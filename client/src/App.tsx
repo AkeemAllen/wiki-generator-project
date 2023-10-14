@@ -20,7 +20,7 @@ function App() {
     <>
       <MantineProvider withGlobalStyles withNormalizeCSS>
         <Notifications position="top-right" />
-        {currentWiki !== "none" && <MainAppshell />}
+        <MainAppshell />
       </MantineProvider>
     </>
   );

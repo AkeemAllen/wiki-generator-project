@@ -5,8 +5,8 @@ import {
   Grid,
   Header,
   MediaQuery,
+  Menu,
   Navbar,
-  Popover,
   Text,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -18,9 +18,9 @@ import {
   IconGitBranch,
   IconSettings,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { useLocalStorage } from "usehooks-ts";
+import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
 import { useGetAbilities } from "../apis/abilitiesApis";
 import { useGetItems } from "../apis/itemsApis";
 import { useGetMoves } from "../apis/movesApis";
@@ -35,6 +35,7 @@ import {
   usePokemonStore,
   useRouteStore,
 } from "../stores";
+import DeleteWikiModal from "./DeleteWikiModal";
 import NavButton from "./NavButton";
 import NewWikiModal from "./NewWikiModal";
 
@@ -51,19 +52,60 @@ const MainAppshell = () => {
 
   const { pathname } = useLocation();
   const [navBarOpened, setNavBarOpened] = useState(false);
-  const [wikiModalOpened, { close, open }] = useDisclosure(false);
+  const [createModalOpened, { close: closeCreate, open: openCreate }] =
+    useDisclosure(false);
+  const [deleteModalOpened, { close: closeDelete, open: openDelete }] =
+    useDisclosure(false);
 
-  useGetPokemon((data: any) => setPokemonList(data));
+  const { refetch: refetchPokemon } = useGetPokemon((data: any) =>
+    setPokemonList(data)
+  );
+  const { refetch: refetchMoves } = useGetMoves((data: any) =>
+    setMovesList(data)
+  );
 
-  useGetMoves((data: any) => setMovesList(data));
+  const { refetch: refetchRoutes } = useGetRoutes((data: any) =>
+    setRoutes(data)
+  );
 
-  useGetRoutes((data: any) => setRoutes(data));
+  const { refetch: refetchItems } = useGetItems((data: any) =>
+    setItemsList(data)
+  );
 
-  useGetItems((data: any) => setItemsList(data));
+  const { refetch: refetchAbilities } = useGetAbilities((data: any) =>
+    setAbilityList(data)
+  );
 
-  useGetAbilities((data: any) => setAbilityList(data));
+  const { refetch: refetchNatures } = useGetNatures((data: any) =>
+    setNatureList(data)
+  );
 
-  useGetNatures((data: any) => setNatureList(data));
+  // Currently using 2 effects because
+  // 1. If the currentWiki is not empty, we want to fetch the data
+  // 2. If the currentWiki is changed, we want to refetch the data
+  useEffect(() => {
+    if (currentWiki === "none") {
+      return;
+    }
+    refetchPokemon();
+    refetchMoves();
+    refetchRoutes();
+    refetchItems();
+    refetchAbilities();
+    refetchNatures();
+  }, []);
+
+  useUpdateEffect(() => {
+    if (currentWiki === "none") {
+      return;
+    }
+    refetchPokemon();
+    refetchMoves();
+    refetchRoutes();
+    refetchItems();
+    refetchAbilities();
+    refetchNatures();
+  }, [currentWiki]);
 
   return (
     <>
@@ -94,95 +136,96 @@ const MainAppshell = () => {
             hidden={!navBarOpened}
             width={{ sm: 200, lg: 300 }}
           >
-            <Navbar.Section grow>
-              <Link to={"/pokemon"} style={{ textDecoration: "none" }}>
-                <NavButton
-                  text="Pokemon"
-                  color="blue"
-                  isActive={pathname === "/pokemon"}
-                  icon={<IconBallBasketball size={"1rem"} />}
-                />
-              </Link>
+            {currentWiki !== "none" && (
+              <Navbar.Section grow>
+                <Link to={"/pokemon"} style={{ textDecoration: "none" }}>
+                  <NavButton
+                    text="Pokemon"
+                    color="blue"
+                    isActive={pathname === "/pokemon"}
+                    icon={<IconBallBasketball size={"1rem"} />}
+                  />
+                </Link>
 
-              <Link to={"/moves"} style={{ textDecoration: "none" }}>
-                <NavButton
-                  text="Moves"
-                  color="grape"
-                  isActive={pathname.includes("/moves")}
-                  icon={<IconDisc size={"1rem"} />}
-                />
-              </Link>
+                <Link to={"/moves"} style={{ textDecoration: "none" }}>
+                  <NavButton
+                    text="Moves"
+                    color="blue"
+                    isActive={pathname.includes("/moves")}
+                    icon={<IconDisc size={"1rem"} />}
+                  />
+                </Link>
 
-              <Link to={"/game-routes"} style={{ textDecoration: "none" }}>
-                <NavButton
-                  text="Game Routes"
-                  color="yellow"
-                  isActive={pathname.includes("/game-routes")}
-                  icon={<IconGitBranch size={"1rem"} />}
-                />
-              </Link>
+                <Link to={"/game-routes"} style={{ textDecoration: "none" }}>
+                  <NavButton
+                    text="Game Routes"
+                    color="blue"
+                    isActive={pathname.includes("/game-routes")}
+                    icon={<IconGitBranch size={"1rem"} />}
+                  />
+                </Link>
 
-              <Link to={"/generate-wiki"} style={{ textDecoration: "none" }}>
-                <NavButton
-                  text="Generate Wiki"
-                  color="orange"
-                  isActive={pathname.includes("/generate-wiki")}
-                  icon={<IconSettings size={"1rem"} />}
-                />
-              </Link>
+                <Link to={"/generate-wiki"} style={{ textDecoration: "none" }}>
+                  <NavButton
+                    text="Generate Wiki"
+                    color="blue"
+                    isActive={pathname.includes("/generate-wiki")}
+                    icon={<IconSettings size={"1rem"} />}
+                  />
+                </Link>
 
-              <Link to={"/backups"} style={{ textDecoration: "none" }}>
-                <NavButton
-                  text="Manage Backups"
-                  color="red"
-                  isActive={pathname.includes("/backups")}
-                  icon={<IconArrowBackUp size={"1rem"} />}
-                />
-              </Link>
-              <Link to={"/deployment"} style={{ textDecoration: "none" }}>
-                <NavButton
-                  text="Deployment"
-                  color="green"
-                  isActive={pathname.includes("/deployment")}
-                  icon={<IconCloudComputing size={"1rem"} />}
-                />
-              </Link>
-            </Navbar.Section>
+                <Link to={"/backups"} style={{ textDecoration: "none" }}>
+                  <NavButton
+                    text="Manage Backups"
+                    color="blue"
+                    isActive={pathname.includes("/backups")}
+                    icon={<IconArrowBackUp size={"1rem"} />}
+                  />
+                </Link>
+                <Link to={"/deployment"} style={{ textDecoration: "none" }}>
+                  <NavButton
+                    text="Deployment"
+                    color="blue"
+                    isActive={pathname.includes("/deployment")}
+                    icon={<IconCloudComputing size={"1rem"} />}
+                  />
+                </Link>
+              </Navbar.Section>
+            )}
             <Navbar.Section>
-              <Popover withArrow>
-                <Popover.Target>
-                  <Button fullWidth sx={{ backgroundColor: "rgba(0,0,0,50%)" }}>
-                    {currentWiki}
+              <Menu width={200} shadow="lg" withArrow>
+                <Menu.Target>
+                  <Button fullWidth sx={{ backgroundColor: "#545454" }}>
+                    {wikiList[currentWiki]?.site_name || "Select Wiki"}
                   </Button>
-                </Popover.Target>
-                <Popover.Dropdown>
-                  <Grid>
-                    {Object.keys(wikiList).map((wiki, index) => (
-                      <Grid.Col key={index}>
-                        <Button
-                          onClick={() => {
-                            setCurrentWiki(wiki);
-                            location.reload();
-                          }}
-                          fullWidth
-                        >
-                          {wiki}
-                        </Button>
-                      </Grid.Col>
-                    ))}
-                  </Grid>
-                </Popover.Dropdown>
-              </Popover>
-              <Button mt={20} onClick={open} fullWidth>
-                Create New Wiki
-              </Button>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Label>Wikis</Menu.Label>
+                  {Object.keys(wikiList).map((wiki, index) => (
+                    <Menu.Item
+                      onClick={() => {
+                        setCurrentWiki(wiki);
+                      }}
+                    >
+                      {wikiList[wiki]?.site_name}
+                    </Menu.Item>
+                  ))}
+                  <Menu.Divider />
+                  <Menu.Label>Actions</Menu.Label>
+                  <Menu.Item onClick={openCreate}>Create New Wiki</Menu.Item>
+                  <Menu.Item color="red" onClick={openDelete}>
+                    Delete a Wiki
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
             </Navbar.Section>
           </Navbar>
         }
       >
         <Outlet />
       </AppShell>
-      <NewWikiModal opened={wikiModalOpened} onClose={close} />
+      <NewWikiModal opened={createModalOpened} onClose={closeCreate} />
+      <DeleteWikiModal opened={deleteModalOpened} onClose={closeDelete} />
     </>
   );
 };

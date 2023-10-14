@@ -32,7 +32,9 @@ const NavButton = ({ color, text, icon, isActive = false }: NavButtonProps) => {
           {icon}
         </ThemeIcon>
 
-        <Text size="sm">{text}</Text>
+        <Text size="sm" color="#545454">
+          {text}
+        </Text>
       </Group>
     </UnstyledButton>
   );

@@ -1,9 +1,7 @@
-import { Button, Popover } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "usehooks-ts";
 import { useGetWikis } from "../apis/wikiApis";
-import NewWikiModal from "../components/NewWikiModal";
 
 const SelectWiki = () => {
   const [currentWiki, setCurrentWikiLocalstore] = useLocalStorage(
@@ -22,28 +20,7 @@ const SelectWiki = () => {
     navigate("/");
   };
 
-  return (
-    <>
-      <Popover withArrow>
-        <Popover.Target>
-          <Button sx={{ backgroundColor: "rgba(0,0,0,50%)" }}>
-            {currentWiki}
-          </Button>
-        </Popover.Target>
-        <Popover.Dropdown>
-          {Object.keys(wikiList).map((wiki, index) => (
-            <Button key={index} onClick={() => handleWikiSelection(wiki)}>
-              {wiki}
-            </Button>
-          ))}
-        </Popover.Dropdown>
-      </Popover>
-      <Button mt={20} onClick={open} fullWidth>
-        Generate New Wiki
-      </Button>
-      <NewWikiModal opened={wikiModalOpened} onClose={close} />
-    </>
-  );
+  return <></>;
 };
 
 export default SelectWiki;

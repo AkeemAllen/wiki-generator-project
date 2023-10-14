@@ -56,6 +56,27 @@ async def create_wiki(wiki: Wiki):
     return {"message": "Wiki created", "status": 200, "wikis": wikis}
 
 
+@router.delete("/wikis/delete/{wiki_name}")
+async def delete_wiki(wiki_name: str):
+    with open(f"data/wikis.json", encoding="utf-8") as wikis_file:
+        wikis = json.load(wikis_file)
+        wikis_file.close()
+
+    if wiki_name not in wikis.keys():
+        return {"message": "Wiki does not exist", "status": 400}
+
+    del wikis[wiki_name]
+
+    with open(f"data/wikis.json", "w", encoding="utf-8") as wikis_file:
+        wikis_file.write(json.dumps(wikis))
+        wikis_file.close()
+
+    shutil.rmtree(f"data/{wiki_name}")
+    shutil.rmtree(f"dist/{wiki_name}")
+
+    return {"message": "Wiki deleted", "status": 200, "wikis": wikis}
+
+
 @router.post("/wikis/generate/pokemon")
 async def generate_pokemon_pages(generation_data: GenerationData):
     generate_pokemon(

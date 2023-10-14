@@ -25,6 +25,19 @@ export const useCreateWiki = (onSuccess: (data: any) => void) => {
   });
 };
 
+export const useDeleteWiki = (onSuccess: (data: any) => void) => {
+  return useMutation({
+    mutationFn: (wikiName: string) =>
+      fetch(`${import.meta.env.VITE_BASE_URL}/wikis/delete/${wikiName}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then((res) => res.json()),
+    onSuccess,
+  });
+};
+
 export const useGeneratePokemon = (onSuccess: (data: any) => void) => {
   return useMutation({
     mutationFn: (generateData: GenerationData) =>

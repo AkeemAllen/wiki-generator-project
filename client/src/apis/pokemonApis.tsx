@@ -12,6 +12,7 @@ export const useGetPokemon = (onSuccess: (data: any) => void) => {
       ),
     onSuccess,
     refetchOnWindowFocus: false,
+    enabled: false,
   });
 };
 

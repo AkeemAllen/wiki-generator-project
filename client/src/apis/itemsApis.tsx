@@ -11,5 +11,6 @@ export const useGetItems = (onSuccess: (data: any) => void) => {
       ),
     onSuccess,
     refetchOnWindowFocus: false,
+    enabled: false,
   });
 };
