@@ -1,7 +1,6 @@
 import {
   Autocomplete,
   Button,
-  Checkbox,
   Grid,
   NativeSelect,
   NumberInput,
@@ -11,7 +10,6 @@ import {
 } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { useState } from "react";
 import {
   useGetMovesByName,
   usePrepareMoveData,
@@ -27,10 +25,6 @@ const Moves = () => {
   const [moveDetails, setMoveDetails] = useInputState<MoveDetails | null>(null);
   const movesList = useMovesStore((state) => state.movesList);
   const setMovesList = useMovesStore((state) => state.setMovesList);
-
-  const [rangeStart, setRangeStart] = useInputState<number>(0);
-  const [rangeEnd, setRangeEnd] = useInputState<number>(0);
-  const [wipeCurrentData, setWipeCurrentData] = useState<boolean>(false);
 
   const { refetch } = useGetMovesByName({
     moveName,
@@ -64,9 +58,9 @@ const Moves = () => {
 
   const handlePrepareInitialData = () => {
     mutatePrepareMovesData({
-      range_end: rangeEnd,
-      range_start: rangeStart,
-      wipe_current_data: wipeCurrentData,
+      range_start: 1,
+      range_end: 904,
+      wipe_current_data: true,
     });
   };
 
@@ -94,53 +88,14 @@ const Moves = () => {
         {movesList.length === 0 ? (
           <>
             <Grid.Col>
-              <Text>
-                We detected that there is no move data in this wiki right now.
-                Do you want to prepare initial data with original moves data?
-              </Text>
-            </Grid.Col>
-            <Grid.Col>
-              <Text color="red">
-                NOTE: THIS WILL TAKE SEVERAL MINUTES TO PREPARE ALL THE DATA
-                DEPENDING ON THE RANGE YOU SET. The move data set is being
-                downloaded from pokeapi and modified through the
-                prepare_move_data funtion in the backend.
-              </Text>
-            </Grid.Col>
-            <Grid.Col>
-              <NumberInput
-                label="Range Start"
-                onChange={(value: number) => setRangeStart(value)}
-                value={rangeStart}
-                min={0}
-              />
-            </Grid.Col>
-            <Grid.Col>
-              <NumberInput
-                label="Range End"
-                onChange={(value: number) => setRangeEnd(value)}
-                value={rangeEnd}
-                min={0}
-              />
-            </Grid.Col>
-            <Grid.Col>
-              <Checkbox
-                label="Wipe Current Data (Needs to be checked actually run the operation)"
-                checked={wipeCurrentData}
-                onChange={(event) =>
-                  setWipeCurrentData(event.currentTarget.checked)
-                }
-              />
+              <Text>No move Data detected. Prepare all moves</Text>
             </Grid.Col>
             <Grid.Col>
               <Button
-                disabled={
-                  rangeStart >= rangeEnd || rangeStart <= 0 || rangeEnd <= 0
-                }
                 onClick={handlePrepareInitialData}
                 loading={isLoadingPrepareMovesData}
               >
-                Prepare Initial Data
+                Prepare Move Data
               </Button>
             </Grid.Col>
           </>

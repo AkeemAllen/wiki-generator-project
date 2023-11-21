@@ -1,7 +1,6 @@
 import {
   AppShell,
   Burger,
-  Button,
   Grid,
   Header,
   MediaQuery,
@@ -13,8 +12,8 @@ import { useDisclosure } from "@mantine/hooks";
 import {
   IconArrowBackUp,
   IconBallBasketball,
-  IconCloudComputing,
   IconDisc,
+  IconDotsVertical,
   IconGitBranch,
   IconSettings,
 } from "@tabler/icons-react";
@@ -36,6 +35,7 @@ import {
   useRouteStore,
 } from "../stores";
 import DeleteWikiModal from "./DeleteWikiModal";
+import DeployWikiModal from "./DeployWikiModal";
 import NavButton from "./NavButton";
 import NewWikiModal from "./NewWikiModal";
 
@@ -55,6 +55,8 @@ const MainAppshell = () => {
   const [createModalOpened, { close: closeCreate, open: openCreate }] =
     useDisclosure(false);
   const [deleteModalOpened, { close: closeDelete, open: openDelete }] =
+    useDisclosure(false);
+  const [deployModalOpened, { close: closeDeploy, open: openDeploy }] =
     useDisclosure(false);
 
   const { refetch: refetchPokemon } = useGetPokemon((data: any) =>
@@ -182,23 +184,25 @@ const MainAppshell = () => {
                     icon={<IconArrowBackUp size={"1rem"} />}
                   />
                 </Link>
-                <Link to={"/deployment"} style={{ textDecoration: "none" }}>
-                  <NavButton
-                    text="Deployment"
-                    color="blue"
-                    isActive={pathname.includes("/deployment")}
-                    icon={<IconCloudComputing size={"1rem"} />}
-                  />
-                </Link>
               </Navbar.Section>
             )}
             <Navbar.Section>
               <Menu width={200} shadow="lg" withArrow>
-                <Menu.Target>
-                  <Button fullWidth sx={{ backgroundColor: "#545454" }}>
-                    {wikiList[currentWiki]?.site_name || "Select Wiki"}
-                  </Button>
-                </Menu.Target>
+                <Grid>
+                  <Grid.Col span={10}>
+                    <Text weight={600}>
+                      {wikiList[currentWiki]?.site_name || "Select Wiki"}
+                    </Text>
+                  </Grid.Col>
+                  <Grid.Col span={2}>
+                    <Menu.Target>
+                      <IconDotsVertical
+                        size={"1.2rem"}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </Menu.Target>
+                  </Grid.Col>
+                </Grid>
                 <Menu.Dropdown>
                   <Menu.Label>Wikis</Menu.Label>
                   {Object.keys(wikiList).map((wiki, index) => (
@@ -213,6 +217,7 @@ const MainAppshell = () => {
                   <Menu.Divider />
                   <Menu.Label>Actions</Menu.Label>
                   <Menu.Item onClick={openCreate}>Create New Wiki</Menu.Item>
+                  <Menu.Item onClick={openDeploy}>Deploy Wiki</Menu.Item>
                   <Menu.Item color="red" onClick={openDelete}>
                     Delete a Wiki
                   </Menu.Item>
@@ -226,6 +231,7 @@ const MainAppshell = () => {
       </AppShell>
       <NewWikiModal opened={createModalOpened} onClose={closeCreate} />
       <DeleteWikiModal opened={deleteModalOpened} onClose={closeDelete} />
+      <DeployWikiModal opened={deployModalOpened} onClose={closeDeploy} />
     </>
   );
 };

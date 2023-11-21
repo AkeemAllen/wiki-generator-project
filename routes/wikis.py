@@ -105,7 +105,7 @@ async def generate_route_pages(generation_data: GenerationData):
 
 
 @router.post("/wikis/backup")
-async def backup_wiki():
+async def backup_wikis():
     try:
         now = datetime.datetime.now()
         formatted_now = now.strftime("%Y_%m_%d_%H_%M_%S")
@@ -194,11 +194,11 @@ async def deploy_wiki(deployment_data: DeploymentData):
     deploy_process.wait()
 
     return {
-        # "data": {
-        #     "Initialization": initialization_process.returncode,
-        #     "Repo Addition": repo_addition_process.returncode,
-        #     "Deployment": deploy_process.returncode,
-        # },
+        "data": {
+            # "Initialization": initialization_process.returncode,
+            # "Repo Addition": repo_addition_process.returncode,
+            "Deployment": deploy_process.returncode,
+        },
         "message": "Wiki Deployed",
         "status": 200,
     }
