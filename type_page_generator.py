@@ -33,16 +33,17 @@ def get_pokemon_markdown(wiki_name, pokemon_list, pokemon_name):
     return f"{get_markdown_image_for_pokemon(pokemon_list, pokemon_name)}<br/>{get_link_to_pokemon_page(wiki_name, pokemon_list, pokemon_name)}"
 
 
-def generate_type_page(wiki_name: str):
+def generate_type_page(wiki_name: str, modified_pokemon: dict = None):
     with open(f"dist/{wiki_name}/mkdocs.yml", "r") as mkdocs_file:
         mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
         mkdocs_file.close()
 
-    with open(
-        f"data/{wiki_name}/modifications/modified_pokemon.json", "r"
-    ) as pokemon_file:
-        modified_pokemon = json.load(pokemon_file)
-        pokemon_file.close()
+    if modified_pokemon is None:
+        with open(
+            f"data/{wiki_name}/modifications/modified_pokemon.json", "r"
+        ) as pokemon_file:
+            modified_pokemon = json.load(pokemon_file)
+            pokemon_file.close()
 
     with open(f"data/{wiki_name}/pokemon.json", "r") as pokemon_file:
         pokemon_list = json.load(pokemon_file)

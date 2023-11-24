@@ -4,6 +4,9 @@ import json
 
 
 from models.pokemon_models import PokemonChanges
+from type_page_generator import generate_type_page
+from evolution_page_generator import generate_evolution_page
+from pokemon_pages_generator import generate_pokemon
 
 from models.wikis_models import PreparationData
 from prepare_large_data import download_pokemon_data, download_pokemon_sprites
@@ -126,6 +129,9 @@ async def save_pokemon_changes(
         ):
             del modified_pokemon[pokemon_name]["types"]
 
+        # generate type page
+        generate_type_page(wiki_name, modified_pokemon)
+
     if changes.evolution:
         if changes.evolution.method == "no change":
             del pokemon[pokemon_name]["evolution"]
@@ -139,6 +145,8 @@ async def save_pokemon_changes(
             modified_pokemon[pokemon_name]["evolution"] = pokemon[pokemon_name][
                 "evolution"
             ]
+        # generate evolution page
+        generate_evolution_page(wiki_name, modified_pokemon)
 
     with open(f"{data_folder_route}/{wiki_name}/pokemon.json", "w") as pokemon_file:
         pokemon_file.write(json.dumps(pokemon))
@@ -153,6 +161,8 @@ async def save_pokemon_changes(
     ) as modified_pokemon_file:
         modified_pokemon_file.write(json.dumps(modified_pokemon))
         modified_pokemon_file.close()
+
+    # generate pokemon page
 
     return {"message": "Changes Saved"}
 
