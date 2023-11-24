@@ -141,7 +141,7 @@ const Routes = () => {
         </Grid.Col>
       </Grid>
       <ScrollArea.Autosize mah={"calc(100vh - 200px)"}>
-        <Grid className="draggable-list">
+        <Grid className="draggable-list" mih={300}>
           {/* {order.map(
             (route: { routeName: string; position: number }, index: number) => {
               return (

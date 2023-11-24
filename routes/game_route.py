@@ -3,6 +3,7 @@ from fastapi import APIRouter
 import json
 
 from models.game_route_models import NewRoute, RouteProperties
+from route_pages_generator import generate_routes
 from utils import get_sorted_routes
 
 
@@ -56,6 +57,8 @@ async def create_game_route(new_route: NewRoute, wiki_name: str):
         routes_file.write(json.dumps(routes))
         routes_file.close()
 
+    generate_routes(wiki_name)
+
     return {
         "message": "Route created",
         "status": 200,
@@ -84,6 +87,8 @@ async def edit_game_route(new_route: NewRoute, wiki_name: str):
     ) as routes_file:
         routes_file.write(json.dumps(routes))
         routes_file.close()
+
+    generate_routes(wiki_name)
 
     return {
         "message": "Route edited",
@@ -114,6 +119,8 @@ async def save_single_route_changes(
         routes_file.write(json.dumps(routes))
         routes_file.close()
 
+    generate_routes(wiki_name)
+
     return {
         "message": "Route changes saved",
         "status": 200,
@@ -140,6 +147,8 @@ async def delete_route(route_name: str, wiki_name: str):
     ) as routes_file:
         routes_file.write(json.dumps(routes))
         routes_file.close()
+
+    generate_routes(wiki_name)
 
     return {
         "message": "Route deleted",
@@ -170,6 +179,8 @@ async def duplicate_route(route_name: str, new_route_name: str, wiki_name: str):
         routes_file.write(json.dumps(routes))
         routes_file.close()
 
+    generate_routes(wiki_name)
+
     return {
         "message": "Route duplicated",
         "status": 200,
@@ -195,6 +206,8 @@ async def edit_route_positions(
     ) as routes_file:
         routes_file.write(json.dumps(routes))
         routes_file.close()
+
+    generate_routes(wiki_name)
 
     return {
         "message": "Route positions edited",
