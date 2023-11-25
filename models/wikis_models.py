@@ -6,6 +6,7 @@ from models.pokemon_models import PokemonVersions
 
 class WikiSettings(BaseModel):
     version_group: PokemonVersions
+    deployment_url: Optional[str]
 
 
 class Wiki(BaseModel):
@@ -34,4 +35,4 @@ class GenerationData(BaseModel):
 
 class DeploymentData(BaseModel):
     wiki_name: str
-    repo_url: str
+    deployment_url: str

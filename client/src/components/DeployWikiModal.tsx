@@ -12,7 +12,10 @@ type DeployWikiModalProps = {
 
 const DeployWikiModal = ({ opened, onClose }: DeployWikiModalProps) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
-  const [repoUrl, setRepoUrl] = useInputState<string>("");
+  const [wikiList, __] = useLocalStorage("wikiList", {});
+  const [deploymentUrl, setDeploymentUrl] = useInputState<string>(
+    wikiList[currentWiki]?.settings?.deployment_url
+  );
   const { mutate, isLoading } = useDeployWiki((data: any) => {
     console.log(data);
     notifications.show({ message: data.message });
@@ -35,16 +38,18 @@ const DeployWikiModal = ({ opened, onClose }: DeployWikiModalProps) => {
         <TextInput
           label="Repository Url"
           placeholder="Paste repository url: Ex. 'https://github.com/<author>/<wiki_name>.git' or 'git@github.com:<author>/<wiki_name>.git'"
-          value={repoUrl}
-          onChange={setRepoUrl}
+          value={deploymentUrl}
+          onChange={setDeploymentUrl}
         />
         <Text>
           Check server terminal to see if github credentials need to be entered
         </Text>
         <Button
-          disabled={isNullEmptyOrUndefined(repoUrl)}
+          disabled={isNullEmptyOrUndefined(deploymentUrl)}
           loading={isLoading}
-          onClick={() => mutate({ wiki_name: currentWiki, repo_url: repoUrl })}
+          onClick={() =>
+            mutate({ wiki_name: currentWiki, deployment_url: deploymentUrl })
+          }
         >
           Deploy
         </Button>

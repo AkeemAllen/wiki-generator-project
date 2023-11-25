@@ -99,6 +99,7 @@ export type Routes = {
 
 export type WikiSettings = {
   version_group: string;
+  deployment_url?: string;
 };
 
 export type Wiki = {
@@ -150,5 +151,5 @@ export type GenerationData = {
 
 export type DeploymentData = {
   wiki_name: string;
-  repo_url: string;
+  deployment_url: string;
 };

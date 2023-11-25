@@ -206,6 +206,7 @@ const MainAppshell = () => {
                   <Menu.Label>Wikis</Menu.Label>
                   {Object.keys(wikiList).map((wiki, index) => (
                     <Menu.Item
+                      key={index}
                       onClick={() => {
                         setCurrentWiki(wiki);
                         window.location.reload();

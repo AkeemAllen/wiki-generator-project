@@ -1,4 +1,4 @@
-import { Button, Grid, Select } from "@mantine/core";
+import { Button, Grid, Select, TextInput } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useLocalStorage } from "usehooks-ts";
@@ -7,13 +7,17 @@ import { PokemonVersions } from "../types";
 
 const Settings = () => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
-  const [wikiList, __] = useLocalStorage("wikiList", {});
+  const [wikiList, setWikiList] = useLocalStorage("wikiList", {});
   const [versionGroup, setVersionGroup] = useInputState<string>(
     wikiList[currentWiki]?.settings?.version_group
+  );
+  const [deploymentUrl, setDeploymentUrl] = useInputState<string>(
+    wikiList[currentWiki]?.settings?.deployment_url
   );
 
   const { mutate, isLoading } = useEditWikiSettings((data: any) => {
     notifications.show({ message: data.message });
+    setWikiList(data.wikis);
   });
   return (
     <Grid>
@@ -30,11 +34,21 @@ const Settings = () => {
         />
       </Grid.Col>
       <Grid.Col>
+        <TextInput
+          label="Deployment URL"
+          onChange={setDeploymentUrl}
+          value={deploymentUrl}
+        />
+      </Grid.Col>
+      <Grid.Col>
         <Button
           onClick={() =>
             mutate({
               wikiName: currentWiki,
-              settings: { version_group: versionGroup },
+              settings: {
+                version_group: versionGroup,
+                deployment_url: deploymentUrl,
+              },
             })
           }
           loading={isLoading}

@@ -36,6 +36,7 @@ async def update_wiki_settings(wiki_name: str, settings: WikiSettings):
 
     wikis[wiki_name]["settings"] = {
         "version_group": settings.version_group.value,
+        "deployment_url": settings.deployment_url,
     }
 
     with open(f"data/wikis.json", "w", encoding="utf-8") as wikis_file:
@@ -61,6 +62,7 @@ async def create_wiki(wiki: Wiki):
         "repo_url": wiki.repo_url,
         "site_url": wiki.site_url,
         "settings": {
+            "deployment_url": wiki.settings.deployment_url,
             "version_group": wiki.settings.version_group.value,
         },
     }
@@ -148,7 +150,7 @@ async def backup_wikis():
 async def deploy_wiki(deployment_data: DeploymentData):
     # Add checks for git on their system
     wiki_name = deployment_data.wiki_name
-    repo_url = deployment_data.repo_url
+    deployment_url = deployment_data.deployment_url
 
     if os.path.exists(f"../generated_wikis/{wiki_name}/docs"):
         shutil.rmtree(f"../generated_wikis/{wiki_name}/docs")
@@ -196,7 +198,7 @@ async def deploy_wiki(deployment_data: DeploymentData):
     if is_origin_present.returncode != 0:
         # Add instruction to create repo before running this function
         repo_addition_process = subprocess.Popen(
-            f"git remote add origin {repo_url}".split(),
+            f"git remote add origin {deployment_url}".split(),
             cwd=f"../generated_wikis/{wiki_name}",
             stdout=subprocess.PIPE,
         )
