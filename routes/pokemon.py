@@ -3,7 +3,7 @@ from fastapi import APIRouter
 import json
 
 
-from models.pokemon_models import PokemonChanges
+from models.pokemon_models import PokemonChanges, PokemonVersions
 from type_page_generator import generate_type_page
 from evolution_page_generator import generate_evolution_page
 from pokemon_pages_generator import generate_pokemon
@@ -162,7 +162,19 @@ async def save_pokemon_changes(
         modified_pokemon_file.write(json.dumps(modified_pokemon))
         modified_pokemon_file.close()
 
+    with open("data/wikis.json", encoding="utf-8") as wikis_file:
+        wikis = json.load(wikis_file)
+        wikis_file.close()
+
+    version_group = wikis[wiki_name]["settings"]["version_group"]
+
     # generate pokemon page
+    generate_pokemon(
+        wiki_name,
+        PokemonVersions(version_group),
+        pokemon[pokemon_name]["id"],
+        pokemon[pokemon_name]["id"],
+    )
 
     return {"message": "Changes Saved"}
 

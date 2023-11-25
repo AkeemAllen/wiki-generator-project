@@ -9,6 +9,7 @@ import GenerateWiki from "./pages/GenerateWiki";
 import Moves from "./pages/Moves";
 import Pokemon from "./pages/Pokemon";
 import SelectWiki from "./pages/SelectWiki";
+import Settings from "./pages/Setting";
 import ErrorPage from "./pages/error-page";
 
 const router = createBrowserRouter([
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
       {
         path: "backups",
         element: <Backups />,
+      },
+      {
+        path: "settings",
+        element: <Settings />,
       },
       {
         path: "game-routes/:routeName",

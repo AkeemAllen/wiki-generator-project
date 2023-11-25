@@ -97,6 +97,10 @@ export type Routes = {
   [key: string]: RouteProperties;
 };
 
+export type WikiSettings = {
+  version_group: string;
+};
+
 export type Wiki = {
   name: string;
   description: string;
@@ -104,6 +108,7 @@ export type Wiki = {
   site_name: string;
   repo_url: string;
   site_url: string;
+  settings?: WikiSettings;
 };
 
 export type Wikis = {

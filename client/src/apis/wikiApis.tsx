@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { DeploymentData, GenerationData, Wiki } from "../types";
+import { DeploymentData, GenerationData, Wiki, WikiSettings } from "../types";
 
 export const useGetWikis = (onSuccess: (data: any) => void) => {
   return useQuery({
@@ -8,6 +8,25 @@ export const useGetWikis = (onSuccess: (data: any) => void) => {
       fetch(`${import.meta.env.VITE_BASE_URL}/wikis`).then((res) => res.json()),
     onSuccess,
     refetchOnWindowFocus: false,
+  });
+};
+
+type SettingsData = {
+  wikiName: string;
+  settings: WikiSettings;
+};
+
+export const useEditWikiSettings = (onSuccess: (data: any) => void) => {
+  return useMutation({
+    mutationFn: ({ wikiName, settings }: SettingsData) =>
+      fetch(`${import.meta.env.VITE_BASE_URL}/wikis/${wikiName}/settings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(settings),
+      }).then((res) => res.json()),
+    onSuccess,
   });
 };
 

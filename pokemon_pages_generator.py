@@ -226,8 +226,29 @@ class Pokemon:
         if not data.evolution:
             return
 
+        print(data.evolution)
+
+        def determine_evo_item_level_note():
+            if data.evolution.item:
+                return f"{data.evolution.item.title()}"
+            elif data.evolution.level:
+                return f"{data.evolution.level}"
+            elif data.evolution.other:
+                return f"{data.evolution.other.title()}"
+            else:
+                return ""
+
         doc.add_header("Evolution Change", 2)
-        doc.add_paragraph(data.evolution)
+        doc.add_table(
+            ["Method", "Item/Level/Note", "Evolved Pokemon"],
+            [
+                [
+                    data.evolution.method.title(),
+                    determine_evo_item_level_note(),
+                    data.evolution.evolved_pokemon.title(),
+                ],
+            ],
+        )
 
     def create_level_up_moves_table(
         self, doc: Document, version_group: PokemonVersions, wiki_name: str
@@ -453,10 +474,6 @@ def generate_pokemon(
     with open(f"dist/{wiki_name}/mkdocs.yml", "w") as mkdocs_file:
         yaml.dump(mkdocs_yaml_dict, mkdocs_file, sort_keys=False, indent=4)
         mkdocs_file.close()
-
-
-# def generate_type_changes():
-#     # When generating pokemon, check if type has changed from the original and add it to a list.
 
 
 if __name__ == "__main__":

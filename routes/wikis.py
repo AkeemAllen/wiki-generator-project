@@ -8,7 +8,7 @@ from evolution_page_generator import generate_evolution_page
 from type_page_generator import generate_type_page
 from wiki_boilerplate_generator import create_boiler_plate
 
-from models.wikis_models import DeploymentData, GenerationData, Wiki
+from models.wikis_models import DeploymentData, GenerationData, Wiki, WikiSettings
 from pokemon_pages_generator import generate_pokemon
 from route_pages_generator import generate_routes
 
@@ -23,6 +23,26 @@ async def get_wiki_list():
         wikis_file.close()
 
     return wikis
+
+
+@router.post("/wikis/{wiki_name}/settings")
+async def update_wiki_settings(wiki_name: str, settings: WikiSettings):
+    with open(f"data/wikis.json", encoding="utf-8") as wikis_file:
+        wikis = json.load(wikis_file)
+        wikis_file.close()
+
+    if wiki_name not in wikis.keys():
+        return {"message": "Wiki does not exist", "status": 400}
+
+    wikis[wiki_name]["settings"] = {
+        "version_group": settings.version_group.value,
+    }
+
+    with open(f"data/wikis.json", "w", encoding="utf-8") as wikis_file:
+        wikis_file.write(json.dumps(wikis))
+        wikis_file.close()
+
+    return {"message": "Wiki settings updated", "status": 200, "wikis": wikis}
 
 
 @router.post("/wikis/create")
@@ -40,6 +60,9 @@ async def create_wiki(wiki: Wiki):
         "author": wiki.author,
         "repo_url": wiki.repo_url,
         "site_url": wiki.site_url,
+        "settings": {
+            "version_group": wiki.settings.version_group.value,
+        },
     }
 
     create_boiler_plate(

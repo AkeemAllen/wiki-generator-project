@@ -4,6 +4,10 @@ from pydantic import BaseModel
 from models.pokemon_models import PokemonVersions
 
 
+class WikiSettings(BaseModel):
+    version_group: PokemonVersions
+
+
 class Wiki(BaseModel):
     name: str
     description: str
@@ -11,6 +15,7 @@ class Wiki(BaseModel):
     author: str
     repo_url: str
     site_url: str
+    settings: Optional[WikiSettings]
 
 
 class PreparationData(BaseModel):

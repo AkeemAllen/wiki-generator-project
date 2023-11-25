@@ -167,21 +167,20 @@ const MainAppshell = () => {
                   />
                 </Link>
 
-                <Link to={"/generate-wiki"} style={{ textDecoration: "none" }}>
-                  <NavButton
-                    text="Generate Wiki"
-                    color="blue"
-                    isActive={pathname.includes("/generate-wiki")}
-                    icon={<IconSettings size={"1rem"} />}
-                  />
-                </Link>
-
                 <Link to={"/backups"} style={{ textDecoration: "none" }}>
                   <NavButton
                     text="Manage Backups"
                     color="blue"
                     isActive={pathname.includes("/backups")}
                     icon={<IconArrowBackUp size={"1rem"} />}
+                  />
+                </Link>
+                <Link to={"/settings"} style={{ textDecoration: "none" }}>
+                  <NavButton
+                    text="Wiki Settings"
+                    color="blue"
+                    isActive={pathname.includes("/settings")}
+                    icon={<IconSettings size={"1rem"} />}
                   />
                 </Link>
               </Navbar.Section>
@@ -209,6 +208,7 @@ const MainAppshell = () => {
                     <Menu.Item
                       onClick={() => {
                         setCurrentWiki(wiki);
+                        window.location.reload();
                       }}
                     >
                       {wikiList[wiki]?.site_name}

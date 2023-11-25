@@ -2,6 +2,7 @@ import {
   Button,
   Grid,
   Modal,
+  Select,
   SimpleGrid,
   Text,
   TextInput,
@@ -13,6 +14,7 @@ import { notifications } from "@mantine/notifications";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
 import { useCreateWiki } from "../apis/wikiApis";
+import { PokemonVersions } from "../types";
 
 type NewWikiModalProps = {
   opened: boolean;
@@ -30,6 +32,7 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
     "https://__author__.github.io/__name__"
   );
   const [_, setWikiList] = useLocalStorage("wikiList", {});
+  const [versionGroup, setVersionGroup] = useInputState<string>("black-white");
 
   const { mutate } = useCreateWiki((data: any) => {
     notifications.show({ message: data.message });
@@ -43,6 +46,7 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
       repo_url: repoUrl,
       site_url: siteUrl,
       site_name: wikiName,
+      settings: { version_group: versionGroup },
     });
     onClose();
   };
@@ -102,6 +106,16 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
           readOnly
           disabled
           value={siteUrl.toLowerCase()}
+        />
+        <Select
+          label="Version Group"
+          onChange={setVersionGroup}
+          value={versionGroup}
+          data={(
+            Object.keys(PokemonVersions) as (keyof typeof PokemonVersions)[]
+          ).map((key, index) => {
+            return PokemonVersions[key];
+          })}
         />
       </SimpleGrid>
       <Button mt={20} onClick={createNewWiki}>
