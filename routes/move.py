@@ -44,8 +44,32 @@ def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str)
         moves = json.load(moves_file)
         moves_file.close()
 
+    with open(
+        f"{data_folder_route}/{wiki_name}/modifications/modified_moves.json",
+        encoding="utf-8",
+    ) as moves_changes_file:
+        modified_moves = json.load(moves_changes_file)
+        moves_changes_file.close()
+
+    if move_name not in modified_moves:
+        modified_moves[move_name] = {}
+
     if move_details.power:
+        if "power" not in modified_moves[move_name]:
+            modified_moves[move_name]["power"] = {}
+
+        if "original" not in modified_moves[move_name]["power"]:
+            modified_moves[move_name]["power"]["original"] = moves[move_name]["power"]
+
         moves[move_name]["power"] = move_details.power
+
+        modified_moves[move_name]["power"]["new"] = move_details.power
+
+        if (
+            modified_moves[move_name]["power"]["original"]
+            == modified_moves[move_name]["power"]["new"]
+        ):
+            del modified_moves[move_name]["power"]
 
     if move_details.accuracy:
         moves[move_name]["accuracy"] = move_details.accuracy
@@ -63,16 +87,27 @@ def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str)
         moves_file.write(json.dumps(moves))
         moves_file.close()
 
+    if not modified_moves[move_name]:
+        del modified_moves[move_name]
+
     with open(
-        f"{data_folder_route}/{wiki_name}/updates/modified_moves.json", "r+"
+        f"{data_folder_route}/{wiki_name}/modifications/modified_moves.json",
+        "w",
     ) as moves_changes_file:
-        current_changes = json.load(moves_changes_file)
-        if move_name not in current_changes["changed_moves"]:
-            current_changes["changed_moves"].append(move_name)
-            moves_changes_file.seek(0)
-            moves_changes_file.truncate()
-            moves_changes_file.write(json.dumps(current_changes))
+        moves_changes_file.write(json.dumps(modified_moves))
         moves_changes_file.close()
+
+    # with open(
+    #     f"{data_folder_route}/{wiki_name}/modifications/modified_moves.json", "r+"
+    # ) as moves_changes_file:
+    #     current_changes = json.load(moves_changes_file)
+    #     print(current_changes)
+    #     if move_name not in current_changes["changed_moves"]:
+    #         current_changes["changed_moves"].append(move_name)
+    #         moves_changes_file.seek(0)
+    #         moves_changes_file.truncate()
+    #         moves_changes_file.write(json.dumps(current_changes))
+    #     moves_changes_file.close()
 
     return {"message": "Changes Saved"}
 
