@@ -35,6 +35,24 @@ async def get_moves(move_name: str, wiki_name: str):
     return moves[move_name]
 
 
+def track_move_changes(moves, move_name, move_attribute, modified_moves, new_value):
+    if move_attribute not in modified_moves[move_name]:
+        modified_moves[move_name][move_attribute] = {}
+
+    if "original" not in modified_moves[move_name][move_attribute]:
+        modified_moves[move_name][move_attribute]["original"] = moves[move_name][
+            move_attribute
+        ]
+
+    modified_moves[move_name][move_attribute]["new"] = new_value
+
+    if (
+        modified_moves[move_name][move_attribute]["original"]
+        == modified_moves[move_name][move_attribute]["new"]
+    ):
+        del modified_moves[move_name][move_attribute]
+
+
 # Save Changes to move
 @router.post("/moves/edit/{wiki_name}/{move_name}")
 def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str):
@@ -55,32 +73,29 @@ def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str)
         modified_moves[move_name] = {}
 
     if move_details.power:
-        if "power" not in modified_moves[move_name]:
-            modified_moves[move_name]["power"] = {}
-
-        if "original" not in modified_moves[move_name]["power"]:
-            modified_moves[move_name]["power"]["original"] = moves[move_name]["power"]
-
+        track_move_changes(
+            moves, move_name, "power", modified_moves, move_details.power
+        )
         moves[move_name]["power"] = move_details.power
 
-        modified_moves[move_name]["power"]["new"] = move_details.power
-
-        if (
-            modified_moves[move_name]["power"]["original"]
-            == modified_moves[move_name]["power"]["new"]
-        ):
-            del modified_moves[move_name]["power"]
-
     if move_details.accuracy:
+        track_move_changes(
+            moves, move_name, "accuracy", modified_moves, move_details.accuracy
+        )
         moves[move_name]["accuracy"] = move_details.accuracy
 
     if move_details.pp:
+        track_move_changes(moves, move_name, "pp", modified_moves, move_details.pp)
         moves[move_name]["pp"] = move_details.pp
 
     if move_details.type:
+        track_move_changes(moves, move_name, "type", modified_moves, move_details.type)
         moves[move_name]["type"] = move_details.type
 
     if move_details.damage_class:
+        track_move_changes(
+            moves, move_name, "damage_class", modified_moves, move_details.damage_class
+        )
         moves[move_name]["damage_class"] = move_details.damage_class
 
     with open(f"{data_folder_route}/{wiki_name}/moves.json", "w") as moves_file:
@@ -96,18 +111,6 @@ def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str)
     ) as moves_changes_file:
         moves_changes_file.write(json.dumps(modified_moves))
         moves_changes_file.close()
-
-    # with open(
-    #     f"{data_folder_route}/{wiki_name}/modifications/modified_moves.json", "r+"
-    # ) as moves_changes_file:
-    #     current_changes = json.load(moves_changes_file)
-    #     print(current_changes)
-    #     if move_name not in current_changes["changed_moves"]:
-    #         current_changes["changed_moves"].append(move_name)
-    #         moves_changes_file.seek(0)
-    #         moves_changes_file.truncate()
-    #         moves_changes_file.write(json.dumps(current_changes))
-    #     moves_changes_file.close()
 
     return {"message": "Changes Saved"}
 
