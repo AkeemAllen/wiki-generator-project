@@ -2,7 +2,9 @@ from fastapi import APIRouter
 import json
 
 from models.move_models import MoveDetails
+from models.pokemon_models import PokemonVersions
 from models.wikis_models import PreparationData
+from pokemon_pages_generator import generate_pokemon
 from prepare_large_data import prepare_move_data
 
 
@@ -51,6 +53,30 @@ def track_move_changes(moves, move_name, move_attribute, modified_moves, new_val
         == modified_moves[move_name][move_attribute]["new"]
     ):
         del modified_moves[move_name][move_attribute]
+
+
+def update_pokemon_with_move_page(move_name: str, wiki_name: str):
+    with open(
+        f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
+    ) as pokemon_file:
+        pokemon = json.load(pokemon_file)
+        pokemon_file.close()
+
+    with open("data/wikis.json", encoding="utf-8") as wikis_file:
+        wikis = json.load(wikis_file)
+        wikis_file.close()
+
+    version_group = wikis[wiki_name]["settings"]["version_group"]
+
+    for pokemon_name in pokemon:
+        if move_name in pokemon[pokemon_name]["moves"]:
+            print(f"Updating {pokemon_name}")
+            generate_pokemon(
+                wiki_name,
+                PokemonVersions(version_group),
+                pokemon[pokemon_name]["id"],
+                pokemon[pokemon_name]["id"],
+            )
 
 
 # Save Changes to move
@@ -111,6 +137,10 @@ def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str)
     ) as moves_changes_file:
         moves_changes_file.write(json.dumps(modified_moves))
         moves_changes_file.close()
+
+    # async function to find all pokemon that have this move and update them
+    # maybe add changed moves to a queue for processing at a later time vs immediately
+    update_pokemon_with_move_page(move_name, wiki_name)
 
     return {"message": "Changes Saved"}
 
