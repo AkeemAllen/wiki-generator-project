@@ -166,6 +166,14 @@ const MainAppshell = () => {
                     icon={<IconGitBranch size={"1rem"} />}
                   />
                 </Link>
+                <Link to={"/generate-wiki"} style={{ textDecoration: "none" }}>
+                  <NavButton
+                    text="Generate Wiki Pages"
+                    color="blue"
+                    isActive={pathname.includes("/generate-wiki")}
+                    icon={<IconGitBranch size={"1rem"} />}
+                  />
+                </Link>
 
                 <Link to={"/backups"} style={{ textDecoration: "none" }}>
                   <NavButton

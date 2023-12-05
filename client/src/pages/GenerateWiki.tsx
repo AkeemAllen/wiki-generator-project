@@ -11,7 +11,10 @@ const GenerateWiki = () => {
   const [rangeStart, setRangeStart] = useInputState<number>(0);
   const [rangeEnd, setRangeEnd] = useInputState<number>(0);
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
-  const [versionGroup, setVersionGroup] = useInputState<string>("black-white");
+  const [wikiList, __] = useLocalStorage("wikiList", {});
+  const [versionGroup, setVersionGroup] = useInputState<string>(
+    wikiList[currentWiki]?.settings?.version_group
+  );
 
   const {
     mutate: mutateGeneratePokemon,

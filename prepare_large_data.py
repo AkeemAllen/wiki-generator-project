@@ -20,6 +20,38 @@ def get_markdown_file_name(pokedex_number):
     return file_name
 
 
+def prepare_technical_and_hidden_machines_data(wiki_name: str):
+    machine_range = range(1, 1689)
+    machines = {}
+    for machine_id in tqdm.tqdm(machine_range):
+        response = requests.get(f"https://pokeapi.co/api/v2/machine/{machine_id}")
+
+        if response == "Not Found":
+            continue
+
+        machine_data = response.json()
+        machine_name = machine_data["move"]["name"]
+
+        if machine_name not in machines:
+            machines[machine_name] = []
+
+        machines[machine_data["move"]["name"]].append(
+            {
+                "technical_name": machine_data["item"]["name"],
+                "game_version": machine_data["version_group"]["name"],
+            }
+        )
+    # Might be a better idea to append each new machine to the file
+    # rather downloading all at once and then storing in file
+    # That approach would likely be more tolerant of any faults that
+    # may arise on the network side
+    with open(
+        f"{data_folder_route}/{wiki_name}/machines.json", "w"
+    ) as machine_data_file:
+        machine_data_file.write(json.dumps(machines))
+        machine_data_file.close()
+
+
 def prepare_move_data(wiki_name: str, range_start: int, range_end: int):
     move_range = range(range_start, range_end + 1)
     moves = {}
@@ -47,6 +79,9 @@ def prepare_move_data(wiki_name: str, range_start: int, range_end: int):
     fh = open(f"{data_folder_route}/{wiki_name}/moves.json", "w")
     fh.write(json.dumps(moves))
     fh.close()
+
+    # prepare_machine_data
+    # prepare_technical_and_hidden_machines_data(wiki_name)
 
 
 def prepare_items_data():
@@ -243,36 +278,6 @@ def download_pokemon_sprites(wiki_name: str):
             pokemon_image_sprite_file.close()
 
 
-def prepare_technical_and_hidden_machines_data():
-    machine_range = range(1, 1689)
-    machines = {}
-    for machine_id in tqdm.tqdm(machine_range):
-        response = requests.get(f"https://pokeapi.co/api/v2/machine/{machine_id}")
-
-        if response == "Not Found":
-            continue
-
-        machine_data = response.json()
-        machine_name = machine_data["move"]["name"]
-
-        if machine_name not in machines:
-            machines[machine_name] = []
-
-        machines[machine_data["move"]["name"]].append(
-            {
-                "technical_name": machine_data["item"]["name"],
-                "game_version": machine_data["version_group"]["name"],
-            }
-        )
-    # Might be a better idea to append each new machine to the file
-    # rather downloading all at once and then storing in file
-    # That approach would likely be more tolerant of any faults that
-    # may arise on the network side
-    with open(f"temp/machines.json", "w") as machine_data_file:
-        machine_data_file.write(json.dumps(machines))
-        machine_data_file.close()
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
@@ -323,7 +328,7 @@ if __name__ == "__main__":
         download_pokemon_sprites(args.wiki_name)
 
     if args.machines:
-        prepare_technical_and_hidden_machines_data()
+        prepare_technical_and_hidden_machines_data(args.wiki_name)
 
     if args.moves:
         prepare_move_data(args.wiki_name, args.range[0], args.range[1])
