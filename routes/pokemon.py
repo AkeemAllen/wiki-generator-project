@@ -103,6 +103,8 @@ async def save_pokemon_changes(
             pokemon[pokemon_name]["moves"][move] = {
                 "level_learned_at": value.level_learned_at,
                 "learn_method": value.learn_method,
+                "is_custom_machine": value.is_custom_machine,
+                "custom_machine_id": value.custom_machine_id,
             }
 
     if changes.types:

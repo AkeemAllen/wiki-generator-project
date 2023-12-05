@@ -23,6 +23,8 @@ class MoveDetails(BaseModel):
 class MoveData(BaseModel):
     level_learned_at: int
     learn_method: str
+    is_custom_machine: Optional[bool] = False
+    custom_machine_id: Optional[str]
     delete: Optional[bool] = False
 
 

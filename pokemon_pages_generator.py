@@ -341,16 +341,20 @@ class Pokemon:
             moves_file.close()
 
         for move_name, details in data.moves.__root__.items():
+            # TODO: Consider removing this check since any move could be a machine
             if move_name not in machines:
                 continue
             if details.learn_method != "machine":
                 continue
 
             machine_name = ""
-            for machine_version in machines[move_name]:
-                if machine_version["game_version"] == version_group.value:
-                    machine_name = machine_version["technical_name"]
-                    break
+            if details.is_custom_machine:
+                machine_name = details.custom_machine_id
+            else:
+                for machine_version in machines[move_name]:
+                    if machine_version["game_version"] == version_group.value:
+                        machine_name = machine_version["technical_name"]
+                        break
 
             if machine_name == "":
                 continue

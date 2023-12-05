@@ -10,6 +10,8 @@ export type Move = {
   [key: string]: {
     level_learned_at: number;
     learn_method: string;
+    is_custom_machine?: boolean;
+    custom_machine_id?: string;
     delete?: boolean;
   };
 };
