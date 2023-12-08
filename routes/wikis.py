@@ -1,9 +1,13 @@
+import cProfile
 import datetime
 import os
+import pstats
 import shutil
 import subprocess
 from fastapi import APIRouter
 import json
+
+import yaml
 from evolution_page_generator import generate_evolution_page
 from type_page_generator import generate_type_page
 from wiki_boilerplate_generator import create_boiler_plate
@@ -104,14 +108,32 @@ async def delete_wiki(wiki_name: str):
 
 @router.post("/wikis/generate/pokemon")
 async def generate_pokemon_pages(generation_data: GenerationData):
-    generate_pokemon(
-        generation_data.wiki_name,
-        generation_data.version_group,
-        generation_data.range_start,
-        generation_data.range_end,
-    )
-    generate_evolution_page(generation_data.wiki_name)
-    generate_type_page(generation_data.wiki_name)
+    with open(
+        f"{data_folder_route}/{generation_data.wiki_name}/pokemon.json",
+        encoding="utf-8",
+    ) as pokemon_data_file:
+        pokemon = json.load(pokemon_data_file)
+        pokemon_data_file.close()
+
+    with open(f"dist/{generation_data.wiki_name}/mkdocs.yml", "r") as mkdocs_file:
+        mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
+        mkdocs_file.close()
+
+    with cProfile.Profile() as pr:
+        generate_pokemon(
+            generation_data.wiki_name,
+            generation_data.version_group,
+            pokemon,
+            mkdocs_yaml_dict,
+            generation_data.range_start,
+            generation_data.range_end,
+        )
+        generate_evolution_page(generation_data.wiki_name)
+        generate_type_page(generation_data.wiki_name)
+
+    results = pstats.Stats(pr)
+    results.sort_stats(pstats.SortKey.TIME)
+    results.print_stats()
 
     return {
         "message": f"Pokemon from ranges {generation_data.range_start} to {generation_data.range_end} generated",
