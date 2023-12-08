@@ -5,6 +5,7 @@ from functools import reduce
 router = APIRouter()
 
 
+# TODO: Figure out how to store matchup maps and reference them rather than recreating them every time
 def create_matchup_map():
     matchup_map = {}
     data = gen_default

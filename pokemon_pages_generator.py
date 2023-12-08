@@ -1,4 +1,6 @@
+import cProfile
 import json
+import pstats
 import yaml
 import argparse
 import pokebase
@@ -69,313 +71,216 @@ def generate_moves_array(moves, table_type):
     return table_array_for_moves
 
 
-# TODO: This class isn't really necessary. Remove later and have standalone functions
-class Pokemon:
-    def __init__(self, pokemon_name: str):
-        self.pokemon_data = PokemonData()
-        self.pokemon_name = pokemon_name
-        self.dex_number = int(pokebase.pokemon(pokemon_name).id)
+def get_pokemon_data(wiki_name: str, pokemon_name: str):
+    with open(
+        f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
+    ) as pokemon_data_file:
+        pokemon = json.load(pokemon_data_file)
+        pokemon_data_file.close()
 
-    def get_pokemon_data(self, wiki_name: str):
-        with open(
-            f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
-        ) as pokemon_data_file:
-            pokemon = json.load(pokemon_data_file)
-            pokemon_data_file.close()
+        pokemon_data = PokemonData.parse_raw(json.dumps(pokemon[pokemon_name]))
+    return pokemon_data
 
-            self.pokemon_data = PokemonData.parse_raw(
-                json.dumps(pokemon[self.pokemon_name])
-            )
-        return self.pokemon_data
 
-    def add_sprite(self, doc: Document):
-        doc.add_element(
-            Paragraph(
-                [
-                    InlineText(
-                        f"{self.pokemon_data.name}",
-                        url=f"../img/pokemon/{get_pokemon_dex_formatted_name(self.dex_number)}.png",
-                        image=True,
-                    )
-                ]
-            )
-        )
-
-    def create_type_table(self, doc: Document):
-        data = self.pokemon_data
-        type_images = [get_markdown_image_for_type(_type) for _type in data.types]
-
-        doc.add_header("Types", 2)
-        doc.add_table(
-            ["Version", "Type"],
-            [["Classic", " ".join(map(str, type_images))]],
-            [Table.Align.CENTER, Table.Align.RIGHT],
-            0,
-        )
-
-    def create_defenses_table(self, doc: Document):
-        data = self.pokemon_data
-        types = [_type for _type in data.types]
-        query_string = f"{types[0]}+{types[1]}" if len(types) > 1 else f"{types[0]}"
-
-        response = get_defensive_matchups_synchronous(query_string)
-
-        # Converting int keys to string so that the keys can actually be checked for
-        response = {str(k): v for k, v in response.items()}
-
-        immunities = ""
-        normal_resists = ""
-        two_weak_resists = ""
-        four_weak_resists = ""
-        half_strong_resists = ""
-        quarter_strong_resists = ""
-
-        if "0" in response:
-            immunities = [
-                get_markdown_image_for_type(pokemon_type)
-                for pokemon_type in response["0"]
-            ]
-
-        if "1" in response:
-            normal_resists = [
-                get_markdown_image_for_type(pokemon_type)
-                for pokemon_type in response["1"]
-            ]
-
-        if "2" in response:
-            two_weak_resists = [
-                get_markdown_image_for_type(pokemon_type)
-                for pokemon_type in response["2"]
-            ]
-
-        if "4" in response:
-            four_weak_resists = [
-                get_markdown_image_for_type(pokemon_type)
-                for pokemon_type in response["4"]
-            ]
-
-        if "0.5" in response:
-            half_strong_resists = [
-                get_markdown_image_for_type(pokemon_type)
-                for pokemon_type in response["0.5"]
-            ]
-
-        if "0.25" in response:
-            quarter_strong_resists = [
-                get_markdown_image_for_type(pokemon_type)
-                for pokemon_type in response["0.25"]
-            ]
-
-        doc.add_header("Defenses", 2)
-        doc.add_table(
+def add_sprite(doc: Document, pokemon_data: PokemonData, dex_number: int):
+    doc.add_element(
+        Paragraph(
             [
-                "Immune x0",
-                "Resistant ×¼",
-                "Resistant ×½",
-                "Normal ×1",
-                "Weak ×2",
-                "Weak ×4",
-            ],
-            [
-                [
-                    "<br/>".join(map(str, immunities)),
-                    "<br/>".join(map(str, quarter_strong_resists)),
-                    "<br/>".join(map(str, half_strong_resists)),
-                    "<br/>".join(map(str, normal_resists)),
-                    "<br/>".join(map(str, two_weak_resists)),
-                    "<br/>".join(map(str, four_weak_resists)),
-                ]
-            ],
+                InlineText(
+                    f"{pokemon_data.name}",
+                    url=f"../img/pokemon/{get_pokemon_dex_formatted_name(dex_number)}.png",
+                    image=True,
+                )
+            ]
         )
+    )
+
+
+def create_type_table(doc: Document, pokemon_data: PokemonData):
+    data = pokemon_data
+    type_images = [get_markdown_image_for_type(_type) for _type in data.types]
+
+    doc.add_header("Types", 2)
+    doc.add_table(
+        ["Version", "Type"],
+        [["Classic", " ".join(map(str, type_images))]],
+        [Table.Align.CENTER, Table.Align.RIGHT],
+        0,
+    )
+
+
+def create_defenses_table(doc: Document, pokemon_data: PokemonData):
+    data = pokemon_data
+    types = [_type for _type in data.types]
+    query_string = f"{types[0]}+{types[1]}" if len(types) > 1 else f"{types[0]}"
+
+    response = get_defensive_matchups_synchronous(query_string)
+
+    # Converting int keys to string so that the keys can actually be checked for
+    response = {str(k): v for k, v in response.items()}
+
+    immunities = ""
+    normal_resists = ""
+    two_weak_resists = ""
+    four_weak_resists = ""
+    half_strong_resists = ""
+    quarter_strong_resists = ""
+
+    if "0" in response:
+        immunities = [
+            get_markdown_image_for_type(pokemon_type) for pokemon_type in response["0"]
+        ]
+
+    if "1" in response:
+        normal_resists = [
+            get_markdown_image_for_type(pokemon_type) for pokemon_type in response["1"]
+        ]
+
+    if "2" in response:
+        two_weak_resists = [
+            get_markdown_image_for_type(pokemon_type) for pokemon_type in response["2"]
+        ]
+
+    if "4" in response:
+        four_weak_resists = [
+            get_markdown_image_for_type(pokemon_type) for pokemon_type in response["4"]
+        ]
+
+    if "0.5" in response:
+        half_strong_resists = [
+            get_markdown_image_for_type(pokemon_type)
+            for pokemon_type in response["0.5"]
+        ]
+
+    if "0.25" in response:
+        quarter_strong_resists = [
+            get_markdown_image_for_type(pokemon_type)
+            for pokemon_type in response["0.25"]
+        ]
+
+    doc.add_header("Defenses", 2)
+    doc.add_table(
+        [
+            "Immune x0",
+            "Resistant ×¼",
+            "Resistant ×½",
+            "Normal ×1",
+            "Weak ×2",
+            "Weak ×4",
+        ],
+        [
+            [
+                "<br/>".join(map(str, immunities)),
+                "<br/>".join(map(str, quarter_strong_resists)),
+                "<br/>".join(map(str, half_strong_resists)),
+                "<br/>".join(map(str, normal_resists)),
+                "<br/>".join(map(str, two_weak_resists)),
+                "<br/>".join(map(str, four_weak_resists)),
+            ]
+        ],
+    )
+
+
+def create_ability_table(doc: Document, pokemon_data: PokemonData):
+    data = pokemon_data
+    abilities = [ability.title() for ability in data.abilities]
+
+    doc.add_header("Abilities", 2)
+    doc.add_table(["Version", "Ability"], [["All", " / ".join(map(str, abilities))]])
+
+
+def create_stats_table(doc: Document, pokemon_data: PokemonData):
+    data = pokemon_data
+
+    base_stat_total = sum(dict(data.stats).values())
+
+    doc.add_header("Base Stats", 2)
+    doc.add_table(
+        ["Version", "HP", "Atk", "Def", "SAtk", "SDef", "Spd", "BST"],
+        [
+            [
+                "All",
+                data.stats.hp,
+                data.stats.attack,
+                data.stats.defense,
+                data.stats.sp_attack,
+                data.stats.sp_defense,
+                data.stats.speed,
+                base_stat_total,
+            ]
+        ],
+    )
+
+
+def create_evolution_table(doc: Document, pokemon_data: PokemonData):
+    data = pokemon_data
+
+    if not data.evolution:
         return
 
-    def create_ability_table(self, doc: Document):
-        data = self.pokemon_data
-        abilities = [ability.title() for ability in data.abilities]
+    def determine_evo_item_level_note():
+        if data.evolution.item:
+            return f"{data.evolution.item.title()}"
+        elif data.evolution.level:
+            return f"{data.evolution.level}"
+        elif data.evolution.other:
+            return f"{data.evolution.other.title()}"
+        else:
+            return ""
 
-        doc.add_header("Abilities", 2)
-        doc.add_table(
-            ["Version", "Ability"], [["All", " / ".join(map(str, abilities))]]
-        )
-
-    def create_stats_table(self, doc: Document):
-        data = self.pokemon_data
-
-        base_stat_total = sum(dict(data.stats).values())
-
-        doc.add_header("Base Stats", 2)
-        doc.add_table(
-            ["Version", "HP", "Atk", "Def", "SAtk", "SDef", "Spd", "BST"],
+    doc.add_header("Evolution Change", 2)
+    doc.add_table(
+        ["Method", "Item/Level/Note", "Evolved Pokemon"],
+        [
             [
-                [
-                    "All",
-                    data.stats.hp,
-                    data.stats.attack,
-                    data.stats.defense,
-                    data.stats.sp_attack,
-                    data.stats.sp_defense,
-                    data.stats.speed,
-                    base_stat_total,
-                ]
+                data.evolution.method.title(),
+                determine_evo_item_level_note(),
+                data.evolution.evolved_pokemon.title(),
             ],
-        )
+        ],
+    )
 
-    def create_evolution_note(self, doc: Document):
-        data = self.pokemon_data
 
-        if not data.evolution:
-            return
+def create_level_up_moves_table(
+    doc: Document,
+    version_group: PokemonVersions,
+    wiki_name: str,
+    pokemon_data: PokemonData,
+):
+    data = pokemon_data
+    moves = {}
 
-        print(data.evolution)
+    with open(
+        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
+    ) as moves_file:
+        file_moves = json.load(moves_file)
+        moves_file.close()
 
-        def determine_evo_item_level_note():
-            if data.evolution.item:
-                return f"{data.evolution.item.title()}"
-            elif data.evolution.level:
-                return f"{data.evolution.level}"
-            elif data.evolution.other:
-                return f"{data.evolution.other.title()}"
+    for move_name, details in data.moves.__root__.items():
+        if details.learn_method != "level-up":
+            continue
+        if details.level_learned_at == 0:
+            continue
+
+        relevant_past_value = [
+            value
+            for value in file_moves[move_name]["past_values"]
+            if value["version_group"]["name"] == version_group
+        ]
+        if len(relevant_past_value) > 0:
+            file_moves[move_name]["accuracy"] = (
+                relevant_past_value[0]["accuracy"] or file_moves[move_name]["accuracy"]
+            )
+            file_moves[move_name]["power"] = (
+                relevant_past_value[0]["power"] or file_moves[move_name]["power"]
+            )
+            file_moves[move_name]["pp"] = (
+                relevant_past_value[0]["power"] or file_moves[move_name]["pp"]
+            )
+            # special case for curse
+            if move_name == "curse":
+                file_moves[move_name]["type"] = "ghost"
             else:
-                return ""
-
-        doc.add_header("Evolution Change", 2)
-        doc.add_table(
-            ["Method", "Item/Level/Note", "Evolved Pokemon"],
-            [
-                [
-                    data.evolution.method.title(),
-                    determine_evo_item_level_note(),
-                    data.evolution.evolved_pokemon.title(),
-                ],
-            ],
-        )
-
-    def create_level_up_moves_table(
-        self, doc: Document, version_group: PokemonVersions, wiki_name: str
-    ):
-        data = self.pokemon_data
-        moves = {}
-
-        with open(
-            f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
-        ) as moves_file:
-            file_moves = json.load(moves_file)
-            moves_file.close()
-
-        for move_name, details in data.moves.__root__.items():
-            if details.learn_method != "level-up":
-                continue
-            if details.level_learned_at == 0:
-                continue
-
-            relevant_past_value = [
-                value
-                for value in file_moves[move_name]["past_values"]
-                if value["version_group"]["name"] == version_group
-            ]
-            if len(relevant_past_value) > 0:
-                file_moves[move_name]["accuracy"] = (
-                    relevant_past_value[0]["accuracy"]
-                    or file_moves[move_name]["accuracy"]
-                )
-                file_moves[move_name]["power"] = (
-                    relevant_past_value[0]["power"] or file_moves[move_name]["power"]
-                )
-                file_moves[move_name]["pp"] = (
-                    relevant_past_value[0]["power"] or file_moves[move_name]["pp"]
-                )
-                # special case for curse
-                if move_name == "curse":
-                    file_moves[move_name]["type"] = "ghost"
-                else:
-                    past_type = (
-                        relevant_past_value[0]["type"]["name"]
-                        if relevant_past_value[0]["type"]
-                        else None
-                    )
-                    file_moves[move_name]["type"] = (
-                        past_type or file_moves[move_name]["type"]
-                    )
-
-            try:
-                move_data = MoveDetails.parse_raw(json.dumps(file_moves[move_name]))
-            except ValidationError as err:
-                print(f"Error parsing move {move_name} for {data.name}: {err}")
-                continue
-
-            moves[move_name] = {
-                "level_learned": details.level_learned_at,
-                "power": move_data.power,
-                "type": move_data.type,
-                "accuracy": move_data.accuracy,
-                "pp": move_data.pp,
-                "damage_class": move_data.damage_class,
-            }
-
-        sorted_moves = dict(
-            sorted(moves.items(), key=lambda x: x[1]["level_learned"], reverse=False)
-        )
-
-        doc.add_header("Level Up Moves", 2)
-        doc.add_table(
-            ["Level", "Name", "Power", "Accuracy", "PP", "Type", "Damage Class"],
-            generate_moves_array(sorted_moves, table_type="level_up"),
-        )
-
-    def create_learnable_moves(
-        self, doc: Document, version_group: PokemonVersions, wiki_name: str
-    ):
-        data = self.pokemon_data
-        moves = {}
-
-        with open(
-            f"{data_folder_route}/{wiki_name}/machines.json", encoding="utf-8"
-        ) as machines_file:
-            machines = json.load(machines_file)
-            machines_file.close()
-
-        with open(
-            f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
-        ) as moves_file:
-            file_moves = json.load(moves_file)
-            moves_file.close()
-
-        for move_name, details in data.moves.__root__.items():
-            # TODO: Consider removing this check since any move could be a machine
-            if move_name not in machines:
-                continue
-            if details.learn_method != "machine":
-                continue
-
-            machine_name = ""
-            if details.is_custom_machine:
-                machine_name = details.custom_machine_id
-            else:
-                for machine_version in machines[move_name]:
-                    if machine_version["game_version"] == version_group.value:
-                        machine_name = machine_version["technical_name"]
-                        break
-
-            if machine_name == "":
-                continue
-
-            relevant_past_value = [
-                value
-                for value in file_moves[move_name]["past_values"]
-                if value["version_group"]["name"] == version_group.value
-            ]
-
-            if len(relevant_past_value) > 0:
-                file_moves[move_name]["accuracy"] = (
-                    relevant_past_value[0]["accuracy"]
-                    or file_moves[move_name]["accuracy"]
-                )
-                file_moves[move_name]["power"] = (
-                    relevant_past_value[0]["power"] or file_moves[move_name]["power"]
-                )
-                file_moves[move_name]["pp"] = (
-                    relevant_past_value[0]["power"] or file_moves[move_name]["pp"]
-                )
                 past_type = (
                     relevant_past_value[0]["type"]["name"]
                     if relevant_past_value[0]["type"]
@@ -385,45 +290,120 @@ class Pokemon:
                     past_type or file_moves[move_name]["type"]
                 )
 
-            try:
-                move_data = MoveDetails.parse_raw(json.dumps(file_moves[move_name]))
+        try:
+            move_data = MoveDetails.parse_raw(json.dumps(file_moves[move_name]))
+        except ValidationError as err:
+            print(f"Error parsing move {move_name} for {data.name}: {err}")
+            continue
 
-            except ValidationError as err:
-                print(f"Error parsing move {move_name} for {data.name}: {err}")
-                continue
+        moves[move_name] = {
+            "level_learned": details.level_learned_at,
+            "power": move_data.power,
+            "type": move_data.type,
+            "accuracy": move_data.accuracy,
+            "pp": move_data.pp,
+            "damage_class": move_data.damage_class,
+        }
 
-            moves[move_name] = {
-                "machine": machine_name.upper(),
-                "power": move_data.power,
-                "type": move_data.type,
-                "accuracy": move_data.accuracy,
-                "pp": move_data.pp,
-                "damage_class": move_data.damage_class,
-            }
+    sorted_moves = dict(
+        sorted(moves.items(), key=lambda x: x[1]["level_learned"], reverse=False)
+    )
 
-        sorted_moves = dict(
-            sorted(moves.items(), key=lambda x: x[1]["machine"], reverse=False)
-        )
-
-        doc.add_header("Learnable Moves", 2)
-        doc.add_table(
-            ["Machine", "Name", "Power", "Accuracy", "PP", "Type", "Damage Class"],
-            generate_moves_array(sorted_moves, table_type="learnable"),
-        )
+    doc.add_header("Level Up Moves", 2)
+    doc.add_table(
+        ["Level", "Name", "Power", "Accuracy", "PP", "Type", "Damage Class"],
+        generate_moves_array(sorted_moves, table_type="level_up"),
+    )
 
 
-def get_updated_dict(dict_to_update, path, value):
-    obj = dict_to_update
-    key_list = path.split(".")
+def create_learnable_moves(
+    doc: Document,
+    version_group: PokemonVersions,
+    wiki_name: str,
+    pokemon_data: PokemonData,
+):
+    data = pokemon_data
+    moves = {}
 
-    print(key_list)
-    for key in key_list[:-1]:
-        print(key)
-        obj = obj[key]
+    with open(
+        f"{data_folder_route}/{wiki_name}/machines.json", encoding="utf-8"
+    ) as machines_file:
+        machines = json.load(machines_file)
+        machines_file.close()
 
-    print("Before", obj)
-    obj[key_list[-1]] = value
-    print("After", obj)
+    with open(
+        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
+    ) as moves_file:
+        file_moves = json.load(moves_file)
+        moves_file.close()
+
+    for move_name, details in data.moves.__root__.items():
+        # TODO: Consider removing this check since any move could be a machine
+        if move_name not in machines:
+            continue
+        if details.learn_method != "machine":
+            continue
+
+        machine_name = ""
+        if details.is_custom_machine:
+            machine_name = details.custom_machine_id
+        else:
+            for machine_version in machines[move_name]:
+                if machine_version["game_version"] == version_group.value:
+                    machine_name = machine_version["technical_name"]
+                    break
+
+        if machine_name == "":
+            continue
+
+        relevant_past_value = [
+            value
+            for value in file_moves[move_name]["past_values"]
+            if value["version_group"]["name"] == version_group.value
+        ]
+
+        if len(relevant_past_value) > 0:
+            file_moves[move_name]["accuracy"] = (
+                relevant_past_value[0]["accuracy"] or file_moves[move_name]["accuracy"]
+            )
+            file_moves[move_name]["power"] = (
+                relevant_past_value[0]["power"] or file_moves[move_name]["power"]
+            )
+            file_moves[move_name]["pp"] = (
+                relevant_past_value[0]["power"] or file_moves[move_name]["pp"]
+            )
+            past_type = (
+                relevant_past_value[0]["type"]["name"]
+                if relevant_past_value[0]["type"]
+                else None
+            )
+            file_moves[move_name]["type"] = past_type or file_moves[move_name]["type"]
+
+        try:
+            move_data = MoveDetails.parse_raw(json.dumps(file_moves[move_name]))
+
+        except ValidationError as err:
+            print(f"Error parsing move {move_name} for {data.name}: {err}")
+            continue
+
+        moves[move_name] = {
+            "machine": machine_name.upper(),
+            "power": move_data.power,
+            "type": move_data.type,
+            "accuracy": move_data.accuracy,
+            "pp": move_data.pp,
+            "damage_class": move_data.damage_class,
+        }
+
+    sorted_moves = dict(
+        sorted(moves.items(), key=lambda x: x[1]["machine"], reverse=False)
+    )
+
+    doc.add_header("Learnable Moves", 2)
+    doc.add_table(
+        ["Machine", "Name", "Power", "Accuracy", "PP", "Type", "Damage Class"],
+        generate_moves_array(sorted_moves, table_type="learnable"),
+    )
 
 
 def generate_pokemon(
@@ -442,8 +422,7 @@ def generate_pokemon(
 
     for pokedex_number in tqdm.tqdm(pokemon_range):
         pokemon_name = pokebase.pokemon(pokedex_number).name
-        pokemon = Pokemon(pokemon_name)
-        pokemon_data = pokemon.get_pokemon_data(wiki_name)
+        pokemon_data = get_pokemon_data(wiki_name, pokemon_name)
 
         pokedex_markdown_file_name = get_pokemon_dex_formatted_name(pokedex_number)
 
@@ -453,16 +432,21 @@ def generate_pokemon(
 
         doc.add_header(f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}")
 
-        pokemon.add_sprite(doc)
-        pokemon.create_type_table(doc)
-        pokemon.create_defenses_table(doc)
-        pokemon.create_ability_table(doc)
-        pokemon.create_stats_table(doc)
-        pokemon.create_evolution_note(doc)
-        pokemon.create_level_up_moves_table(doc, version_group, wiki_name)
-        pokemon.create_learnable_moves(doc, version_group, wiki_name)
+        with cProfile.Profile() as pr:
+            add_sprite(doc, pokemon_data, pokedex_number)
+            create_type_table(doc, pokemon_data)
+            create_defenses_table(doc, pokemon_data)
+            create_ability_table(doc, pokemon_data)
+            create_stats_table(doc, pokemon_data)
+            create_evolution_table(doc, pokemon_data)
+            create_level_up_moves_table(doc, version_group, wiki_name, pokemon_data)
+            create_learnable_moves(doc, version_group, wiki_name, pokemon_data)
 
-        doc.output_page(markdown_file_path)
+            doc.output_page(markdown_file_path)
+
+        results = pstats.Stats(pr)
+        results.sort_stats(pstats.SortKey.TIME)
+        results.print_stats()
 
         specific_change_entry = {
             f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}": f"pokemon/{pokedex_markdown_file_name}.md"
