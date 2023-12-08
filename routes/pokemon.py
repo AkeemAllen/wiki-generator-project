@@ -2,6 +2,8 @@
 from fastapi import APIRouter
 import json
 
+import yaml
+
 
 from models.pokemon_models import PokemonChanges, PokemonVersions
 from type_page_generator import generate_type_page
@@ -70,6 +72,10 @@ async def get_pokemon(pokemon_name: str, wiki_name: str):
 async def save_pokemon_changes(
     changes: PokemonChanges, pokemon_name: str, wiki_name: str
 ):
+    with open(f"dist/{wiki_name}/mkdocs.yml", "r") as mkdocs_file:
+        mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
+        mkdocs_file.close()
+
     with open(
         f"{data_folder_route}/{wiki_name}/modifications/modified_pokemon.json",
         encoding="utf-8",
@@ -174,6 +180,8 @@ async def save_pokemon_changes(
     generate_pokemon(
         wiki_name,
         PokemonVersions(version_group),
+        pokemon,
+        mkdocs_yaml_dict,
         pokemon[pokemon_name]["id"],
         pokemon[pokemon_name]["id"],
     )

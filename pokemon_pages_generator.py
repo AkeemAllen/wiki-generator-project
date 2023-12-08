@@ -71,17 +71,6 @@ def generate_moves_array(moves, table_type):
     return table_array_for_moves
 
 
-def get_pokemon_data(wiki_name: str, pokemon_name: str):
-    with open(
-        f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
-    ) as pokemon_data_file:
-        pokemon = json.load(pokemon_data_file)
-        pokemon_data_file.close()
-
-        pokemon_data = PokemonData.parse_raw(json.dumps(pokemon[pokemon_name]))
-    return pokemon_data
-
-
 def add_sprite(doc: Document, pokemon_data: PokemonData, dex_number: int):
     doc.add_element(
         Paragraph(
@@ -409,20 +398,20 @@ def create_learnable_moves(
 def generate_pokemon(
     wiki_name: str,
     version_group: PokemonVersions,
+    pokemon: dict = None,
+    mkdocs_yaml_dict: dict = None,
     range_start: int = 1,
     range_end: int = 650,
 ):
     pokemon_range = range(range_start, range_end + 1)
 
-    with open(f"dist/{wiki_name}/mkdocs.yml", "r") as mkdocs_file:
-        mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
-        mkdocs_file.close()
+    # consider moving file opening to calling functions
 
     specific_changes = get_specific_changes_from_yaml(mkdocs_yaml_dict)
 
     for pokedex_number in tqdm.tqdm(pokemon_range):
         pokemon_name = pokebase.pokemon(pokedex_number).name
-        pokemon_data = get_pokemon_data(wiki_name, pokemon_name)
+        pokemon_data = PokemonData.parse_raw(json.dumps(pokemon[pokemon_name]))
 
         pokedex_markdown_file_name = get_pokemon_dex_formatted_name(pokedex_number)
 
@@ -432,21 +421,16 @@ def generate_pokemon(
 
         doc.add_header(f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}")
 
-        with cProfile.Profile() as pr:
-            add_sprite(doc, pokemon_data, pokedex_number)
-            create_type_table(doc, pokemon_data)
-            create_defenses_table(doc, pokemon_data)
-            create_ability_table(doc, pokemon_data)
-            create_stats_table(doc, pokemon_data)
-            create_evolution_table(doc, pokemon_data)
-            create_level_up_moves_table(doc, version_group, wiki_name, pokemon_data)
-            create_learnable_moves(doc, version_group, wiki_name, pokemon_data)
+        add_sprite(doc, pokemon_data, pokedex_number)
+        create_type_table(doc, pokemon_data)
+        create_defenses_table(doc, pokemon_data)
+        create_ability_table(doc, pokemon_data)
+        create_stats_table(doc, pokemon_data)
+        create_evolution_table(doc, pokemon_data)
+        create_level_up_moves_table(doc, version_group, wiki_name, pokemon_data)
+        create_learnable_moves(doc, version_group, wiki_name, pokemon_data)
 
-            doc.output_page(markdown_file_path)
-
-        results = pstats.Stats(pr)
-        results.sort_stats(pstats.SortKey.TIME)
-        results.print_stats()
+        doc.output_page(markdown_file_path)
 
         specific_change_entry = {
             f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}": f"pokemon/{pokedex_markdown_file_name}.md"
