@@ -13,7 +13,7 @@ from type_page_generator import generate_type_page
 from wiki_boilerplate_generator import create_boiler_plate
 
 from models.wikis_models import DeploymentData, GenerationData, Wiki, WikiSettings
-from pokemon_pages_generator import generate_pokemon
+from pokemon_pages_generator import generate_pages_from_range
 from route_pages_generator import generate_routes
 
 router = APIRouter()
@@ -108,25 +108,33 @@ async def delete_wiki(wiki_name: str):
 
 @router.post("/wikis/generate/pokemon")
 async def generate_pokemon_pages(generation_data: GenerationData):
+    wiki_name = generation_data.wiki_name
     with open(
-        f"{data_folder_route}/{generation_data.wiki_name}/pokemon.json",
+        f"{data_folder_route}/{wiki_name}/pokemon.json",
         encoding="utf-8",
     ) as pokemon_data_file:
         pokemon = json.load(pokemon_data_file)
         pokemon_data_file.close()
 
-    with open(f"dist/{generation_data.wiki_name}/mkdocs.yml", "r") as mkdocs_file:
+    with open(f"dist/{wiki_name}/mkdocs.yml", "r") as mkdocs_file:
         mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
         mkdocs_file.close()
 
+    with open(
+        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
+    ) as moves_file:
+        file_moves = json.load(moves_file)
+        moves_file.close()
+
     with cProfile.Profile() as pr:
-        generate_pokemon(
-            generation_data.wiki_name,
-            generation_data.version_group,
-            pokemon,
-            mkdocs_yaml_dict,
-            generation_data.range_start,
-            generation_data.range_end,
+        generate_pages_from_range(
+            wiki_name=wiki_name,
+            version_group=generation_data.version_group,
+            pokemon=pokemon,
+            file_moves=file_moves,
+            mkdocs_yaml_dict=mkdocs_yaml_dict,
+            range_start=generation_data.range_start,
+            range_end=generation_data.range_end,
         )
         generate_evolution_page(generation_data.wiki_name)
         generate_type_page(generation_data.wiki_name)

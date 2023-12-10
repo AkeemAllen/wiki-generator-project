@@ -233,17 +233,11 @@ def create_evolution_table(doc: Document, pokemon_data: PokemonData):
 def create_level_up_moves_table(
     doc: Document,
     version_group: PokemonVersions,
-    wiki_name: str,
+    file_moves: dict,
     pokemon_data: PokemonData,
 ):
     data = pokemon_data
     moves = {}
-
-    with open(
-        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
-    ) as moves_file:
-        file_moves = json.load(moves_file)
-        moves_file.close()
 
     for move_name, details in data.moves.__root__.items():
         if details.learn_method != "level-up":
@@ -309,6 +303,7 @@ def create_learnable_moves(
     doc: Document,
     version_group: PokemonVersions,
     wiki_name: str,
+    file_moves: dict,
     pokemon_data: PokemonData,
 ):
     data = pokemon_data
@@ -319,12 +314,6 @@ def create_learnable_moves(
     ) as machines_file:
         machines = json.load(machines_file)
         machines_file.close()
-
-    with open(
-        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
-    ) as moves_file:
-        file_moves = json.load(moves_file)
-        moves_file.close()
 
     for move_name, details in data.moves.__root__.items():
         # TODO: Consider removing this check since any move could be a machine
@@ -395,17 +384,68 @@ def create_learnable_moves(
     )
 
 
-def generate_pokemon(
+def generate_pages_from_pokemon_list(
+    wiki_name: str,
+    version_group: PokemonVersions,
+    file_pokemon: dict,
+    file_moves: dict,
+    pokemon_to_generate_page_for: list,
+    mkdocs_yaml_dict: dict = None,
+):
+    specific_changes = get_specific_changes_from_yaml(mkdocs_yaml_dict)
+
+    for pokemon in tqdm.tqdm(pokemon_to_generate_page_for):
+        print(pokemon["name"])
+        pokemon_data = PokemonData.parse_raw(json.dumps(file_pokemon[pokemon["name"]]))
+
+        pokedex_markdown_file_name = get_pokemon_dex_formatted_name(
+            pokemon["dex_number"]
+        )
+
+        markdown_file_path = f"dist/{wiki_name}/docs/pokemon/"
+
+        doc = Document(pokedex_markdown_file_name)
+
+        doc.add_header(f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}")
+
+        add_sprite(doc, pokemon_data, pokemon["dex_number"])
+        create_type_table(doc, pokemon_data)
+        create_defenses_table(doc, pokemon_data)
+        create_ability_table(doc, pokemon_data)
+        create_stats_table(doc, pokemon_data)
+        create_evolution_table(doc, pokemon_data)
+        create_level_up_moves_table(doc, version_group, file_moves, pokemon_data)
+        create_learnable_moves(doc, version_group, wiki_name, file_moves, pokemon_data)
+
+        doc.output_page(markdown_file_path)
+
+        specific_change_entry = {
+            f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}": f"pokemon/{pokedex_markdown_file_name}.md"
+        }
+
+        if specific_change_entry not in specific_changes:
+            specific_changes.append(specific_change_entry)
+
+    sorted_specific_changes = sorted(specific_changes, key=lambda x: list(x.keys())[0])
+
+    set_specific_changes_in_yaml(mkdocs_yaml_dict, sorted_specific_changes)
+
+    with open(f"dist/{wiki_name}/mkdocs.yml", "w") as mkdocs_file:
+        yaml.dump(mkdocs_yaml_dict, mkdocs_file, sort_keys=False, indent=4)
+        mkdocs_file.close()
+
+
+# generate pages for pokemon range
+def generate_pages_from_range(
     wiki_name: str,
     version_group: PokemonVersions,
     pokemon: dict = None,
+    file_moves: dict = None,
     mkdocs_yaml_dict: dict = None,
     range_start: int = 1,
     range_end: int = 650,
 ):
     pokemon_range = range(range_start, range_end + 1)
-
-    # consider moving file opening to calling functions
 
     specific_changes = get_specific_changes_from_yaml(mkdocs_yaml_dict)
 
@@ -427,8 +467,8 @@ def generate_pokemon(
         create_ability_table(doc, pokemon_data)
         create_stats_table(doc, pokemon_data)
         create_evolution_table(doc, pokemon_data)
-        create_level_up_moves_table(doc, version_group, wiki_name, pokemon_data)
-        create_learnable_moves(doc, version_group, wiki_name, pokemon_data)
+        create_level_up_moves_table(doc, version_group, file_moves, pokemon_data)
+        create_learnable_moves(doc, version_group, wiki_name, file_moves, pokemon_data)
 
         doc.output_page(markdown_file_path)
 
@@ -446,28 +486,3 @@ def generate_pokemon(
     with open(f"dist/{wiki_name}/mkdocs.yml", "w") as mkdocs_file:
         yaml.dump(mkdocs_yaml_dict, mkdocs_file, sort_keys=False, indent=4)
         mkdocs_file.close()
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-wn", "--wiki_name", help="The name of the wiki")
-    parser.add_argument(
-        "-vg",
-        "--version-group",
-        help="The version group where the moves will come from",
-    )
-    parser.add_argument(
-        "-r",
-        "--range",
-        nargs=2,
-        help="The range of pokemon to generate (start end)",
-        type=int,
-    )
-    args = parser.parse_args()
-
-    if args.range:
-        generate_pokemon(
-            args.wiki_name, args.version_group, args.range[0], args.range[1]
-        )
-    else:
-        generate_pokemon(args.wiki_name, args.version_group)

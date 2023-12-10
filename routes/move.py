@@ -8,7 +8,7 @@ import yaml
 from models.move_models import MoveDetails
 from models.pokemon_models import PokemonVersions
 from models.wikis_models import PreparationData
-from pokemon_pages_generator import generate_pokemon
+from pokemon_pages_generator import generate_pages_from_pokemon_list
 from prepare_large_data import prepare_move_data
 
 
@@ -64,7 +64,7 @@ def track_move_changes(moves, move_name, move_attribute, modified_moves, new_val
         del modified_moves[move_name][move_attribute]
 
 
-def update_pokemon_with_move_page(move_name: str, wiki_name: str):
+def update_pokemon_with_move_page(moves: dict, move_name: str, wiki_name: str):
     with open(
         f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
     ) as pokemon_file:
@@ -81,22 +81,21 @@ def update_pokemon_with_move_page(move_name: str, wiki_name: str):
 
     version_group = wikis[wiki_name]["settings"]["version_group"]
 
-    # This is calling generate_pokemon several time
-    # while the function also has multiple calls to open the same file
-
-    # maybe create a version of the function that can take the pokemon list and name
-    # so the file only needs to be opened once
+    pokemon_to_generate_page_for = []
     for pokemon_name in pokemon:
         if move_name in pokemon[pokemon_name]["moves"]:
-            print(f"Updating {pokemon_name}")
-            generate_pokemon(
-                wiki_name,
-                PokemonVersions(version_group),
-                pokemon,
-                mkdocs_yaml_dict,
-                pokemon[pokemon_name]["id"],
-                pokemon[pokemon_name]["id"],
+            pokemon_to_generate_page_for.append(
+                {"name": pokemon_name, "dex_number": pokemon[pokemon_name]["id"]}
             )
+
+    generate_pages_from_pokemon_list(
+        wiki_name=wiki_name,
+        version_group=PokemonVersions(version_group),
+        file_pokemon=pokemon,
+        file_moves=moves,
+        pokemon_to_generate_page_for=pokemon_to_generate_page_for,
+        mkdocs_yaml_dict=mkdocs_yaml_dict,
+    )
 
 
 # Save Changes to move
@@ -161,7 +160,7 @@ def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str)
     # async function to find all pokemon that have this move and update them
     # maybe add changed moves to a queue for processing at a later time vs immediately
     with cProfile.Profile() as pr:
-        update_pokemon_with_move_page(move_name, wiki_name)
+        update_pokemon_with_move_page(moves, move_name, wiki_name)
 
     results = pstats.Stats(pr)
     results.sort_stats(pstats.SortKey.TIME)
