@@ -11,7 +11,7 @@ import { useInputState } from "@mantine/hooks";
 import { useState } from "react";
 import { useUpdateEffect } from "usehooks-ts";
 import { Types } from "../../constants";
-import { useItemsStore, usePokemonStore } from "../../stores";
+import { useAbilityStore, useItemsStore, usePokemonStore } from "../../stores";
 import { Evolution, PokemonChanges, PokemonData, Stats } from "../../types";
 import StatsInputs from "../StatsInputs";
 
@@ -50,6 +50,7 @@ const StatsAbilitiesEvoTab = ({
 
   const pokemonList = usePokemonStore((state) => state.pokemonList);
   const items = useItemsStore((state) => state.itemsList);
+  const abilityList = useAbilityStore((state) => state.abilityList);
 
   // perhaps some performance gains can be made here
   useUpdateEffect(() => {
@@ -103,14 +104,16 @@ const StatsAbilitiesEvoTab = ({
             />
           </SimpleGrid>
           <SimpleGrid cols={2} mt="xl">
-            <TextInput
+            <Autocomplete
               value={abilityOne}
               onChange={setAbilityOne}
+              data={abilityList === undefined ? [] : abilityList}
               label="Ability 1"
             />
-            <TextInput
+            <Autocomplete
               value={abilityTwo}
               onChange={setAbilityTwo}
+              data={abilityList === undefined ? [] : abilityList}
               label="Ability 2"
             />
           </SimpleGrid>
