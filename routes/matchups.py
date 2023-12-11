@@ -1,12 +1,25 @@
+import json
+import os
 from fastapi import APIRouter
 from models.matchup_models import POKEMON_TYPES, pokemon_types, gen_default
 from functools import reduce
 
 router = APIRouter()
 
+data_folder_route = "data"
+wiki_name = "blaze-black-volt-white-two-wiki"
+
 
 # TODO: Figure out how to store matchup maps and reference them rather than recreating them every time
-def create_matchup_map():
+def get_matchup_map():
+    if os.path.exists(f"{data_folder_route}/{wiki_name}/matchup_map.json"):
+        with open(
+            f"{data_folder_route}/{wiki_name}/matchup_map.json", encoding="utf-8"
+        ) as matchup_map_file:
+            matchup_map = json.load(matchup_map_file)
+            matchup_map_file.close()
+            return matchup_map
+
     matchup_map = {}
     data = gen_default
     for row_index, row_value in enumerate(data):
@@ -16,13 +29,20 @@ def create_matchup_map():
             key = f"{type_one} > {type_two}"
             matchup_map[key] = col_value
 
+    with open(
+        f"{data_folder_route}/{wiki_name}/matchup_map.json", "w", encoding="utf-8"
+    ) as matchup_map_file:
+        json.dump(matchup_map, matchup_map_file, indent=4)
+        matchup_map_file.close()
+
+    # print(matchup_map)
     return matchup_map
 
 
 def matchupForPair(generation, defense_type, offense_type):
     # consider storging matchup map for easier access
     # rather than recreating it every time
-    matchup_map = create_matchup_map()
+    matchup_map = get_matchup_map()
     key = f"{offense_type} > {defense_type}"
     value = matchup_map[key]
     return value

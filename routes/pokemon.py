@@ -2,11 +2,13 @@
 from fastapi import APIRouter
 import json
 
+import yaml
+
 
 from models.pokemon_models import PokemonChanges, PokemonVersions
 from type_page_generator import generate_type_page
 from evolution_page_generator import generate_evolution_page
-from pokemon_pages_generator import generate_pokemon
+from pokemon_pages_generator import generate_pages_from_pokemon_list
 
 from models.wikis_models import PreparationData
 from prepare_large_data import download_pokemon_data, download_pokemon_sprites
@@ -70,6 +72,10 @@ async def get_pokemon(pokemon_name: str, wiki_name: str):
 async def save_pokemon_changes(
     changes: PokemonChanges, pokemon_name: str, wiki_name: str
 ):
+    with open(f"dist/{wiki_name}/mkdocs.yml", "r") as mkdocs_file:
+        mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
+        mkdocs_file.close()
+
     with open(
         f"{data_folder_route}/{wiki_name}/modifications/modified_pokemon.json",
         encoding="utf-8",
@@ -164,6 +170,12 @@ async def save_pokemon_changes(
         modified_pokemon_file.write(json.dumps(modified_pokemon))
         modified_pokemon_file.close()
 
+    with open(
+        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
+    ) as moves_file:
+        file_moves = json.load(moves_file)
+        moves_file.close()
+
     with open("data/wikis.json", encoding="utf-8") as wikis_file:
         wikis = json.load(wikis_file)
         wikis_file.close()
@@ -171,11 +183,15 @@ async def save_pokemon_changes(
     version_group = wikis[wiki_name]["settings"]["version_group"]
 
     # generate pokemon page
-    generate_pokemon(
-        wiki_name,
-        PokemonVersions(version_group),
-        pokemon[pokemon_name]["id"],
-        pokemon[pokemon_name]["id"],
+    generate_pages_from_pokemon_list(
+        wiki_name=wiki_name,
+        version_group=PokemonVersions(version_group),
+        file_pokemon=pokemon,
+        file_moves=file_moves,
+        mkdocs_yaml_dict=mkdocs_yaml_dict,
+        pokemon_to_generate_page_for=[
+            {"name": pokemon_name, "dex_number": pokemon[pokemon_name]["id"]}
+        ],
     )
 
     return {"message": "Changes Saved"}
