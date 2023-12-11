@@ -432,21 +432,16 @@ def generate_pokemon(
 
         doc.add_header(f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}")
 
-        with cProfile.Profile() as pr:
-            add_sprite(doc, pokemon_data, pokedex_number)
-            create_type_table(doc, pokemon_data)
-            create_defenses_table(doc, pokemon_data)
-            create_ability_table(doc, pokemon_data)
-            create_stats_table(doc, pokemon_data)
-            create_evolution_table(doc, pokemon_data)
-            create_level_up_moves_table(doc, version_group, wiki_name, pokemon_data)
-            create_learnable_moves(doc, version_group, wiki_name, pokemon_data)
+        add_sprite(doc, pokemon_data, pokedex_number)
+        create_type_table(doc, pokemon_data)
+        create_defenses_table(doc, pokemon_data)
+        create_ability_table(doc, pokemon_data)
+        create_stats_table(doc, pokemon_data)
+        create_evolution_table(doc, pokemon_data)
+        create_level_up_moves_table(doc, version_group, wiki_name, pokemon_data)
+        create_learnable_moves(doc, version_group, wiki_name, pokemon_data)
 
-            doc.output_page(markdown_file_path)
-
-        results = pstats.Stats(pr)
-        results.sort_stats(pstats.SortKey.TIME)
-        results.print_stats()
+        doc.output_page(markdown_file_path)
 
         specific_change_entry = {
             f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}": f"pokemon/{pokedex_markdown_file_name}.md"

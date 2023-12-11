@@ -1,3 +1,5 @@
+import cProfile
+import pstats
 from fastapi import APIRouter
 import json
 
@@ -70,7 +72,7 @@ def update_pokemon_with_move_page(move_name: str, wiki_name: str):
 
     for pokemon_name in pokemon:
         if move_name in pokemon[pokemon_name]["moves"]:
-            print(f"Updating {pokemon_name}")
+            # print(f"Updating {pokemon_name}")
             generate_pokemon(
                 wiki_name,
                 PokemonVersions(version_group),
@@ -140,7 +142,12 @@ def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str)
 
     # async function to find all pokemon that have this move and update them
     # maybe add changed moves to a queue for processing at a later time vs immediately
-    update_pokemon_with_move_page(move_name, wiki_name)
+    with cProfile.Profile() as pr:
+        update_pokemon_with_move_page(move_name, wiki_name)
+
+    results = pstats.Stats(pr)
+    results.sort_stats(pstats.SortKey.TIME)
+    results.print_stats()
 
     return {"message": "Changes Saved"}
 
