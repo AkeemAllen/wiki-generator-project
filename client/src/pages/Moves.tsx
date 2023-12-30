@@ -1,5 +1,6 @@
 import {
   Autocomplete,
+  Box,
   Button,
   Grid,
   NativeSelect,
@@ -12,6 +13,7 @@ import {
 } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
+import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import {
   useGetMovesByName,
@@ -187,6 +189,11 @@ const Moves = () => {
               </SimpleGrid>
             </Tabs.Panel>
             <Tabs.Panel value="machine-information">
+              <Box w={200} mt="lg">
+                <Button leftIcon={<IconPlus size={"1rem"} />}>
+                  Add Version
+                </Button>
+              </Box>
               <Table withBorder mt="lg">
                 <thead>
                   <tr>
@@ -196,6 +203,8 @@ const Moves = () => {
                     <th>
                       <Title order={4}>Technical Name</Title>
                     </th>
+                    <th />
+                    <th />
                   </tr>
                 </thead>
                 <tbody>
@@ -205,6 +214,25 @@ const Moves = () => {
                         <tr key={index}>
                           <td>{machineMove.game_version}</td>
                           <td>{machineMove.technical_name}</td>
+                          <td>
+                            <Button
+                              leftIcon={<IconTrash size={"1rem"} />}
+                              // onClick={() => deleteMove(key)}
+                            >
+                              Delete
+                            </Button>
+                          </td>
+                          <td>
+                            <Button
+                              leftIcon={<IconEdit size={"1rem"} />}
+                              // onClick={() => {
+                              //   openEditMoveModal();
+                              //   setMoveToEdit(key);
+                              // }}
+                            >
+                              Edit
+                            </Button>
+                          </td>
                         </tr>
                       );
                     })}
