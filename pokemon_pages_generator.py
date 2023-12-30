@@ -395,7 +395,6 @@ def generate_pages_from_pokemon_list(
     specific_changes = get_specific_changes_from_yaml(mkdocs_yaml_dict)
 
     for pokemon in tqdm.tqdm(pokemon_to_generate_page_for):
-        print(pokemon["name"])
         pokemon_data = PokemonData.parse_raw(json.dumps(file_pokemon[pokemon["name"]]))
 
         pokedex_markdown_file_name = get_pokemon_dex_formatted_name(

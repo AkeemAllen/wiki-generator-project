@@ -29,6 +29,17 @@ async def get_moves_list(wiki_name: str):
     return list(moves.keys())
 
 
+@router.get("/moves/{wiki_name}/machines")
+async def get_machines(wiki_name: str):
+    with open(
+        f"{data_folder_route}/{wiki_name}/machines.json", encoding="utf-8"
+    ) as machines_file:
+        machines = json.load(machines_file)
+        machines_file.close()
+
+    return machines
+
+
 # Get move by name
 @router.get("/moves/{wiki_name}/{move_name}")
 async def get_moves(move_name: str, wiki_name: str):
@@ -83,6 +94,7 @@ def update_pokemon_with_move_page(moves: dict, move_name: str, wiki_name: str):
                 {"name": pokemon_name, "dex_number": pokemon[pokemon_name]["id"]}
             )
 
+    print(len(pokemon_to_generate_page_for))
     generate_pages_from_pokemon_list(
         wiki_name=wiki_name,
         version_group=PokemonVersions(version_group),

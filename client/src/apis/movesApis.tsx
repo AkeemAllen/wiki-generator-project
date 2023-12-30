@@ -16,6 +16,20 @@ export const useGetMoves = (onSuccess: (data: any) => void) => {
   });
 };
 
+export const useGetMachines = (onSuccess: (data: any) => void) => {
+  const [currentWiki, _] = useLocalStorage("currentWiki", "none");
+  return useQuery({
+    queryKey: ["machines"],
+    queryFn: () =>
+      fetch(
+        `${import.meta.env.VITE_BASE_URL}/moves/${currentWiki}/machines`
+      ).then((res) => res.json()),
+    onSuccess,
+    refetchOnWindowFocus: false,
+    enabled: false,
+  });
+};
+
 export const useGetMovesByName = ({ moveName, onSuccess }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useQuery({

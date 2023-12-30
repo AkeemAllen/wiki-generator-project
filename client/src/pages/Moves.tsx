@@ -5,11 +5,14 @@ import {
   NativeSelect,
   NumberInput,
   SimpleGrid,
+  Table,
+  Tabs,
   Text,
   Title,
 } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
+import { useState } from "react";
 import {
   useGetMovesByName,
   usePrepareMoveData,
@@ -18,18 +21,23 @@ import {
 import { Types } from "../constants";
 import { useMovesStore } from "../stores/movesStore";
 import { MoveDetails } from "../types";
-import { isNullEmptyOrUndefined } from "../utils";
+import { capitalize, isNullEmptyOrUndefined } from "../utils";
 
 const Moves = () => {
   const [moveName, setMoveName] = useInputState<string>("");
   const [moveDetails, setMoveDetails] = useInputState<MoveDetails | null>(null);
   const movesList = useMovesStore((state) => state.movesList);
   const setMovesList = useMovesStore((state) => state.setMovesList);
+  const machineMovesList = useMovesStore((state) => state.machineMovesList);
+  const setMachineMovesList = useMovesStore(
+    (state) => state.setMachineMovesList
+  );
+  const [activeTab, setActiveTab] = useState<string | null>("stats");
 
   const { refetch } = useGetMovesByName({
     moveName,
     onSuccess: (data: any) => {
-      setMoveDetails(data);
+      setMoveDetails({ ...data, machine_details: machineMovesList[moveName] });
     },
   });
 
@@ -132,39 +140,78 @@ const Moves = () => {
       {moveDetails && (
         <>
           <Title order={2} mt="lg">
-            {moveName}
+            {capitalize(moveName)}
           </Title>
-          <SimpleGrid cols={2}>
-            <NumberInput
-              label="Power"
-              value={moveDetails.power}
-              onChange={(e: number) => handleMoveDetailChanges(e, "power")}
-            />
-            <NativeSelect
-              label="Type"
-              value={moveDetails.type}
-              onChange={(e) => handleMoveDetailChanges(e.target.value, "type")}
-              data={Object.keys(Types).map((key: string) => Types[key])}
-            />
-            <NumberInput
-              label="Accuracy"
-              value={moveDetails.accuracy}
-              onChange={(e: number) => handleMoveDetailChanges(e, "accuracy")}
-            />
-            <NumberInput
-              label="PP"
-              value={moveDetails.pp}
-              onChange={(e: number) => handleMoveDetailChanges(e, "pp")}
-            />
-            <NativeSelect
-              label="Damage Class"
-              value={moveDetails.damage_class}
-              onChange={(e) =>
-                handleMoveDetailChanges(e.target.value, "damage_class")
-              }
-              data={["physical", "special", "status"]}
-            />
-          </SimpleGrid>
+          <Tabs mt={20} value={activeTab} onTabChange={setActiveTab}>
+            <Tabs.List>
+              <Tabs.Tab value="stats">Stats</Tabs.Tab>
+              <Tabs.Tab value="machine-information">
+                Machine Information
+              </Tabs.Tab>
+            </Tabs.List>
+            <Tabs.Panel value="stats">
+              <SimpleGrid cols={2} mt={20}>
+                <NumberInput
+                  label="Power"
+                  value={moveDetails.power}
+                  onChange={(e: number) => handleMoveDetailChanges(e, "power")}
+                />
+                <NativeSelect
+                  label="Type"
+                  value={moveDetails.type}
+                  onChange={(e) =>
+                    handleMoveDetailChanges(e.target.value, "type")
+                  }
+                  data={Object.keys(Types).map((key: string) => Types[key])}
+                />
+                <NumberInput
+                  label="Accuracy"
+                  value={moveDetails.accuracy}
+                  onChange={(e: number) =>
+                    handleMoveDetailChanges(e, "accuracy")
+                  }
+                />
+                <NumberInput
+                  label="PP"
+                  value={moveDetails.pp}
+                  onChange={(e: number) => handleMoveDetailChanges(e, "pp")}
+                />
+                <NativeSelect
+                  label="Damage Class"
+                  value={moveDetails.damage_class}
+                  onChange={(e) =>
+                    handleMoveDetailChanges(e.target.value, "damage_class")
+                  }
+                  data={["physical", "special", "status"]}
+                />
+              </SimpleGrid>
+            </Tabs.Panel>
+            <Tabs.Panel value="machine-information">
+              <Table withBorder mt="lg">
+                <thead>
+                  <tr>
+                    <th>
+                      <Title order={4}>Game Version</Title>
+                    </th>
+                    <th>
+                      <Title order={4}>Technical Name</Title>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {moveDetails.machine_details &&
+                    moveDetails.machine_details.map((machineMove, index) => {
+                      return (
+                        <tr key={index}>
+                          <td>{machineMove.game_version}</td>
+                          <td>{machineMove.technical_name}</td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </Table>
+            </Tabs.Panel>
+          </Tabs>
         </>
       )}
     </>
