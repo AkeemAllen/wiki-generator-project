@@ -66,6 +66,26 @@ def prepare_move_data(wiki_name: str, range_start: int, range_end: int):
             print(f"Move with id {move_id} failed: {err}")
             continue
 
+        machine_details = []
+        if move["machines"]:
+            for machine in move["machines"]:
+                machine_id = machine["machine"]["url"].split("/")[-2]
+                machines_response = requests.get(
+                    f"https://pokeapi.co/api/v2/machine/{machine_id}"
+                )
+
+                if machines_response == "Not Found":
+                    continue
+
+                machine_details.append(
+                    {
+                        "technical_name": machines_response.json()["item"]["name"],
+                        "game_version": machines_response.json()["version_group"][
+                            "name"
+                        ],
+                    }
+                )
+
         moves[move["name"]] = {
             "id": move_id,
             "power": move["power"],
@@ -74,6 +94,7 @@ def prepare_move_data(wiki_name: str, range_start: int, range_end: int):
             "pp": move["pp"],
             "damage_class": move["damage_class"]["name"],
             "past_values": move["past_values"],
+            "machine_details": machine_details,
         }
 
     fh = open(f"{data_folder_route}/{wiki_name}/moves.json", "w")
