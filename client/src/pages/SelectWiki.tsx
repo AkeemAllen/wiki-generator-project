@@ -1,26 +1,22 @@
-import { useDisclosure } from "@mantine/hooks";
-import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "usehooks-ts";
 import { useGetWikis } from "../apis/wikiApis";
 
 const SelectWiki = () => {
-  const [currentWiki, setCurrentWikiLocalstore] = useLocalStorage(
-    "currentWiki",
-    "none"
+  const [currentWiki, __] = useLocalStorage("currentWiki", "none");
+  const [wikiList, setWikiList] = useLocalStorage<{ [key: string]: any }>(
+    "wikiList",
+    {}
   );
-  const [wikiList, setWikiList] = useLocalStorage("wikiList", {});
-
-  const [wikiModalOpened, { close, open }] = useDisclosure(false);
-  const navigate = useNavigate();
 
   useGetWikis((data: any) => setWikiList(data));
 
-  const handleWikiSelection = (wiki: string) => {
-    setCurrentWikiLocalstore(wiki);
-    navigate("/");
-  };
-
-  return <></>;
+  return (
+    <>
+      {currentWiki === "none"
+        ? "Select or Create a Wiki using the Vertical dot menu to the left"
+        : `${wikiList[currentWiki]?.site_name} selected`}
+    </>
+  );
 };
 
 export default SelectWiki;

@@ -7,7 +7,10 @@ import { PokemonVersions } from "../types";
 
 const Settings = () => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
-  const [wikiList, setWikiList] = useLocalStorage("wikiList", {});
+  const [wikiList, setWikiList] = useLocalStorage<{ [key: string]: any }>(
+    "wikiList",
+    {}
+  );
   const [versionGroup, setVersionGroup] = useInputState<string>(
     wikiList[currentWiki]?.settings?.version_group
   );

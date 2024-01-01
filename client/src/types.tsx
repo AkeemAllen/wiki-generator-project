@@ -8,8 +8,8 @@ export type MoveDetails = {
 };
 
 export type MachineDetails = {
-  game_version: string;
-  technical_name: number;
+  game_version?: string;
+  technical_name?: string;
 };
 
 export type Move = {

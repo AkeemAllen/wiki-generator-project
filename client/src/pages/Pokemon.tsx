@@ -73,9 +73,8 @@ const Pokemon = () => {
       </Tabs.List>
       <Tabs.Panel value="pokemon">
         <Grid columns={12} mt={20}>
-          {pokemonList.length === 0 ? (
-            <EmptyPokemonList />
-          ) : (
+          {pokemonList.length === 0 && <EmptyPokemonList />}
+          {pokemonList.length > 0 && (
             <>
               <Grid.Col span={6}>
                 <Autocomplete
