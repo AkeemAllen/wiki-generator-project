@@ -60,3 +60,7 @@ def get_bottom_value_for_pokemon(
         bottom_value = f"{pokemon.encounter_rate}%"
 
     return bottom_value
+
+
+def obj_dict(obj):
+    return obj.__dict__

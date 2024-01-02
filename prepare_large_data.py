@@ -55,6 +55,7 @@ def prepare_technical_and_hidden_machines_data(wiki_name: str):
 def prepare_move_data(wiki_name: str, range_start: int, range_end: int):
     move_range = range(range_start, range_end + 1)
     moves = {}
+
     for move_id in tqdm.tqdm(move_range):
         response = requests.get(f"https://pokeapi.co/api/v2/move/{move_id}")
         if response == "Not Found":
@@ -66,6 +67,7 @@ def prepare_move_data(wiki_name: str, range_start: int, range_end: int):
             print(f"Move with id {move_id} failed: {err}")
             continue
 
+        # TODO: Add option to download from online as well
         machine_details = []
         if move["machines"]:
             for machine in move["machines"]:
@@ -77,12 +79,16 @@ def prepare_move_data(wiki_name: str, range_start: int, range_end: int):
                 if machines_response == "Not Found":
                     continue
 
+                try:
+                    machines = machines_response.json()
+                except JSONDecodeError as err:
+                    print(f"Machine with id {machine_id} failed: {err}")
+                    continue
+
                 machine_details.append(
                     {
-                        "technical_name": machines_response.json()["item"]["name"],
-                        "game_version": machines_response.json()["version_group"][
-                            "name"
-                        ],
+                        "technical_name": machines["item"]["name"],
+                        "game_version": machines["version_group"]["name"],
                     }
                 )
 
@@ -100,9 +106,6 @@ def prepare_move_data(wiki_name: str, range_start: int, range_end: int):
     fh = open(f"{data_folder_route}/{wiki_name}/moves.json", "w")
     fh.write(json.dumps(moves))
     fh.close()
-
-    # prepare_machine_data
-    # prepare_technical_and_hidden_machines_data(wiki_name)
 
 
 def prepare_items_data():
