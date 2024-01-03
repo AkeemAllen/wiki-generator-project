@@ -1,15 +1,17 @@
 import cProfile
 import pstats
+from typing import List
 from fastapi import APIRouter
 import json
 
 import yaml
 
-from models.move_models import MoveDetails
+from models.move_models import MachineVersion, MoveDetails
 from models.pokemon_models import PokemonVersions
 from models.wikis_models import PreparationData
 from pokemon_pages_generator import generate_pages_from_pokemon_list
 from prepare_large_data import prepare_move_data
+from utils import obj_dict
 
 
 router = APIRouter()
@@ -29,6 +31,7 @@ async def get_moves_list(wiki_name: str):
     return list(moves.keys())
 
 
+# Mark for deletion
 @router.get("/moves/{wiki_name}/machines")
 async def get_machines(wiki_name: str):
     with open(
@@ -38,6 +41,29 @@ async def get_machines(wiki_name: str):
         machines_file.close()
 
     return machines
+
+
+# Mark for deletion
+@router.post("/moves/{wiki_name}/machines/{move_name}")
+async def save_machines(
+    move_name: str, wiki_name: str, machine_details: List[MachineVersion]
+):
+    with open(
+        f"{data_folder_route}/{wiki_name}/machines.json", encoding="utf-8"
+    ) as machines_file:
+        machines = json.load(machines_file)
+        machines_file.close()
+
+    json_machine_information = json.dumps(machine_details, default=obj_dict)
+
+    machines[move_name] = json_machine_information
+
+    # add tracking for changes
+    with open(f"{data_folder_route}/{wiki_name}/machines.json", "w") as machines_file:
+        machines_file.write(json.dumps(machines))
+        machines_file.close()
+
+    return {"message": "Machines Saved"}
 
 
 # Get move by name
@@ -61,7 +87,12 @@ def track_move_changes(moves, move_name, move_attribute, modified_moves, new_val
             move_attribute
         ]
 
-    modified_moves[move_name][move_attribute]["new"] = new_value
+    if move_attribute == "machine_details":
+        modified_moves[move_name][move_attribute]["new"] = json.loads(
+            json.dumps(new_value, default=obj_dict)
+        )
+    else:
+        modified_moves[move_name][move_attribute]["new"] = new_value
 
     if (
         modified_moves[move_name][move_attribute]["original"]
@@ -94,7 +125,6 @@ def update_pokemon_with_move_page(moves: dict, move_name: str, wiki_name: str):
                 {"name": pokemon_name, "dex_number": pokemon[pokemon_name]["id"]}
             )
 
-    print(len(pokemon_to_generate_page_for))
     generate_pages_from_pokemon_list(
         wiki_name=wiki_name,
         version_group=PokemonVersions(version_group),
@@ -150,6 +180,18 @@ def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str)
         )
         moves[move_name]["damage_class"] = move_details.damage_class
 
+    if move_details.machine_details:
+        track_move_changes(
+            moves,
+            move_name,
+            "machine_details",
+            modified_moves,
+            move_details.machine_details,
+        )
+        moves[move_name]["machine_details"] = json.loads(
+            json.dumps(move_details.machine_details, default=obj_dict)
+        )
+
     with open(f"{data_folder_route}/{wiki_name}/moves.json", "w") as moves_file:
         moves_file.write(json.dumps(moves))
         moves_file.close()
@@ -166,12 +208,7 @@ def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str)
 
     # async function to find all pokemon that have this move and update them
     # maybe add changed moves to a queue for processing at a later time vs immediately
-    with cProfile.Profile() as pr:
-        update_pokemon_with_move_page(moves, move_name, wiki_name)
-
-    results = pstats.Stats(pr)
-    results.sort_stats(pstats.SortKey.TIME)
-    results.print_stats()
+    update_pokemon_with_move_page(moves, move_name, wiki_name)
 
     return {"message": "Changes Saved"}
 
