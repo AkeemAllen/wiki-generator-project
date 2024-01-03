@@ -412,7 +412,7 @@ def generate_pages_from_pokemon_list(
         create_stats_table(doc, pokemon_data)
         create_evolution_table(doc, pokemon_data)
         create_level_up_moves_table(doc, version_group, file_moves, pokemon_data)
-        create_learnable_moves(doc, version_group, wiki_name, file_moves, pokemon_data)
+        create_learnable_moves(doc, version_group, file_moves, pokemon_data)
 
         doc.output_page(markdown_file_path)
 
