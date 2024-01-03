@@ -299,40 +299,38 @@ def create_level_up_moves_table(
     )
 
 
+# TODO: Modify to consider consolidated moves and machine moves
 def create_learnable_moves(
     doc: Document,
     version_group: PokemonVersions,
-    wiki_name: str,
     file_moves: dict,
     pokemon_data: PokemonData,
 ):
     data = pokemon_data
     moves = {}
 
-    with open(
-        f"{data_folder_route}/{wiki_name}/machines.json", encoding="utf-8"
-    ) as machines_file:
-        machines = json.load(machines_file)
-        machines_file.close()
-
     for move_name, details in data.moves.__root__.items():
         # TODO: Consider removing this check since any move could be a machine
-        if move_name not in machines:
+        if file_moves[move_name]["machine_details"] is None:
             continue
         if details.learn_method != "machine":
             continue
 
         machine_name = ""
-        if details.is_custom_machine:
-            machine_name = details.custom_machine_id
-        else:
-            for machine_version in machines[move_name]:
-                if machine_version["game_version"] == version_group.value:
-                    machine_name = machine_version["technical_name"]
-                    break
 
-        if machine_name == "":
-            continue
+        for machine_version in file_moves[move_name]["machine_details"]:
+            if machine_version["game_version"] == version_group.value:
+                machine_name = machine_version["technical_name"]
+                break
+
+        # Revise code to consider the following example logic:
+        # Shadow ball has past value for firered-leafgreen (power is 10)
+        #   current iteration has power 20, meaning every gen since firered-leafgreen has power 20
+
+        # Example Wikis:
+        #   First wiki is from diamond-pearl, so shadow ball should have power 20
+        #   Second wiki is from red-blue, so shadow ball should have power 10
+        #   With current logic, shadow ball will have power 20 for both wikis
 
         relevant_past_value = [
             value
@@ -467,7 +465,7 @@ def generate_pages_from_range(
         create_stats_table(doc, pokemon_data)
         create_evolution_table(doc, pokemon_data)
         create_level_up_moves_table(doc, version_group, file_moves, pokemon_data)
-        create_learnable_moves(doc, version_group, wiki_name, file_moves, pokemon_data)
+        create_learnable_moves(doc, version_group, file_moves, pokemon_data)
 
         doc.output_page(markdown_file_path)
 
