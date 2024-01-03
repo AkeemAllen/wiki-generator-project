@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocalStorage } from "usehooks-ts";
-import { MachineDetails, PreparationData } from "../types";
+import { MoveDetails, PreparationData } from "../types";
 
 export const useGetMoves = (onSuccess: (data: any) => void) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
@@ -13,52 +13,6 @@ export const useGetMoves = (onSuccess: (data: any) => void) => {
     onSuccess,
     refetchOnWindowFocus: false,
     enabled: false,
-  });
-};
-
-export const useGetMachines = (onSuccess: (data: any) => void) => {
-  const [currentWiki, _] = useLocalStorage("currentWiki", "none");
-  return useQuery({
-    queryKey: ["machines"],
-    queryFn: () =>
-      fetch(
-        `${import.meta.env.VITE_BASE_URL}/moves/${currentWiki}/machines`
-      ).then((res) => res.json()),
-    onSuccess,
-    refetchOnWindowFocus: false,
-    enabled: false,
-  });
-};
-
-type SaveMachineProps = {
-  moveName: string;
-  machineChanges: MachineDetails[];
-  onSuccess?: (data: any) => void;
-  onError?: (data: any) => void;
-};
-
-export const useSaveMachineChanges = ({
-  moveName,
-  machineChanges,
-  onError,
-  onSuccess,
-}: SaveMachineProps) => {
-  const [currentWiki, _] = useLocalStorage("currentWiki", "none");
-  return useMutation({
-    mutationFn: () => {
-      return fetch(
-        `${
-          import.meta.env.VITE_BASE_URL
-        }/moves/${currentWiki}/machines/${moveName}`,
-        {
-          method: "POST",
-          body: JSON.stringify(machineChanges),
-          headers: { "Content-Type": "application/json" },
-        }
-      ).then((res) => res.json());
-    },
-    onError,
-    onSuccess,
   });
 };
 
@@ -76,12 +30,19 @@ export const useGetMovesByName = ({ moveName, onSuccess }: any) => {
   });
 };
 
+type SaveMoveChangesProps = {
+  moveName: string;
+  moveDetails: MoveDetails;
+  onSuccess: (data: any) => void;
+  onError: (error: any) => void;
+};
+
 export const useSaveMoveChanges = ({
   moveName,
-  moveChanges,
+  moveDetails,
   onSuccess,
   onError,
-}: any) => {
+}: SaveMoveChangesProps) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
     mutationFn: () => {
@@ -91,7 +52,7 @@ export const useSaveMoveChanges = ({
         }/moves/edit/${currentWiki}/${moveName}`,
         {
           method: "POST",
-          body: JSON.stringify(moveChanges),
+          body: JSON.stringify(moveDetails),
           headers: { "Content-Type": "application/json" },
         }
       ).then((res) => res.json());

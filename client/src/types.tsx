@@ -4,10 +4,10 @@ export type MoveDetails = {
   power: number;
   type: string;
   damage_class: string;
-  machine_details?: MachineDetails[];
+  machine_details?: MachineVersion[];
 };
 
-export type MachineDetails = {
+export type MachineVersion = {
   game_version?: string;
   technical_name?: string;
 };
