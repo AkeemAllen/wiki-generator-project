@@ -22,7 +22,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
 import { useGetAbilities } from "../apis/abilitiesApis";
 import { useGetItems } from "../apis/itemsApis";
-import { useGetMachines, useGetMoves } from "../apis/movesApis";
+import { useGetMoves } from "../apis/movesApis";
 import { useGetNatures } from "../apis/naturesApis";
 import { useGetPokemon } from "../apis/pokemonApis";
 import { useGetRoutes } from "../apis/routesApis";
@@ -34,6 +34,7 @@ import {
   usePokemonStore,
   useRouteStore,
 } from "../stores";
+import { Wikis } from "../types";
 import DeleteWikiModal from "./DeleteWikiModal";
 import DeployWikiModal from "./DeployWikiModal";
 import NavButton from "./NavButton";
@@ -42,15 +43,12 @@ import NewWikiModal from "./NewWikiModal";
 const MainAppshell = () => {
   const setPokemonList = usePokemonStore((state) => state.setPokemonList);
   const setMovesList = useMovesStore((state) => state.setMovesList);
-  const setMachineMovesList = useMovesStore(
-    (state) => state.setMachineMovesList
-  );
   const setRoutes = useRouteStore((state) => state.setRoutes);
   const setItemsList = useItemsStore((state) => state.setItemsList);
   const setAbilityList = useAbilityStore((state) => state.setAbilityList);
   const setNatureList = useNatureStore((state) => state.setNaturesList);
 
-  const [wikiList, _] = useLocalStorage("wikiList", {});
+  const [wikiList, _] = useLocalStorage<Wikis>("wikiList", {});
   const [currentWiki, setCurrentWiki] = useLocalStorage("currentWiki", "none");
 
   const { pathname } = useLocation();
@@ -67,9 +65,6 @@ const MainAppshell = () => {
   );
   const { refetch: refetchMoves } = useGetMoves((data: any) =>
     setMovesList(data)
-  );
-  const { refetch: refetchMachineMoves } = useGetMachines((data: any) =>
-    setMachineMovesList(data)
   );
 
   const { refetch: refetchRoutes } = useGetRoutes((data: any) =>
@@ -101,7 +96,6 @@ const MainAppshell = () => {
     refetchItems();
     refetchAbilities();
     refetchNatures();
-    refetchMachineMoves();
   }, []);
 
   useUpdateEffect(() => {
@@ -205,7 +199,7 @@ const MainAppshell = () => {
                 <Grid>
                   <Grid.Col span={10}>
                     <Text weight={600}>
-                      {wikiList[currentWiki]?.site_name || "Select Wiki"}
+                      {wikiList[currentWiki].site_name || "Select Wiki"}
                     </Text>
                   </Grid.Col>
                   <Grid.Col span={2}>
@@ -227,7 +221,7 @@ const MainAppshell = () => {
                         window.location.reload();
                       }}
                     >
-                      {wikiList[wiki]?.site_name}
+                      {wikiList[wiki].site_name}
                     </Menu.Item>
                   ))}
                   <Menu.Divider />

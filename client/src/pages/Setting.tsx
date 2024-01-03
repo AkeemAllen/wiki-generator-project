@@ -3,19 +3,16 @@ import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useLocalStorage } from "usehooks-ts";
 import { useEditWikiSettings } from "../apis/wikiApis";
-import { PokemonVersions } from "../types";
+import { PokemonVersions, Wikis } from "../types";
 
 const Settings = () => {
-  const [currentWiki, _] = useLocalStorage("currentWiki", "none");
-  const [wikiList, setWikiList] = useLocalStorage<{ [key: string]: any }>(
-    "wikiList",
-    {}
-  );
+  const [currentWiki, _] = useLocalStorage<string>("currentWiki", "none");
+  const [wikiList, setWikiList] = useLocalStorage<Wikis>("wikiList", {});
   const [versionGroup, setVersionGroup] = useInputState<string>(
-    wikiList[currentWiki]?.settings?.version_group
+    wikiList[currentWiki].settings.version_group
   );
   const [deploymentUrl, setDeploymentUrl] = useInputState<string>(
-    wikiList[currentWiki]?.settings?.deployment_url
+    wikiList[currentWiki].settings.deployment_url
   );
 
   const { mutate, isLoading } = useEditWikiSettings((data: any) => {

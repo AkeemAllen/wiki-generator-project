@@ -14,7 +14,7 @@ import { notifications } from "@mantine/notifications";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
 import { useCreateWiki } from "../apis/wikiApis";
-import { PokemonVersions } from "../types";
+import { PokemonVersions, Wikis } from "../types";
 
 type NewWikiModalProps = {
   opened: boolean;
@@ -25,14 +25,15 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
   const [wikiName, setWikiName] = useInputState<string>("");
   const [wikiDescription, setWikiDescription] = useInputState<string>("");
   const [wikiAuthor, setWikiAuthor] = useInputState<string>("");
+  const [deploymentUrl, setDeploymentUrl] = useInputState<string>("");
   const [repoUrl, setRepoUrl] = useInputState<string>(
     "https://github.com/__author__/__name__"
   );
   const [siteUrl, setSiteUrl] = useInputState<string>(
     "https://__author__.github.io/__name__"
   );
-  const [_, setWikiList] = useLocalStorage("wikiList", {});
-  const [versionGroup, setVersionGroup] = useInputState<string>("black-white");
+  const [_, setWikiList] = useLocalStorage<Wikis>("wikiList", {});
+  const [versionGroup, setVersionGroup] = useInputState<string>("red-blue");
 
   const { mutate } = useCreateWiki((data: any) => {
     notifications.show({ message: data.message });
@@ -46,7 +47,7 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
       repo_url: repoUrl,
       site_url: siteUrl,
       site_name: wikiName,
-      settings: { version_group: versionGroup },
+      settings: { version_group: versionGroup, deployment_url: deploymentUrl },
     });
     onClose();
   };
@@ -96,9 +97,15 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
               </Grid.Col>
             </Grid>
           }
-          placeholder="Enter wiki author"
+          placeholder="Recommended: Your Github Username"
           value={wikiAuthor}
           onChange={setWikiAuthor}
+        />
+        <TextInput
+          label="Deployment Url"
+          placeholder="Can be left blank for now"
+          value={deploymentUrl}
+          onChange={setDeploymentUrl}
         />
         <TextInput label="Repo Url" readOnly disabled value={repoUrl} />
         <TextInput
