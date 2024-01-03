@@ -207,7 +207,6 @@ def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str)
         moves_changes_file.close()
 
     # async function to find all pokemon that have this move and update them
-    # maybe add changed moves to a queue for processing at a later time vs immediately
     update_pokemon_with_move_page(moves, move_name, wiki_name)
 
     return {"message": "Changes Saved"}

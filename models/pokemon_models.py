@@ -23,8 +23,6 @@ class MoveDetails(BaseModel):
 class MoveData(BaseModel):
     level_learned_at: int
     learn_method: str
-    is_custom_machine: Optional[bool] = False
-    custom_machine_id: Optional[str]
     delete: Optional[bool] = False
 
 
@@ -59,7 +57,6 @@ class PokemonData(BaseModel):
     stats: Optional[Stats]
     moves: Optional[Move]
     sprite: Optional[str]
-    # evolution: Optional[str]
     evolution: Optional[Evolution]
 
 

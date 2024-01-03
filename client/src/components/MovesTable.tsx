@@ -2,7 +2,6 @@ import {
   Autocomplete,
   Box,
   Button,
-  Checkbox,
   Modal,
   NativeSelect,
   NumberInput,
@@ -26,8 +25,6 @@ type NewMove = {
   move_name: string;
   level_learned_at: number;
   learn_method: string;
-  custom_machine_id?: string;
-  is_custom_machine?: boolean;
 };
 
 const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
@@ -41,8 +38,6 @@ const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
     move_name: "",
     level_learned_at: 0,
     learn_method: "level-up",
-    is_custom_machine: false,
-    custom_machine_id: "",
   } as NewMove);
   const [searchTerm, setSearchTerm] = useInputState<string>("");
   const movesList = useMovesStore((state) => state.movesList);
@@ -77,8 +72,6 @@ const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
         [newMove.move_name]: {
           level_learned_at: newMove.level_learned_at,
           learn_method: newMove.learn_method,
-          is_custom_machine: newMove.is_custom_machine,
-          custom_machine_id: newMove.custom_machine_id,
         },
         ...moves,
       };
@@ -194,26 +187,6 @@ const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
           }
           data={["level-up", "machine", "egg", "tutor"]}
         />
-        {newMove.learn_method === "machine" && (
-          <Checkbox
-            mb="lg"
-            label="Custom Machine"
-            checked={newMove.is_custom_machine}
-            onChange={(e) =>
-              setNewMove({ ...newMove, is_custom_machine: e.target.checked })
-            }
-          />
-        )}
-        {newMove.learn_method === "machine" && newMove.is_custom_machine && (
-          <TextInput
-            mb="lg"
-            label="Machine ID"
-            value={newMove.custom_machine_id}
-            onChange={(e) =>
-              setNewMove({ ...newMove, custom_machine_id: e.target.value })
-            }
-          />
-        )}
         {newMove.learn_method === "level-up" && (
           <NumberInput
             mb="lg"
@@ -242,50 +215,6 @@ const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
           onChange={(e) => handleMethodMoveChange(e.target.value, moveToEdit)}
           data={["level-up", "machine", "egg", "tutor"]}
         />
-        {
-          //@ts-ignore
-          moves[moveToEdit]?.learn_method === "machine" && (
-            <Checkbox
-              mb="lg"
-              label="Custom Machine"
-              checked={moves[moveToEdit]?.is_custom_machine}
-              onChange={(e) =>
-                setMoves((moves: Move) => {
-                  return {
-                    ...moves,
-                    [moveToEdit]: {
-                      ...moves[moveToEdit],
-                      is_custom_machine: e.target.checked,
-                    },
-                  };
-                })
-              }
-            />
-          )
-        }
-        {
-          //@ts-ignore
-          moves[moveToEdit]?.learn_method === "machine" &&
-            //@ts-ignore
-            moves[moveToEdit]?.is_custom_machine && (
-              <TextInput
-                mb="lg"
-                label="Machine ID"
-                value={moves[moveToEdit]?.custom_machine_id}
-                onChange={(e) =>
-                  setMoves((moves: Move) => {
-                    return {
-                      ...moves,
-                      [moveToEdit]: {
-                        ...moves[moveToEdit],
-                        custom_machine_id: e.target.value,
-                      },
-                    };
-                  })
-                }
-              />
-            )
-        }
 
         {moves[moveToEdit]?.learn_method === "level-up" && (
           <NumberInput
