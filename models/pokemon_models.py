@@ -78,6 +78,9 @@ class PokemonVersions(Enum):
     SUN_MOON = "sun-moon"
     ULTRASUN_ULTRAMOON = "ultra-sun-ultra-moon"
     SWORD_SHEILD = "sword-shield"
+    LETS_GO_PIKACHU_EEVEE = "lets-go-pikachu-lets-go-eevee"
+    COLLOSEUM = "colosseum"
+    XD = "xd"
 
 
 pokemon_versions_ordered = {
@@ -89,11 +92,16 @@ pokemon_versions_ordered = {
     PokemonVersions.EMERALD: 5,
     PokemonVersions.FIRERED_LEAFGREEN: 6,
     PokemonVersions.DIAMOND_PEARL: 7,
-    PokemonVersions.BLACK_WHITE: 8,
-    PokemonVersions.BLACKTWO_WHITETWO: 9,
-    PokemonVersions.X_Y: 10,
-    PokemonVersions.OMEGARUBY_ALPHASAPPHIRE: 11,
-    PokemonVersions.SUN_MOON: 12,
-    PokemonVersions.ULTRASUN_ULTRAMOON: 13,
-    PokemonVersions.SWORD_SHEILD: 14,
+    PokemonVersions.PLATINUM: 8,
+    PokemonVersions.HEARTGOLD_SOULSILVER: 9,
+    PokemonVersions.BLACK_WHITE: 10,
+    PokemonVersions.BLACKTWO_WHITETWO: 11,
+    PokemonVersions.X_Y: 12,
+    PokemonVersions.OMEGARUBY_ALPHASAPPHIRE: 13,
+    PokemonVersions.SUN_MOON: 14,
+    PokemonVersions.ULTRASUN_ULTRAMOON: 15,
+    PokemonVersions.SWORD_SHEILD: 16,
+    PokemonVersions.LETS_GO_PIKACHU_EEVEE: 17,
+    PokemonVersions.COLLOSEUM: 18,
+    PokemonVersions.XD: 19,
 }

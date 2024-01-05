@@ -11,6 +11,7 @@ from models.pokemon_models import (
     PokemonData,
     MoveDetails,
     PokemonVersions,
+    pokemon_versions_ordered,
 )
 from pydantic import ValidationError
 from routes.matchups import get_defensive_matchups, get_defensive_matchups_synchronous
@@ -69,6 +70,48 @@ def generate_moves_array(moves, table_type):
         table_array_for_moves.append(move_array)
 
     return table_array_for_moves
+
+
+# Leaving out this functionally for now. It's not really needed for the wiki
+# Also need to find a good model for selecting version of past values
+# Lastly, Give option of only using current move stats. Thereby skiping this step
+def set_relevant_past_values(move_name, file_moves, version_group):
+    relevant_past_value = [
+        value
+        for value in file_moves[move_name]["past_values"]
+        if value["version_group"]["name"] == version_group.value
+    ]
+    if len(relevant_past_value) == 0:
+        for value in file_moves[move_name]["past_values"]:
+            # needs further revision so it doensn't break too early
+            if (
+                pokemon_versions_ordered[PokemonVersions(version_group.value)]
+                < pokemon_versions_ordered[
+                    PokemonVersions(value["version_group"]["name"])
+                ]
+            ):
+                relevant_past_value.append(value)
+
+    if len(relevant_past_value) > 0:
+        file_moves[move_name]["accuracy"] = (
+            relevant_past_value[0]["accuracy"] or file_moves[move_name]["accuracy"]
+        )
+        file_moves[move_name]["power"] = (
+            relevant_past_value[0]["power"] or file_moves[move_name]["power"]
+        )
+        file_moves[move_name]["pp"] = (
+            relevant_past_value[0]["pp"] or file_moves[move_name]["pp"]
+        )
+        # special case for curse
+        if move_name == "curse":
+            file_moves[move_name]["type"] = "ghost"
+        else:
+            past_type = (
+                relevant_past_value[0]["type"]["name"]
+                if relevant_past_value[0]["type"]
+                else None
+            )
+            file_moves[move_name]["type"] = past_type or file_moves[move_name]["type"]
 
 
 def add_sprite(doc: Document, pokemon_data: PokemonData, dex_number: int):
@@ -232,7 +275,6 @@ def create_evolution_table(doc: Document, pokemon_data: PokemonData):
 
 def create_level_up_moves_table(
     doc: Document,
-    version_group: PokemonVersions,
     file_moves: dict,
     pokemon_data: PokemonData,
 ):
@@ -244,34 +286,6 @@ def create_level_up_moves_table(
             continue
         if details.level_learned_at == 0:
             continue
-
-        relevant_past_value = [
-            value
-            for value in file_moves[move_name]["past_values"]
-            if value["version_group"]["name"] == version_group
-        ]
-        if len(relevant_past_value) > 0:
-            file_moves[move_name]["accuracy"] = (
-                relevant_past_value[0]["accuracy"] or file_moves[move_name]["accuracy"]
-            )
-            file_moves[move_name]["power"] = (
-                relevant_past_value[0]["power"] or file_moves[move_name]["power"]
-            )
-            file_moves[move_name]["pp"] = (
-                relevant_past_value[0]["power"] or file_moves[move_name]["pp"]
-            )
-            # special case for curse
-            if move_name == "curse":
-                file_moves[move_name]["type"] = "ghost"
-            else:
-                past_type = (
-                    relevant_past_value[0]["type"]["name"]
-                    if relevant_past_value[0]["type"]
-                    else None
-                )
-                file_moves[move_name]["type"] = (
-                    past_type or file_moves[move_name]["type"]
-                )
 
         try:
             move_data = MoveDetails.parse_raw(json.dumps(file_moves[move_name]))
@@ -323,37 +337,16 @@ def create_learnable_moves(
                 machine_name = machine_version["technical_name"]
                 break
 
-        # Revise code to consider the following example logic:
-        # Shadow ball has past value for firered-leafgreen (power is 10)
-        #   current iteration has power 20, meaning every gen since firered-leafgreen has power 20
-
-        # Example Wikis:
-        #   First wiki is from diamond-pearl, so shadow ball should have power 20
-        #   Second wiki is from red-blue, so shadow ball should have power 10
-        #   With current logic, shadow ball will have power 20 for both wikis
-
-        relevant_past_value = [
-            value
-            for value in file_moves[move_name]["past_values"]
-            if value["version_group"]["name"] == version_group.value
-        ]
-
-        if len(relevant_past_value) > 0:
-            file_moves[move_name]["accuracy"] = (
-                relevant_past_value[0]["accuracy"] or file_moves[move_name]["accuracy"]
-            )
-            file_moves[move_name]["power"] = (
-                relevant_past_value[0]["power"] or file_moves[move_name]["power"]
-            )
-            file_moves[move_name]["pp"] = (
-                relevant_past_value[0]["power"] or file_moves[move_name]["pp"]
-            )
-            past_type = (
-                relevant_past_value[0]["type"]["name"]
-                if relevant_past_value[0]["type"]
-                else None
-            )
-            file_moves[move_name]["type"] = past_type or file_moves[move_name]["type"]
+        if machine_name == "":
+            for machine_version in file_moves[move_name]["machine_details"]:
+                if (
+                    pokemon_versions_ordered[PokemonVersions(version_group.value)]
+                    < pokemon_versions_ordered[
+                        PokemonVersions(machine_version["game_version"])
+                    ]
+                ):
+                    machine_name = machine_version["technical_name"]
+                    break
 
         try:
             move_data = MoveDetails.parse_raw(json.dumps(file_moves[move_name]))
@@ -411,7 +404,7 @@ def generate_pages_from_pokemon_list(
         create_ability_table(doc, pokemon_data)
         create_stats_table(doc, pokemon_data)
         create_evolution_table(doc, pokemon_data)
-        create_level_up_moves_table(doc, version_group, file_moves, pokemon_data)
+        create_level_up_moves_table(doc, file_moves, pokemon_data)
         create_learnable_moves(doc, version_group, file_moves, pokemon_data)
 
         doc.output_page(markdown_file_path)
