@@ -10,8 +10,10 @@ import {
 } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useState } from "react";
 import {
+  useGetPokemonById,
   useGetPokemonByName,
   usePreparePokemonData,
   useSavePokemonChanges,
@@ -25,6 +27,7 @@ import { isNullEmptyOrUndefined } from "../utils";
 
 const Pokemon = () => {
   const [pokemonName, setPokemonName] = useState<string>("");
+  const [currentId, setCurrentId] = useState<number | null>(null);
   const [pokemonData, setPokemonData] = useState<PokemonData | null>(null);
   const [pokemonChanges, setPokemonChanges] = useState<PokemonChanges | null>(
     null
@@ -39,7 +42,19 @@ const Pokemon = () => {
 
   const { refetch, isLoading } = useGetPokemonByName({
     pokemonName,
-    onSuccess: (data: any) => setPokemonData(data),
+    onSuccess: (data: any) => {
+      setPokemonData(data);
+      setCurrentId(data.id);
+    },
+  });
+
+  const { mutate: fetchById, isLoading: isLoadingById } = useGetPokemonById({
+    onSuccess: (data: any) => {
+      console.log(data);
+      setPokemonData(data);
+      setPokemonName(data.name);
+      setCurrentId(data.id);
+    },
   });
 
   const { mutate: mutatePokemon } = useSavePokemonChanges({
@@ -58,6 +73,32 @@ const Pokemon = () => {
     refetch();
   };
 
+  const nextPokemon = () => {
+    const nextPokemon = pokemonList.find(
+      (p) => p.id === (currentId as number) + 1
+    );
+    if (nextPokemon) {
+      setPokemonData(null);
+      setPokemonChanges(null);
+      fetchById({ pokemonId: nextPokemon.id });
+    } else {
+      notifications.show({ message: "No more pokemon" });
+    }
+  };
+
+  const prevPokemon = () => {
+    const prevPokemon = pokemonList.find(
+      (p) => p.id === (currentId as number) - 1
+    );
+    if (prevPokemon) {
+      setPokemonData(null);
+      setPokemonChanges(null);
+      fetchById({ pokemonId: prevPokemon.id });
+    } else {
+      notifications.show({ message: "No more pokemon" });
+    }
+  };
+
   const saveChanges = () => {
     mutatePokemon({
       pokemonName,
@@ -72,13 +113,24 @@ const Pokemon = () => {
         <Tabs.Tab value="multiple-pokemon">Edit Multiple Pokemon</Tabs.Tab>
       </Tabs.List>
       <Tabs.Panel value="pokemon">
-        <Grid columns={12} mt={20}>
+        <Grid columns={22} mt={20}>
           {pokemonList.length === 0 && <EmptyPokemonList />}
           {pokemonList.length > 0 && (
             <>
-              <Grid.Col span={6}>
+              <Grid.Col span={1}>
+                <Button onClick={prevPokemon} color="gray">
+                  <IconChevronLeft size={"1rem"} />
+                </Button>
+              </Grid.Col>
+              <Grid.Col span={1}>
+                <Button onClick={nextPokemon} color="gray">
+                  <IconChevronRight size={"1rem"} />
+                </Button>
+              </Grid.Col>
+              <Grid.Col span={8}>
                 <Autocomplete
                   placeholder="Pokemon Name"
+                  value={pokemonName}
                   onChange={(value) => setPokemonName(value)}
                   data={
                     pokemonList === undefined
@@ -87,7 +139,7 @@ const Pokemon = () => {
                   }
                 />
               </Grid.Col>
-              <Grid.Col span={3}>
+              <Grid.Col span={6}>
                 <Button
                   fullWidth
                   onClick={handleSearch}
@@ -96,7 +148,7 @@ const Pokemon = () => {
                   Search
                 </Button>
               </Grid.Col>
-              <Grid.Col span={3}>
+              <Grid.Col span={6}>
                 <Button
                   fullWidth
                   disabled={pokemonChanges === null}
@@ -109,7 +161,7 @@ const Pokemon = () => {
           )}
         </Grid>
         <Image src={pokemonData?.sprite} maw={200} />
-        {!isLoading && pokemonData && (
+        {pokemonData && (
           <Tabs mt={20} value={activeTab} onTabChange={setActiveTab}>
             <Tabs.List>
               <Tabs.Tab value="stats-abilities-evo">

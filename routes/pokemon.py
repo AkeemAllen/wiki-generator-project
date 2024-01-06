@@ -54,16 +54,24 @@ async def get_pokemon_sprite(pokemon_name: str, wiki_name: str):
 
 
 # Get pokemon by name
-@router.get("/pokemon/{wiki_name}/{pokemon_name}")
-async def get_pokemon(pokemon_name: str, wiki_name: str):
+@router.get("/pokemon/{wiki_name}/{pokemon_name_or_id}")
+async def get_pokemon(pokemon_name_or_id: str, wiki_name: str):
     with open(
         f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
     ) as pokemon_file:
         pokemon = json.load(pokemon_file)
         pokemon_file.close()
 
+    if pokemon_name_or_id.isdigit():
+        for pokemon_name, attributes in pokemon.items():
+            if attributes["id"] == int(pokemon_name_or_id):
+                return pokemon[pokemon_name]
+        return {"message": "Pokemon not found", "status": 404}
+
+    pokemon_name = pokemon_name_or_id.lower()
     if pokemon_name not in pokemon:
         return {"message": "Pokemon not found", "status": 404}
+
     return pokemon[pokemon_name]
 
 

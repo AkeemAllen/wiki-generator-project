@@ -30,6 +30,21 @@ export const useGetPokemonByName = ({ pokemonName, onSuccess }: any) => {
   });
 };
 
+export const useGetPokemonById = ({ onSuccess, onError }: any) => {
+  const [currentWiki, _] = useLocalStorage("currentWiki", "none");
+  return useMutation({
+    mutationFn: ({ pokemonId }: any) => {
+      return fetch(
+        `${import.meta.env.VITE_BASE_URL}/pokemon/${currentWiki}/${pokemonId}`,
+        {
+          method: "GET",
+        }
+      ).then((res) => res.json());
+    },
+    onSuccess,
+    onError,
+  });
+};
 type SavePokemonProps = {
   pokemonName: string;
   pokemonChanges: PokemonChanges;

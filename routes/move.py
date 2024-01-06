@@ -67,6 +67,27 @@ async def save_machines(
 
 
 # Get move by name
+@router.get("/moves/{wiki_name}/{move_name_or_id}")
+async def get_move(move_name_or_id: str | int, wiki_name: str):
+    with open(
+        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
+    ) as moves_file:
+        moves = json.load(moves_file)
+        moves_file.close()
+
+    if move_name_or_id.isdigit():
+        for move_name in moves:
+            if moves[move_name]["id"] == int(move_name_or_id):
+                return moves[move_name]
+        return {"message": "Move not found", "status": 404}
+
+    move_name = move_name_or_id.lower()
+    if move_name not in moves:
+        return {"message": "Move not found", "status": 404}
+    return moves[move_name_or_id]
+
+
+# Get move by name
 @router.get("/moves/{wiki_name}/{move_name}")
 async def get_moves(move_name: str, wiki_name: str):
     with open(
