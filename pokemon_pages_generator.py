@@ -282,7 +282,10 @@ def create_level_up_moves_table(
     moves = {}
 
     for move_name, details in data.moves.__root__.items():
-        if details.learn_method != "level-up":
+        if (
+            details.learn_method != "level-up"
+            and "level-up" not in details.learn_method
+        ):
             continue
         if details.level_learned_at == 0:
             continue
@@ -327,7 +330,7 @@ def create_learnable_moves(
         # TODO: Consider removing this check since any move could be a machine
         if file_moves[move_name]["machine_details"] is None:
             continue
-        if details.learn_method != "machine":
+        if details.learn_method != "machine" and "machine" not in details.learn_method:
             continue
 
         machine_name = ""
@@ -457,7 +460,7 @@ def generate_pages_from_range(
         create_ability_table(doc, pokemon_data)
         create_stats_table(doc, pokemon_data)
         create_evolution_table(doc, pokemon_data)
-        create_level_up_moves_table(doc, version_group, file_moves, pokemon_data)
+        create_level_up_moves_table(doc, file_moves, pokemon_data)
         create_learnable_moves(doc, version_group, file_moves, pokemon_data)
 
         doc.output_page(markdown_file_path)

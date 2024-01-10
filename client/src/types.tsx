@@ -15,7 +15,7 @@ export type MachineVersion = {
 export type Move = {
   [key: string]: {
     level_learned_at: number;
-    learn_method: string;
+    learn_method: string | string[];
     delete?: boolean;
   };
 };

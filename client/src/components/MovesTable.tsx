@@ -3,7 +3,7 @@ import {
   Box,
   Button,
   Modal,
-  NativeSelect,
+  MultiSelect,
   NumberInput,
   SimpleGrid,
   Table,
@@ -24,7 +24,7 @@ type MovesTableProps = {
 type NewMove = {
   move_name: string;
   level_learned_at: number;
-  learn_method: string;
+  learn_method: string | string[];
 };
 
 const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
@@ -37,12 +37,22 @@ const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
   const [newMove, setNewMove] = useState<NewMove>({
     move_name: "",
     level_learned_at: 0,
-    learn_method: "level-up",
+    learn_method: ["level-up"],
   } as NewMove);
   const [searchTerm, setSearchTerm] = useInputState<string>("");
   const movesList = useMovesStore((state) => state.movesList);
 
-  const handleMethodMoveChange = (method: string, move_name: string) => {
+  const displayLearnMethod = (learn_method: string | string[]) => {
+    if (Array.isArray(learn_method)) {
+      return learn_method.join(", ");
+    }
+    return learn_method;
+  };
+
+  const handleMethodMoveChange = (
+    method: string | string[],
+    move_name: string
+  ) => {
     setMoves((moves: Move) => {
       return {
         ...moves,
@@ -80,7 +90,7 @@ const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
     setNewMove({
       move_name: "",
       level_learned_at: 0,
-      learn_method: "level-up",
+      learn_method: ["level-up"],
       is_custom_machine: false,
       custom_machine_id: "",
     } as NewMove);
@@ -138,16 +148,8 @@ const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
               return (
                 <tr key={index}>
                   <td>{key}</td>
-                  <td>{moves[key].learn_method}</td>
+                  <td>{displayLearnMethod(moves[key].learn_method)}</td>
                   <td>{moves[key].level_learned_at}</td>
-                  <td>
-                    <Button
-                      leftIcon={<IconTrash size={"1rem"} />}
-                      onClick={() => deleteMove(key)}
-                    >
-                      Delete
-                    </Button>
-                  </td>
                   <td>
                     <Button
                       leftIcon={<IconEdit size={"1rem"} />}
@@ -157,6 +159,14 @@ const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
                       }}
                     >
                       Edit
+                    </Button>
+                  </td>
+                  <td>
+                    <Button
+                      leftIcon={<IconTrash size={"1rem"} />}
+                      onClick={() => deleteMove(key)}
+                    >
+                      Delete
                     </Button>
                   </td>
                 </tr>
@@ -177,17 +187,16 @@ const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
           data={movesList === undefined ? [] : movesList}
           label="New Move"
         />
-        <NativeSelect
+        <MultiSelect
           mt="lg"
           mb="lg"
           label="Learn Method"
-          defaultValue={newMove.learn_method}
-          onChange={(e) =>
-            setNewMove({ ...newMove, learn_method: e.target.value })
-          }
+          value={newMove.learn_method as string[]}
+          onChange={(e) => setNewMove({ ...newMove, learn_method: e })}
+          searchable
           data={["level-up", "machine", "egg", "tutor"]}
         />
-        {newMove.learn_method === "level-up" && (
+        {newMove.learn_method.includes("level-up") && (
           <NumberInput
             mb="lg"
             label="Level"
@@ -207,12 +216,16 @@ const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
         withCloseButton={false}
       >
         <TextInput value={moveToEdit} disabled label="Move Name" />
-        <NativeSelect
+        <MultiSelect
           mt="lg"
           mb="lg"
           label="Learn Method"
-          value={moves[moveToEdit]?.learn_method}
-          onChange={(e) => handleMethodMoveChange(e.target.value, moveToEdit)}
+          value={
+            typeof moves[moveToEdit]?.learn_method === "string"
+              ? ([moves[moveToEdit]?.learn_method] as string[])
+              : (moves[moveToEdit]?.learn_method as string[])
+          }
+          onChange={(e) => handleMethodMoveChange(e, moveToEdit)}
           data={["level-up", "machine", "egg", "tutor"]}
         />
 

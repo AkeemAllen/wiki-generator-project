@@ -15,12 +15,14 @@ const MovesTab = ({
   pokemonData,
 }: MovesTabProps) => {
   const [moves, setMoves] = useState<Move>(pokemonData.moves);
+
   useUpdateEffect(() => {
     setPokemonChanges({
       ...pokemonChanges,
       moves: moves,
     });
   }, [moves]);
+
   return <MovesTable setMoves={setMoves} moves={moves} />;
 };
 

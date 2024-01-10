@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from pydantic import BaseModel
 
 
@@ -22,7 +22,7 @@ class MoveDetails(BaseModel):
 
 class MoveData(BaseModel):
     level_learned_at: int
-    learn_method: str
+    learn_method: str | List[str]
     delete: Optional[bool] = False
 
 

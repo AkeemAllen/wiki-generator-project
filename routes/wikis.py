@@ -126,22 +126,17 @@ async def generate_pokemon_pages(generation_data: GenerationData):
         file_moves = json.load(moves_file)
         moves_file.close()
 
-    with cProfile.Profile() as pr:
-        generate_pages_from_range(
-            wiki_name=wiki_name,
-            version_group=generation_data.version_group,
-            pokemon=pokemon,
-            file_moves=file_moves,
-            mkdocs_yaml_dict=mkdocs_yaml_dict,
-            range_start=generation_data.range_start,
-            range_end=generation_data.range_end,
-        )
-        generate_evolution_page(generation_data.wiki_name)
-        generate_type_page(generation_data.wiki_name)
-
-    results = pstats.Stats(pr)
-    results.sort_stats(pstats.SortKey.TIME)
-    results.print_stats()
+    generate_pages_from_range(
+        wiki_name=wiki_name,
+        version_group=generation_data.version_group,
+        pokemon=pokemon,
+        file_moves=file_moves,
+        mkdocs_yaml_dict=mkdocs_yaml_dict,
+        range_start=generation_data.range_start,
+        range_end=generation_data.range_end,
+    )
+    generate_evolution_page(generation_data.wiki_name)
+    generate_type_page(generation_data.wiki_name)
 
     return {
         "message": f"Pokemon from ranges {generation_data.range_start} to {generation_data.range_end} generated",
