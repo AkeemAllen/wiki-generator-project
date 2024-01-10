@@ -117,16 +117,6 @@ const Pokemon = () => {
           {pokemonList.length === 0 && <EmptyPokemonList />}
           {pokemonList.length > 0 && (
             <>
-              <Grid.Col span={1}>
-                <Button onClick={prevPokemon} color="gray">
-                  <IconChevronLeft size={"1rem"} />
-                </Button>
-              </Grid.Col>
-              <Grid.Col span={1}>
-                <Button onClick={nextPokemon} color="gray">
-                  <IconChevronRight size={"1rem"} />
-                </Button>
-              </Grid.Col>
               <Grid.Col span={8}>
                 <Autocomplete
                   placeholder="Pokemon Name"
@@ -155,6 +145,16 @@ const Pokemon = () => {
                   onClick={saveChanges}
                 >
                   Save Changes
+                </Button>
+              </Grid.Col>
+              <Grid.Col span={1}>
+                <Button onClick={prevPokemon} color="gray">
+                  <IconChevronLeft size={"1rem"} />
+                </Button>
+              </Grid.Col>
+              <Grid.Col span={1}>
+                <Button onClick={nextPokemon} color="gray">
+                  <IconChevronRight size={"1rem"} />
                 </Button>
               </Grid.Col>
             </>
