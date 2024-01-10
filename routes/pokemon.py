@@ -1,4 +1,5 @@
 # from typing import List
+from typing import List
 from fastapi import APIRouter
 import json
 
@@ -197,6 +198,69 @@ async def save_pokemon_changes(
         mkdocs_yaml_dict=mkdocs_yaml_dict,
         pokemon_to_generate_page_for=[
             {"name": pokemon_name, "dex_number": pokemon[pokemon_name]["id"]}
+        ],
+    )
+
+    return {"message": "Changes Saved"}
+
+
+# Currently on setup for machine moves
+@router.post("/pokemon/add-moves/{wiki_name}")
+async def save_multiple_pokemon_move_changes(
+    wiki_name: str, pokemon_being_modified: List[str], moves_being_added: List[str]
+):
+    with open(
+        f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
+    ) as pokemon_file:
+        pokemon = json.load(pokemon_file)
+        pokemon_file.close()
+
+    # Initialize pokemon in modified_pokemon if not already
+    for pokemon_name in pokemon_being_modified:
+        for move in moves_being_added:
+            if move in pokemon[pokemon_name]["moves"]:
+                previous_learn_method = pokemon[pokemon_name]["moves"][move][
+                    "learn_method"
+                ]
+                pokemon[pokemon_name]["moves"][move]["learn_method"] = [
+                    previous_learn_method,
+                    "machine",
+                ]
+            else:
+                pokemon[pokemon_name]["moves"][move] = {
+                    "level_learned_at": 0,
+                    "learn_method": ["machine"],
+                }
+
+    with open(f"{data_folder_route}/{wiki_name}/pokemon.json", "w") as pokemon_file:
+        pokemon_file.write(json.dumps(pokemon))
+        pokemon_file.close()
+
+    with open(
+        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
+    ) as moves_file:
+        file_moves = json.load(moves_file)
+        moves_file.close()
+
+    with open(f"dist/{wiki_name}/mkdocs.yml", "r") as mkdocs_file:
+        mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
+        mkdocs_file.close()
+
+    with open("data/wikis.json", encoding="utf-8") as wikis_file:
+        wikis = json.load(wikis_file)
+        wikis_file.close()
+
+    version_group = wikis[wiki_name]["settings"]["version_group"]
+
+    generate_pages_from_pokemon_list(
+        wiki_name=wiki_name,
+        version_group=PokemonVersions(version_group),
+        file_pokemon=pokemon,
+        file_moves=file_moves,
+        mkdocs_yaml_dict=mkdocs_yaml_dict,
+        pokemon_to_generate_page_for=[
+            {"name": pokemon_name, "dex_number": pokemon[pokemon_name]["id"]}
+            for pokemon_name in pokemon_being_modified
         ],
     )
 

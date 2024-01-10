@@ -70,6 +70,32 @@ export const useSavePokemonChanges = ({ onSuccess, onError }: any) => {
   });
 };
 
+type AddMultipleMovesProps = {
+  pokemon_being_modified: string[];
+  moves_being_added: string[];
+};
+
+export const useAddMultipleMoves = ({ onSuccess, onError }: any) => {
+  const [currentWiki, _] = useLocalStorage("currentWiki", "none");
+  return useMutation({
+    mutationFn: ({
+      pokemon_being_modified,
+      moves_being_added,
+    }: AddMultipleMovesProps) => {
+      return fetch(
+        `${import.meta.env.VITE_BASE_URL}/pokemon/add-moves/${currentWiki}`,
+        {
+          method: "POST",
+          body: JSON.stringify({ pokemon_being_modified, moves_being_added }),
+          headers: { "Content-Type": "application/json" },
+        }
+      ).then((res) => res.json());
+    },
+    onSuccess,
+    onError,
+  });
+};
+
 export const usePreparePokemonData = ({ onSuccess, onError }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
