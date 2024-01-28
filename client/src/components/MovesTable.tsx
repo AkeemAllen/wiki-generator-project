@@ -1,46 +1,29 @@
 import {
-  Autocomplete,
-  Box,
   Button,
   Modal,
   MultiSelect,
   NumberInput,
-  SimpleGrid,
   Table,
   TextInput,
   Title,
 } from "@mantine/core";
-import { useDisclosure, useInputState } from "@mantine/hooks";
-import { IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
+import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
-import { useMovesStore } from "../stores";
 import { Move } from "../types";
 
 type MovesTableProps = {
   moves: Move;
   setMoves: any;
+  searchTerm: string;
 };
 
-type NewMove = {
-  move_name: string;
-  level_learned_at: number;
-  learn_method: string | string[];
-};
-
-const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
-  const [opened, { open, close }] = useDisclosure(false);
+const MovesTable = ({ moves, setMoves, searchTerm }: MovesTableProps) => {
   const [
     editMoveModalOpened,
     { open: openEditMoveModal, close: closeEditMoveModal },
   ] = useDisclosure(false);
   const [moveToEdit, setMoveToEdit] = useState<string>("");
-  const [newMove, setNewMove] = useState<NewMove>({
-    move_name: "",
-    level_learned_at: 0,
-    learn_method: ["level-up"],
-  } as NewMove);
-  const [searchTerm, setSearchTerm] = useInputState<string>("");
-  const movesList = useMovesStore((state) => state.movesList);
 
   const displayLearnMethod = (learn_method: string | string[]) => {
     if (Array.isArray(learn_method)) {
@@ -76,26 +59,6 @@ const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
     });
   };
 
-  const addNewMove = (newMove: NewMove) => {
-    setMoves((moves: Move) => {
-      return {
-        [newMove.move_name]: {
-          level_learned_at: newMove.level_learned_at,
-          learn_method: newMove.learn_method,
-        },
-        ...moves,
-      };
-    });
-    close();
-    setNewMove({
-      move_name: "",
-      level_learned_at: 0,
-      learn_method: ["level-up"],
-      is_custom_machine: false,
-      custom_machine_id: "",
-    } as NewMove);
-  };
-
   const deleteMove = (move_name: string) => {
     setMoves((moves: Move) => {
       return {
@@ -110,19 +73,6 @@ const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
 
   return (
     <>
-      <SimpleGrid cols={3} mt="50px">
-        <Title order={2}>Moves</Title>
-        <TextInput
-          icon={<IconSearch size={"1rem"} />}
-          placeholder="Search Moves"
-          onChange={setSearchTerm}
-        />
-        <Box w={200}>
-          <Button leftIcon={<IconPlus size={"1rem"} />} onClick={open}>
-            Add Move
-          </Button>
-        </Box>
-      </SimpleGrid>
       <Table withBorder mt="lg">
         <thead>
           <tr>
@@ -174,40 +124,7 @@ const MovesTable = ({ moves, setMoves }: MovesTableProps) => {
             })}
         </tbody>
       </Table>
-      <Modal
-        opened={opened}
-        withCloseButton={false}
-        onClose={close}
-        title={"Add New Move"}
-        centered
-      >
-        <Autocomplete
-          value={newMove.move_name}
-          onChange={(value) => setNewMove({ ...newMove, move_name: value })}
-          data={movesList === undefined ? [] : movesList}
-          label="New Move"
-        />
-        <MultiSelect
-          mt="lg"
-          mb="lg"
-          label="Learn Method"
-          value={newMove.learn_method as string[]}
-          onChange={(e) => setNewMove({ ...newMove, learn_method: e })}
-          searchable
-          data={["level-up", "machine", "egg", "tutor"]}
-        />
-        {newMove.learn_method.includes("level-up") && (
-          <NumberInput
-            mb="lg"
-            label="Level"
-            value={newMove.level_learned_at}
-            onChange={(e: number) =>
-              setNewMove({ ...newMove, level_learned_at: e })
-            }
-          />
-        )}
-        <Button onClick={() => addNewMove(newMove)}>Save</Button>
-      </Modal>
+
       <Modal
         opened={editMoveModalOpened}
         onClose={closeEditMoveModal}

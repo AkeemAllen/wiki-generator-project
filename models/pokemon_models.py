@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Dict, List, Literal, Optional
 from pydantic import BaseModel
 
 
@@ -81,6 +81,17 @@ class PokemonVersions(Enum):
     LETS_GO_PIKACHU_EEVEE = "lets-go-pikachu-lets-go-eevee"
     COLLOSEUM = "colosseum"
     XD = "xd"
+
+
+class MoveChange(BaseModel):
+    move_name: str
+    operation: Literal["add", "replace", "shift"]
+    level: int
+
+
+class PokemonMoveChanges(BaseModel):
+    pokemon: str
+    move_changes: List[MoveChange]
 
 
 pokemon_versions_ordered = {

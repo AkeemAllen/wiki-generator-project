@@ -59,6 +59,12 @@ export type PokemonData = {
   evolution?: Evolution;
 };
 
+export type MoveChange = {
+  move_name: string;
+  operation: "add" | "replace" | "shift";
+  level: number;
+};
+
 export type TrainerOrWildPokemon = {
   id?: number;
   name?: string;

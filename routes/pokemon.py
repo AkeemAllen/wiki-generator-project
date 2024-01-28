@@ -6,7 +6,12 @@ import json
 import yaml
 
 
-from models.pokemon_models import PokemonChanges, PokemonVersions
+from models.pokemon_models import (
+    MoveChange,
+    PokemonChanges,
+    PokemonMoveChanges,
+    PokemonVersions,
+)
 from type_page_generator import generate_type_page
 from evolution_page_generator import generate_evolution_page
 from pokemon_pages_generator import generate_pages_from_pokemon_list
@@ -18,6 +23,39 @@ from prepare_large_data import download_pokemon_data, download_pokemon_sprites
 router = APIRouter()
 
 data_folder_route = "data"
+
+
+def save_and_generate_pokemon(
+    wiki_name: str, pokemon: dict, pokemon_generation_list: list
+):
+    with open(f"{data_folder_route}/{wiki_name}/pokemon.json", "w") as pokemon_file:
+        pokemon_file.write(json.dumps(pokemon))
+        pokemon_file.close()
+
+    with open(
+        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
+    ) as moves_file:
+        file_moves = json.load(moves_file)
+        moves_file.close()
+
+    with open(f"dist/{wiki_name}/mkdocs.yml", "r") as mkdocs_file:
+        mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
+        mkdocs_file.close()
+
+    with open("data/wikis.json", encoding="utf-8") as wikis_file:
+        wikis = json.load(wikis_file)
+        wikis_file.close()
+
+    version_group = wikis[wiki_name]["settings"]["version_group"]
+
+    generate_pages_from_pokemon_list(
+        wiki_name=wiki_name,
+        version_group=PokemonVersions(version_group),
+        file_pokemon=pokemon,
+        file_moves=file_moves,
+        mkdocs_yaml_dict=mkdocs_yaml_dict,
+        pokemon_to_generate_page_for=pokemon_generation_list,
+    )
 
 
 # Get all pokemon and return by dict with name and id
@@ -81,10 +119,6 @@ async def get_pokemon(pokemon_name_or_id: str, wiki_name: str):
 async def save_pokemon_changes(
     changes: PokemonChanges, pokemon_name: str, wiki_name: str
 ):
-    with open(f"dist/{wiki_name}/mkdocs.yml", "r") as mkdocs_file:
-        mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
-        mkdocs_file.close()
-
     with open(
         f"{data_folder_route}/{wiki_name}/modifications/modified_pokemon.json",
         encoding="utf-8",
@@ -163,10 +197,6 @@ async def save_pokemon_changes(
         # generate evolution page
         generate_evolution_page(wiki_name, modified_pokemon)
 
-    with open(f"{data_folder_route}/{wiki_name}/pokemon.json", "w") as pokemon_file:
-        pokemon_file.write(json.dumps(pokemon))
-        pokemon_file.close()
-
     if modified_pokemon[pokemon_name] == {}:
         del modified_pokemon[pokemon_name]
 
@@ -177,35 +207,17 @@ async def save_pokemon_changes(
         modified_pokemon_file.write(json.dumps(modified_pokemon))
         modified_pokemon_file.close()
 
-    with open(
-        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
-    ) as moves_file:
-        file_moves = json.load(moves_file)
-        moves_file.close()
-
-    with open("data/wikis.json", encoding="utf-8") as wikis_file:
-        wikis = json.load(wikis_file)
-        wikis_file.close()
-
-    version_group = wikis[wiki_name]["settings"]["version_group"]
-
-    # generate pokemon page
-    generate_pages_from_pokemon_list(
-        wiki_name=wiki_name,
-        version_group=PokemonVersions(version_group),
-        file_pokemon=pokemon,
-        file_moves=file_moves,
-        mkdocs_yaml_dict=mkdocs_yaml_dict,
-        pokemon_to_generate_page_for=[
-            {"name": pokemon_name, "dex_number": pokemon[pokemon_name]["id"]}
-        ],
+    save_and_generate_pokemon(
+        wiki_name,
+        pokemon,
+        [{"name": pokemon_name, "dex_number": pokemon[pokemon_name]["id"]}],
     )
 
     return {"message": "Changes Saved"}
 
 
-# Currently on setup for machine moves
-@router.post("/pokemon/add-moves/{wiki_name}")
+# Set function only for machine moves
+@router.post("/pokemon/add-machine-moves/{wiki_name}")
 async def save_multiple_pokemon_move_changes(
     wiki_name: str, pokemon_being_modified: List[str], moves_being_added: List[str]
 ):
@@ -218,50 +230,72 @@ async def save_multiple_pokemon_move_changes(
     # Initialize pokemon in modified_pokemon if not already
     for pokemon_name in pokemon_being_modified:
         for move in moves_being_added:
+            # fix potential bug here.
             if move in pokemon[pokemon_name]["moves"]:
                 previous_learn_method = pokemon[pokemon_name]["moves"][move][
                     "learn_method"
                 ]
-                pokemon[pokemon_name]["moves"][move]["learn_method"] = [
-                    previous_learn_method,
-                    "machine",
-                ]
+                if "machine" not in previous_learn_method:
+                    pokemon[pokemon_name]["moves"][move]["learn_method"] = [
+                        previous_learn_method,
+                        "machine",
+                    ]
             else:
                 pokemon[pokemon_name]["moves"][move] = {
                     "level_learned_at": 0,
                     "learn_method": ["machine"],
                 }
 
-    with open(f"{data_folder_route}/{wiki_name}/pokemon.json", "w") as pokemon_file:
-        pokemon_file.write(json.dumps(pokemon))
-        pokemon_file.close()
-
-    with open(
-        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
-    ) as moves_file:
-        file_moves = json.load(moves_file)
-        moves_file.close()
-
-    with open(f"dist/{wiki_name}/mkdocs.yml", "r") as mkdocs_file:
-        mkdocs_yaml_dict = yaml.load(mkdocs_file, Loader=yaml.FullLoader)
-        mkdocs_file.close()
-
-    with open("data/wikis.json", encoding="utf-8") as wikis_file:
-        wikis = json.load(wikis_file)
-        wikis_file.close()
-
-    version_group = wikis[wiki_name]["settings"]["version_group"]
-
-    generate_pages_from_pokemon_list(
-        wiki_name=wiki_name,
-        version_group=PokemonVersions(version_group),
-        file_pokemon=pokemon,
-        file_moves=file_moves,
-        mkdocs_yaml_dict=mkdocs_yaml_dict,
-        pokemon_to_generate_page_for=[
+    save_and_generate_pokemon(
+        wiki_name,
+        pokemon,
+        [
             {"name": pokemon_name, "dex_number": pokemon[pokemon_name]["id"]}
             for pokemon_name in pokemon_being_modified
         ],
+    )
+
+    return {"message": "Changes Saved"}
+
+
+@router.post("/pokemon/modify-level-moves/{wiki_name}")
+async def modify_level_moves(pokemonMoveChanges: PokemonMoveChanges, wiki_name: str):
+    with open(
+        f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
+    ) as pokemon_file:
+        pokemon = json.load(pokemon_file)
+        pokemon_file.close()
+
+    pokemon_name = pokemonMoveChanges.pokemon
+
+    for move_change in pokemonMoveChanges.move_changes:
+        operation = move_change.operation
+        move_name = move_change.move_name
+        level = move_change.level
+
+        if operation == "add":
+            # Add check just in case move already exists
+            pokemon[pokemon_name]["moves"][move_name] = {
+                "level_learned_at": level,
+                "learn_method": ["level-up"],
+            }
+        elif operation == "shift":
+            pokemon[pokemon_name]["moves"][move_name]["level_learned_at"] = level
+        elif operation == "replace":
+            # consider presorting moves on pokemon by level to make this more effecient
+            for move in pokemon[pokemon_name]["moves"]:
+                if pokemon[pokemon_name]["moves"][move]["level_learned_at"] == level:
+                    del pokemon[pokemon_name]["moves"][move]
+                    break
+            pokemon[pokemon_name]["moves"][move_name] = {
+                "level_learned_at": level,
+                "learn_method": ["level-up"],
+            }
+
+    save_and_generate_pokemon(
+        wiki_name,
+        pokemon,
+        [{"name": pokemon_name, "dex_number": pokemon[pokemon_name]["id"]}],
     )
 
     return {"message": "Changes Saved"}

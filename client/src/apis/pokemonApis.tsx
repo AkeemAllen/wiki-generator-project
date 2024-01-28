@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocalStorage } from "usehooks-ts";
-import { PokemonChanges, PreparationData } from "../types";
+import { MoveChange, PokemonChanges, PreparationData } from "../types";
 
 export const useGetPokemon = (onSuccess: (data: any) => void) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
@@ -83,10 +83,36 @@ export const useAddMultipleMoves = ({ onSuccess, onError }: any) => {
       moves_being_added,
     }: AddMultipleMovesProps) => {
       return fetch(
-        `${import.meta.env.VITE_BASE_URL}/pokemon/add-moves/${currentWiki}`,
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/pokemon/add-machine-moves/${currentWiki}`,
         {
           method: "POST",
           body: JSON.stringify({ pokemon_being_modified, moves_being_added }),
+          headers: { "Content-Type": "application/json" },
+        }
+      ).then((res) => res.json());
+    },
+    onSuccess,
+    onError,
+  });
+};
+
+type ModifyLevelMovesProps = {
+  pokemon_move_changes: { pokemon: string; move_changes: MoveChange[] };
+};
+
+export const useModifyLevelMoves = ({ onSuccess, onError }: any) => {
+  const [currentWiki, _] = useLocalStorage("currentWiki", "none");
+  return useMutation({
+    mutationFn: ({ pokemon_move_changes }: ModifyLevelMovesProps) => {
+      return fetch(
+        `${
+          import.meta.env.VITE_BASE_URL
+        }/pokemon/modify-level-moves/${currentWiki}`,
+        {
+          method: "POST",
+          body: JSON.stringify(pokemon_move_changes),
           headers: { "Content-Type": "application/json" },
         }
       ).then((res) => res.json());

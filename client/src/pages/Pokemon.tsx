@@ -43,6 +43,10 @@ const Pokemon = () => {
   const { refetch, isLoading } = useGetPokemonByName({
     pokemonName,
     onSuccess: (data: any) => {
+      if (data.status === 404) {
+        notifications.show({ message: "Pokemon not found", color: "red" });
+        return;
+      }
       setPokemonData(data);
       setCurrentId(data.id);
     },
@@ -50,7 +54,6 @@ const Pokemon = () => {
 
   const { mutate: fetchById, isLoading: isLoadingById } = useGetPokemonById({
     onSuccess: (data: any) => {
-      console.log(data);
       setPokemonData(data);
       setPokemonName(data.name);
       setCurrentId(data.id);
@@ -113,11 +116,11 @@ const Pokemon = () => {
         <Tabs.Tab value="multiple-pokemon">Edit Multiple Pokemon</Tabs.Tab>
       </Tabs.List>
       <Tabs.Panel value="pokemon">
-        <Grid columns={22} mt={20}>
+        <Grid columns={12} mt={20}>
           {pokemonList.length === 0 && <EmptyPokemonList />}
           {pokemonList.length > 0 && (
             <>
-              <Grid.Col span={8}>
+              <Grid.Col span={3}>
                 <Autocomplete
                   placeholder="Pokemon Name"
                   value={pokemonName}
@@ -129,7 +132,7 @@ const Pokemon = () => {
                   }
                 />
               </Grid.Col>
-              <Grid.Col span={6}>
+              <Grid.Col span={2}>
                 <Button
                   fullWidth
                   onClick={handleSearch}
@@ -138,7 +141,7 @@ const Pokemon = () => {
                   Search
                 </Button>
               </Grid.Col>
-              <Grid.Col span={6}>
+              <Grid.Col span={2}>
                 <Button
                   fullWidth
                   disabled={pokemonChanges === null}
@@ -181,6 +184,7 @@ const Pokemon = () => {
                 pokemonChanges={pokemonChanges}
                 pokemonData={pokemonData}
                 setPokemonChanges={setPokemonChanges}
+                refreshSearch={handleSearch}
               />
             </Tabs.Panel>
           </Tabs>

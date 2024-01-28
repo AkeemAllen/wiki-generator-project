@@ -124,7 +124,7 @@ const MainAppshell = () => {
               />
             </MediaQuery>
             <Grid>
-              <Grid.Col span={2}>
+              <Grid.Col span={6}>
                 <Text>Wiki Generator Interface</Text>
               </Grid.Col>
               <Grid.Col span={2}></Grid.Col>
