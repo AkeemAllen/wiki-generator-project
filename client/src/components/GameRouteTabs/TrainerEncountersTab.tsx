@@ -159,9 +159,6 @@ const TrainersEncounterTab = ({ routeName }: TabProps) => {
   const setUniqueId = () => {
     let teamLength = 0;
 
-    console.log(isNullEmptyOrUndefined(trainers[currentTrainer]));
-    console.log(isNullEmptyOrUndefined(trainers[currentTrainer]?.pokemon));
-
     if (!isNullEmptyOrUndefined(trainers[currentTrainer])) {
       if (!isNullEmptyOrUndefined(trainers[currentTrainer].pokemon)) {
         teamLength = trainers[currentTrainer].pokemon.length;
@@ -202,6 +199,7 @@ const TrainersEncounterTab = ({ routeName }: TabProps) => {
           id: pokemonList?.find((p) => p.name === pokemonName)?.id,
           unique_id: setUniqueId(),
           level,
+          trainer_version: [],
         },
       ],
     });

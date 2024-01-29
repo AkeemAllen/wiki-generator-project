@@ -12,6 +12,7 @@ import {
 import { useDisclosure, useInputState } from "@mantine/hooks";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
+import { useUpdateEffect } from "usehooks-ts";
 import {
   useAbilityStore,
   useItemsStore,
@@ -208,6 +209,12 @@ const PokemonCard = ({
       }
     }
   }, [pokemonName]);
+
+  useUpdateEffect(() => {
+    // Updates to the trainer versions was not immediately being reflected when selecting the version the pokemon belongs to
+    // This is a fix to that problem
+    setTrainerVersions(trainers[trainerName].trainer_versions || []);
+  }, [trainers[trainerName]]);
 
   return (
     <>
