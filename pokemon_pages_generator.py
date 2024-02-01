@@ -144,9 +144,9 @@ def create_type_table(doc: Document, pokemon_data: PokemonData):
 def create_defenses_table(doc: Document, pokemon_data: PokemonData):
     data = pokemon_data
     types = [_type for _type in data.types]
-    query_string = f"{types[0]}+{types[1]}" if len(types) > 1 else f"{types[0]}"
+    types_query_string = f"{types[0]}+{types[1]}" if len(types) > 1 else f"{types[0]}"
 
-    response = get_defensive_matchups_synchronous(query_string)
+    response = get_defensive_matchups_synchronous(types_query_string)
 
     # Converting int keys to string so that the keys can actually be checked for
     response = {str(k): v for k, v in response.items()}

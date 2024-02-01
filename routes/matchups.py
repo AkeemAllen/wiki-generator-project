@@ -1,7 +1,7 @@
 import json
 import os
 from fastapi import APIRouter
-from models.matchup_models import POKEMON_TYPES, pokemon_types, gen_default
+from models.matchup_models import POKEMON_TYPES, pokemon_types, gen_default, gen1, gen2
 from functools import reduce
 
 router = APIRouter()
@@ -9,9 +9,12 @@ router = APIRouter()
 data_folder_route = "data"
 wiki_name = "blaze-black-volt-white-two-wiki"
 
+# Note: Code in this file was hoisted from pkmn.help project by wavebeem on GitHub.
+# Credit to wavebeem for the original code. I simply translated it into Python with some modifications.
+
 
 # TODO: Figure out how to store matchup maps and reference them rather than recreating them every time
-def get_matchup_map():
+def get_matchup_map(generation):
     if os.path.exists(f"{data_folder_route}/{wiki_name}/matchup_map.json"):
         with open(
             f"{data_folder_route}/{wiki_name}/matchup_map.json", encoding="utf-8"
@@ -22,6 +25,12 @@ def get_matchup_map():
 
     matchup_map = {}
     data = gen_default
+
+    if generation == 1:
+        data = gen1
+    elif generation == 2:
+        data = gen2
+
     for row_index, row_value in enumerate(data):
         for col_index, col_value in enumerate(row_value):
             type_one = pokemon_types[row_index]
@@ -35,14 +44,11 @@ def get_matchup_map():
         json.dump(matchup_map, matchup_map_file, indent=4)
         matchup_map_file.close()
 
-    # print(matchup_map)
     return matchup_map
 
 
 def matchupForPair(generation, defense_type, offense_type):
-    # consider storging matchup map for easier access
-    # rather than recreating it every time
-    matchup_map = get_matchup_map()
+    matchup_map = get_matchup_map(generation)
     key = f"{offense_type} > {defense_type}"
     value = matchup_map[key]
     return value
@@ -68,7 +74,7 @@ def generate_defensive_matchups(generation, defense_types, pokemon_type):
     }
 
 
-def defensive_matchups(generation: int, defense_types: list):
+def defensive_matchups(generation, defense_types: list):
     matchups = map(
         lambda pokemon_type: generate_defensive_matchups(
             generation, defense_types, pokemon_type
@@ -88,11 +94,11 @@ def group_matchups_by_effectiveness(matchups, effectiveness):
 
 # Kind of a hack to avoid dealing with async and coroutines
 # TODO: Figure out how to do this properly
-def get_defensive_matchups_synchronous(types: str):
+def get_defensive_matchups_synchronous(types: str, generation=0):
     type_array = types.split("+")
     effectiveness_levels = [8, 4, 2, 1, 0.5, 0.25, 0.125, 0]
 
-    matchups = list(defensive_matchups(1, type_array))
+    matchups = list(defensive_matchups(generation, type_array))
 
     matchups_by_effectiveness = {}
     for effectiveness in effectiveness_levels:
@@ -108,11 +114,12 @@ def get_defensive_matchups_synchronous(types: str):
 
 
 @router.get("/matchups/defensive")
-async def get_defensive_matchups(types: str):
+async def get_defensive_matchups(types: str, generation: int = 0):
+    # Generation is set to 0 by default, so it will default to the latest generation
     type_array = types.split()
     effectiveness_levels = [8, 4, 2, 1, 0.5, 0.25, 0.125, 0]
 
-    matchups = list(defensive_matchups(1, type_array))
+    matchups = list(defensive_matchups(generation, type_array))
 
     matchups_by_effectiveness = {}
     for effectiveness in effectiveness_levels:
