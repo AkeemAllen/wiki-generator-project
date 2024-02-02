@@ -1,4 +1,4 @@
-import { Button, Grid, Select, TextInput } from "@mantine/core";
+import { Button, Grid, NativeSelect, Select, TextInput } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useLocalStorage } from "usehooks-ts";
@@ -14,6 +14,9 @@ const Settings = () => {
   const [deploymentUrl, setDeploymentUrl] = useInputState<string>(
     wikiList[currentWiki].settings.deployment_url
   );
+  const [matchupGeneration, setMatchupGeneration] = useInputState<
+    "current" | "gen1" | "gen2"
+  >(wikiList[currentWiki].settings.matchup_generation);
 
   const { mutate, isLoading } = useEditWikiSettings((data: any) => {
     notifications.show({ message: data.message });
@@ -41,6 +44,14 @@ const Settings = () => {
         />
       </Grid.Col>
       <Grid.Col>
+        <NativeSelect
+          label="Matchup Generation"
+          onChange={setMatchupGeneration}
+          value={matchupGeneration}
+          data={["current", "gen1", "gen2"]}
+        />
+      </Grid.Col>
+      <Grid.Col>
         <Button
           onClick={() =>
             mutate({
@@ -48,6 +59,7 @@ const Settings = () => {
               settings: {
                 version_group: versionGroup,
                 deployment_url: deploymentUrl,
+                matchup_generation: matchupGeneration,
               },
             })
           }

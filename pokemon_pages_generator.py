@@ -141,12 +141,12 @@ def create_type_table(doc: Document, pokemon_data: PokemonData):
     )
 
 
-def create_defenses_table(doc: Document, pokemon_data: PokemonData):
+def create_defenses_table(doc: Document, pokemon_data: PokemonData, wiki_name: str):
     data = pokemon_data
     types = [_type for _type in data.types]
     types_query_string = f"{types[0]}+{types[1]}" if len(types) > 1 else f"{types[0]}"
 
-    response = get_defensive_matchups_synchronous(types_query_string)
+    response = get_defensive_matchups_synchronous(types_query_string, wiki_name)
 
     # Converting int keys to string so that the keys can actually be checked for
     response = {str(k): v for k, v in response.items()}
@@ -403,7 +403,7 @@ def generate_pages_from_pokemon_list(
 
         add_sprite(doc, pokemon_data, pokemon["dex_number"])
         create_type_table(doc, pokemon_data)
-        create_defenses_table(doc, pokemon_data)
+        create_defenses_table(doc, pokemon_data, wiki_name)
         create_ability_table(doc, pokemon_data)
         create_stats_table(doc, pokemon_data)
         create_evolution_table(doc, pokemon_data)
@@ -456,7 +456,7 @@ def generate_pages_from_range(
 
         add_sprite(doc, pokemon_data, pokedex_number)
         create_type_table(doc, pokemon_data)
-        create_defenses_table(doc, pokemon_data)
+        create_defenses_table(doc, pokemon_data, wiki_name)
         create_ability_table(doc, pokemon_data)
         create_stats_table(doc, pokemon_data)
         create_evolution_table(doc, pokemon_data)

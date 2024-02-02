@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 from pydantic import BaseModel
 
 from models.pokemon_models import PokemonVersions
@@ -7,6 +7,7 @@ from models.pokemon_models import PokemonVersions
 class WikiSettings(BaseModel):
     version_group: PokemonVersions
     deployment_url: Optional[str]
+    matchup_generation: Literal["current", "gen1", "gen2"] = "current"
 
 
 class Wiki(BaseModel):

@@ -9,6 +9,7 @@ import json
 
 import yaml
 from evolution_page_generator import generate_evolution_page
+from routes.matchups import generate_matchup_map
 from type_page_generator import generate_type_page
 from wiki_boilerplate_generator import create_boiler_plate
 
@@ -38,14 +39,21 @@ async def update_wiki_settings(wiki_name: str, settings: WikiSettings):
     if wiki_name not in wikis.keys():
         return {"message": "Wiki does not exist", "status": 400}
 
+    original_matchup_generation = wikis[wiki_name]["settings"]["matchup_generation"]
+
     wikis[wiki_name]["settings"] = {
         "version_group": settings.version_group.value,
         "deployment_url": settings.deployment_url,
+        "matchup_generation": settings.matchup_generation,
     }
 
     with open(f"data/wikis.json", "w", encoding="utf-8") as wikis_file:
         wikis_file.write(json.dumps(wikis))
         wikis_file.close()
+
+    # Simple check so we don't generate the matchup map if it's not necessary
+    if original_matchup_generation != settings.matchup_generation:
+        generate_matchup_map(settings.matchup_generation, wiki_name)
 
     return {"message": "Wiki settings updated", "status": 200, "wikis": wikis}
 
