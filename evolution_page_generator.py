@@ -123,7 +123,6 @@ def generate_evolution_page(wiki_name: str, modified_pokemon: dict = None):
 
     doc.output_page(markdown_file_path)
 
-    # Modify this to search for specific changes
     for nav_item in mkdocs_yaml_dict["nav"][1]["Pokemon"]:
         if "Specific Changes" in nav_item:
             specific_changes = nav_item["Specific Changes"]
