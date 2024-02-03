@@ -9,6 +9,7 @@ import yaml
 from models.move_models import MachineVersion, MoveDetails
 from models.pokemon_models import PokemonVersions
 from models.wikis_models import PreparationData
+from move_page_generator import generate_move_page
 from pokemon_pages_generator import generate_pages_from_pokemon_list
 from prepare_large_data import prepare_move_data
 from utils import obj_dict
@@ -227,8 +228,12 @@ def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str)
         moves_changes_file.write(json.dumps(modified_moves))
         moves_changes_file.close()
 
-    # async function to find all pokemon that have this move and update them
+    # function to find all pokemon that have this move and update them
+
+    # TODO: Combination of these functions causes some lag on the page.
+    # Need to either optimize or generate the page in the background
     update_pokemon_with_move_page(moves, move_name, wiki_name)
+    generate_move_page(wiki_name)
 
     return {"message": "Changes Saved"}
 
