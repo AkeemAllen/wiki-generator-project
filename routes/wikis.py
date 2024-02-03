@@ -76,6 +76,7 @@ async def create_wiki(wiki: Wiki):
         "settings": {
             "deployment_url": wiki.settings.deployment_url,
             "version_group": wiki.settings.version_group.value,
+            "matchup_generation": wiki.settings.matchup_generation,
         },
     }
 

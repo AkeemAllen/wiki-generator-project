@@ -2,6 +2,7 @@ import {
   Button,
   Grid,
   Modal,
+  NativeSelect,
   Select,
   SimpleGrid,
   Text,
@@ -26,6 +27,10 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
   const [wikiDescription, setWikiDescription] = useInputState<string>("");
   const [wikiAuthor, setWikiAuthor] = useInputState<string>("");
   const [deploymentUrl, setDeploymentUrl] = useInputState<string>("");
+  const [matchupGeneration, setMatchupGeneration] = useInputState<
+    "current" | "gen1" | "gen2"
+  >("current");
+
   const [repoUrl, setRepoUrl] = useInputState<string>(
     "https://github.com/__author__/__name__"
   );
@@ -47,7 +52,11 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
       repo_url: repoUrl,
       site_url: siteUrl,
       site_name: wikiName,
-      settings: { version_group: versionGroup, deployment_url: deploymentUrl },
+      settings: {
+        version_group: versionGroup,
+        deployment_url: deploymentUrl,
+        matchup_generation: matchupGeneration,
+      },
     });
     onClose();
   };
@@ -106,6 +115,12 @@ const NewWikiModal = ({ opened, onClose }: NewWikiModalProps) => {
           placeholder="Can be left blank for now"
           value={deploymentUrl}
           onChange={setDeploymentUrl}
+        />
+        <NativeSelect
+          label="Matchup Generation"
+          value={matchupGeneration}
+          onChange={setMatchupGeneration}
+          data={["current", "gen1", "gen2"]}
         />
         <TextInput label="Repo Url" readOnly disabled value={repoUrl} />
         <TextInput
