@@ -65,7 +65,7 @@ async def update_wiki_settings(wiki_name: str, settings: WikiSettings):
 
 
 @router.post("/wikis/create")
-async def create_wiki(wiki: Wiki = None):
+async def create_wiki(wiki: Wiki):
     with open(f"data/wikis.json", encoding="utf-8") as wikis_file:
         wikis = json.load(wikis_file)
         wikis_file.close()
