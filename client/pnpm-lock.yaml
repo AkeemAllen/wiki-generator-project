@@ -21,6 +21,7 @@ specifiers:
   react-dom: ^18.2.0
   react-router: ^6.11.1
   react-router-dom: ^6.11.1
+  react-use-websocket: ^4.5.0
   typescript: ^4.9.3
   usehooks-ts: ^2.9.1
   vite: ^4.1.0
@@ -43,6 +44,7 @@ dependencies:
   react-dom: 18.2.0_react@18.2.0
   react-router: 6.11.1_react@18.2.0
   react-router-dom: 6.11.1_biqbaboplfbrettd7655fr4n2y
+  react-use-websocket: 4.5.0_biqbaboplfbrettd7655fr4n2y
   usehooks-ts: 2.9.1_biqbaboplfbrettd7655fr4n2y
   zustand: 4.3.7_react@18.2.0
 
@@ -1265,6 +1267,16 @@ packages:
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
+  /react-use-websocket/4.5.0_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-oxYVLWM3Lv0InCfjW7hG/Hk0hkE0P1SiLd5/I3d5x0W4riAnDUkD4VEu7qNVAqxNjBF3nU7k0jLMOetLXpwfsA==}
+    peerDependencies:
+      react: '>= 18.0.0'
+      react-dom: '>= 18.0.0'
+    dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     dev: false

@@ -25,6 +25,7 @@
     "react-dom": "^18.2.0",
     "react-router": "^6.11.1",
     "react-router-dom": "^6.11.1",
+    "react-use-websocket": "^4.5.0",
     "usehooks-ts": "^2.9.1",
     "zustand": "^4.3.7"
   },
