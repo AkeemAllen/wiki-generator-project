@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Autocomplete,
   Box,
   Button,
@@ -9,15 +10,21 @@ import {
   Table,
   Title,
 } from "@mantine/core";
-import { getHotkeyHandler, useDisclosure, useInputState } from "@mantine/hooks";
+import {
+  getHotkeyHandler,
+  useDisclosure,
+  useHotkeys,
+  useInputState,
+} from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { IconPlus, IconSearch } from "@tabler/icons-react";
+import { IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { useUpdateEffect } from "usehooks-ts";
 import { useModifyLevelMoves } from "../../apis/pokemonApis";
 import { useMovesStore } from "../../stores";
 import { Move, MoveChange, PokemonChanges, PokemonData } from "../../types";
 import MovesTable from "../MovesTable";
+import classes from "./MovesTab.module.css";
 
 type MovesTabProps = {
   pokemonData: PokemonData;
@@ -60,6 +67,14 @@ const MovesTab = ({
     });
   };
 
+  const removeRow = (index: number) => {
+    setMoveSetChangeList((moveSetChangeList) => {
+      const newMoveSetChangeList = [...moveSetChangeList];
+      newMoveSetChangeList.splice(index, 1);
+      return newMoveSetChangeList;
+    });
+  };
+
   // feels inefficient
   const handleMoveSetChange = (
     index: number,
@@ -77,6 +92,9 @@ const MovesTab = ({
   };
 
   const saveLevelMoveChanges = () => {
+    if (moveSetChangeList.length === 0) {
+      return;
+    }
     modifyLevelMoves({
       pokemon_move_changes: {
         pokemon: pokemonData.name,
@@ -91,6 +109,15 @@ const MovesTab = ({
       moves: moves,
     });
   }, [moves]);
+
+  useHotkeys(
+    [
+      ["alt+m", open],
+      ["alt+q", addNewRow],
+      ["alt+enter", saveLevelMoveChanges],
+    ],
+    []
+  );
 
   return (
     <>
@@ -110,61 +137,90 @@ const MovesTab = ({
           </Button>
         </Box>
       </SimpleGrid>
-      <MovesTable setMoves={setMoves} moves={moves} searchTerm={searchTerm} />;
+      <MovesTable setMoves={setMoves} moves={moves} searchTerm={searchTerm} />
       <Modal
         opened={opened}
         withCloseButton={false}
-        onClose={close}
+        onClose={() => {
+          setMoveSetChangeList([]);
+          close();
+        }}
         title={"Add New Move"}
         centered
+        size={"lg"}
       >
-        <Button onClick={addNewRow}>Add Row</Button>
-        <Table withBorder>
-          <thead>
-            <tr>
-              <th>Move</th>
-              <th>Operation</th>
-              <th>Level</th>
-            </tr>
-            {moveSetChangeList.map((moveChange, index) => {
-              return (
-                <tr key={index}>
-                  <td>
-                    <Autocomplete
-                      value={moveChange.move_name}
-                      onChange={(value) =>
-                        handleMoveSetChange(index, "move_name", value)
-                      }
-                      data={movesList}
-                    />
-                  </td>
-                  <td>
-                    <NativeSelect
-                      value={moveChange.operation}
-                      onChange={(event) =>
-                        handleMoveSetChange(
-                          index,
-                          "operation",
-                          event.currentTarget.value
-                        )
-                      }
-                      data={["add", "replace", "shift"]}
-                    />
-                  </td>
-                  <td>
-                    <NumberInput
-                      value={moveChange.level}
-                      onChange={(value) =>
-                        handleMoveSetChange(index, "level", value)
-                      }
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </thead>
-        </Table>
-        <Button onClick={saveLevelMoveChanges}>Save Changes</Button>
+        <SimpleGrid cols={1}>
+          <Button onClick={addNewRow}>Add Row</Button>
+          <Table withBorder>
+            <thead>
+              <tr>
+                <th>Move</th>
+                <th>Operation</th>
+                <th>Level</th>
+                <th></th>
+              </tr>
+              {moveSetChangeList.map((moveChange, index) => {
+                return (
+                  <tr key={index}>
+                    <td>
+                      <Autocomplete
+                        value={moveChange.move_name}
+                        onChange={(value) =>
+                          handleMoveSetChange(index, "move_name", value)
+                        }
+                        classNames={{
+                          input: classes.input,
+                        }}
+                        data={movesList}
+                      />
+                    </td>
+                    <td>
+                      <NativeSelect
+                        value={moveChange.operation}
+                        onChange={(event) =>
+                          handleMoveSetChange(
+                            index,
+                            "operation",
+                            event.currentTarget.value
+                          )
+                        }
+                        classNames={{ input: classes.input }}
+                        rightSection={<div></div>}
+                        data={["add", "replace", "shift"]}
+                      />
+                    </td>
+                    <td>
+                      <NumberInput
+                        value={moveChange.level}
+                        onChange={(value) =>
+                          handleMoveSetChange(index, "level", value)
+                        }
+                        classNames={{ input: classes.input }}
+                        rightSection={<div></div>}
+                        min={1}
+                        max={100}
+                      />
+                    </td>
+                    <td>
+                      <ActionIcon variant="subtle">
+                        <IconTrash
+                          size={"1rem"}
+                          onClick={() => removeRow(index)}
+                        />
+                      </ActionIcon>
+                    </td>
+                  </tr>
+                );
+              })}
+            </thead>
+          </Table>
+          <Button
+            onClick={saveLevelMoveChanges}
+            disabled={moveSetChangeList.length === 0}
+          >
+            Save Changes
+          </Button>
+        </SimpleGrid>
       </Modal>
     </>
   );

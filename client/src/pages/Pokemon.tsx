@@ -8,7 +8,7 @@ import {
   Tabs,
   Text,
 } from "@mantine/core";
-import { useInputState } from "@mantine/hooks";
+import { useHotkeys, useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useState } from "react";
@@ -108,6 +108,11 @@ const Pokemon = () => {
       pokemonChanges: pokemonChanges as PokemonChanges,
     });
   };
+
+  useHotkeys([
+    ["ArrowRight", nextPokemon],
+    ["ArrowLeft", prevPokemon],
+  ]);
 
   return (
     <Tabs value={activePokemonTab} onTabChange={setActivePokemonTab}>

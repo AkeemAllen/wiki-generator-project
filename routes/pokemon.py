@@ -301,6 +301,7 @@ async def modify_level_moves(pokemonMoveChanges: PokemonMoveChanges, wiki_name: 
     return {"message": "Changes Saved"}
 
 
+# convert to websocket for real time updates
 @router.post("/pokemon/{wiki_name}/prepare-data")
 async def prepare_data(preparation_data: PreparationData, wiki_name: str):
     if preparation_data.wipe_current_data:

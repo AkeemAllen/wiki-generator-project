@@ -60,9 +60,11 @@ def generate_moves_array(moves, table_type):
             ),
             move_name.title(),
             move_attributes.get("power") if move_attributes.get("power") else "-",
-            f"{move_attributes.get('accuracy')}%"
-            if move_attributes.get("accuracy")
-            else "-",
+            (
+                f"{move_attributes.get('accuracy')}%"
+                if move_attributes.get("accuracy")
+                else "-"
+            ),
             move_attributes.get("pp") if move_attributes.get("pp") else "-",
             f"{get_markdown_image_for_type(move_attributes.get('type'))}",
             f"{get_markdown_image_for_type(move_attributes.get('damage_class'))}",
