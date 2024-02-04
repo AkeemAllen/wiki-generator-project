@@ -166,3 +166,9 @@ export type DeploymentData = {
   wiki_name: string;
   deployment_url: string;
 };
+
+export enum DeploymentState {
+  START = "START",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETE = "COMPLETE",
+}

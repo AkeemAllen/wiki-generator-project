@@ -1,9 +1,13 @@
 import { Button, Modal, SimpleGrid, Text, TextInput } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { useLocalStorage } from "usehooks-ts";
-import { useDeployWiki } from "../apis/wikiApis";
+import { useState } from "react";
+import useWebSocket from "react-use-websocket";
+import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
+import { DeploymentState, Wikis } from "../types";
 import { isNullEmptyOrUndefined } from "../utils";
+
+const SOCKET_URL = `${import.meta.env.VITE_WEBSOCKET_BASE_URL}/wikis/deploy`;
 
 type DeployWikiModalProps = {
   opened: boolean;
@@ -12,15 +16,39 @@ type DeployWikiModalProps = {
 
 const DeployWikiModal = ({ opened, onClose }: DeployWikiModalProps) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
-  const [wikiList, __] = useLocalStorage("wikiList", {});
+  const [wikiList, __] = useLocalStorage<Wikis>("wikiList", {});
   const [deploymentUrl, setDeploymentUrl] = useInputState<string>(
     wikiList[currentWiki]?.settings?.deployment_url
   );
-  const { mutate, isLoading } = useDeployWiki((data: any) => {
-    console.log(data);
-    notifications.show({ message: data.message });
-    onClose();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [messageHistory, setMessageHistory] = useState<string[]>([]);
+
+  const { sendJsonMessage, lastMessage } = useWebSocket(SOCKET_URL, {
+    shouldReconnect: () => true,
   });
+
+  useUpdateEffect(() => {
+    if (lastMessage) {
+      const data = JSON.parse(lastMessage.data);
+
+      if (data["state"] === DeploymentState.START) setIsLoading(true);
+
+      if (data["state"] === DeploymentState.COMPLETE) {
+        notifications.show({ message: data["message"] });
+        setIsLoading(false);
+        onClose();
+
+        setMessageHistory([]);
+      }
+
+      setMessageHistory((prev) => [...prev, data["message"]]);
+    }
+  }, [lastMessage]);
+
+  useUpdateEffect(() => {
+    setDeploymentUrl(wikiList[currentWiki]?.settings?.deployment_url);
+  }, [wikiList]);
 
   return (
     <Modal
@@ -36,7 +64,7 @@ const DeployWikiModal = ({ opened, onClose }: DeployWikiModalProps) => {
           proceeding
         </Text>
         <TextInput
-          label="Repository Url"
+          label="Deployment Url"
           placeholder="Paste repository url: Ex. 'https://github.com/<author>/<wiki_name>.git' or 'git@github.com:<author>/<wiki_name>.git'"
           value={deploymentUrl}
           onChange={setDeploymentUrl}
@@ -44,11 +72,18 @@ const DeployWikiModal = ({ opened, onClose }: DeployWikiModalProps) => {
         <Text>
           Check server terminal to see if github credentials need to be entered
         </Text>
+        {messageHistory &&
+          messageHistory.map((message) => {
+            return <Text italic>{message}</Text>;
+          })}
         <Button
           disabled={isNullEmptyOrUndefined(deploymentUrl)}
           loading={isLoading}
           onClick={() =>
-            mutate({ wiki_name: currentWiki, deployment_url: deploymentUrl })
+            sendJsonMessage({
+              wiki_name: currentWiki,
+              deployment_url: deploymentUrl,
+            })
           }
         >
           Deploy

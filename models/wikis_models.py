@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Literal, Optional
 from pydantic import BaseModel
 
@@ -37,3 +38,9 @@ class GenerationData(BaseModel):
 class DeploymentData(BaseModel):
     wiki_name: str
     deployment_url: str
+
+
+class DeploymentState(Enum):
+    START = "START"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETE = "COMPLETE"

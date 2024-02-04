@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import matchups, move, pokemon, game_route, items, natures, abilities, wikis
 
