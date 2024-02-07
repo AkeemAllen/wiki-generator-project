@@ -146,7 +146,7 @@ const MovesTable = ({ moves, setMoves, searchTerm }: MovesTableProps) => {
           data={["level-up", "machine", "egg", "tutor"]}
         />
 
-        {moves[moveToEdit]?.learn_method === "level-up" && (
+        {moves[moveToEdit]?.learn_method.includes("level-up") && (
           <NumberInput
             mb="lg"
             label="Level"
