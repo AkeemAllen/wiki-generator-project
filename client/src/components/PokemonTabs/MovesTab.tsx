@@ -61,7 +61,8 @@ const MovesTab = ({
         {
           move_name: "",
           operation: "add",
-          level: 0,
+          move_to_swap: "",
+          level: 1,
         },
       ];
     });
@@ -78,7 +79,7 @@ const MovesTab = ({
   // feels inefficient
   const handleMoveSetChange = (
     index: number,
-    change: "move_name" | "level" | "operation",
+    change: "move_name" | "level" | "operation" | "move_to_swap",
     value: string | number
   ) => {
     setMoveSetChangeList((moveSetChangeList) => {
@@ -94,6 +95,15 @@ const MovesTab = ({
   const saveLevelMoveChanges = () => {
     if (moveSetChangeList.length === 0) {
       return;
+    }
+    for (let i = 0; i < moveSetChangeList.length; i++) {
+      if (movesList.indexOf(moveSetChangeList[i].move_name) === -1) {
+        notifications.show({
+          message: `Move ${moveSetChangeList[i].move_name} does not exist`,
+          color: "red",
+        });
+        return;
+      }
     }
     modifyLevelMoves({
       pokemon_move_changes: {
@@ -113,7 +123,7 @@ const MovesTab = ({
   useHotkeys(
     [
       ["alt+m", open],
-      ["alt+q", addNewRow],
+      ["alt+l", addNewRow],
       ["alt+enter", saveLevelMoveChanges],
     ],
     []
@@ -171,6 +181,7 @@ const MovesTab = ({
                         classNames={{
                           input: classes.input,
                         }}
+                        error={movesList.indexOf(moveChange.move_name) === -1}
                         data={movesList}
                       />
                     </td>
@@ -186,20 +197,41 @@ const MovesTab = ({
                         }
                         classNames={{ input: classes.input }}
                         rightSection={<div></div>}
-                        data={["add", "replace", "shift"]}
+                        data={["add", "replace", "shift", "swap"]}
                       />
                     </td>
                     <td>
-                      <NumberInput
-                        value={moveChange.level}
-                        onChange={(value) =>
-                          handleMoveSetChange(index, "level", value)
-                        }
-                        classNames={{ input: classes.input }}
-                        rightSection={<div></div>}
-                        min={1}
-                        max={100}
-                      />
+                      {
+                        // if operation is swap, show move_to_swap
+                        moveChange.operation === "swap" ? (
+                          <Autocomplete
+                            value={moveChange.move_to_swap ?? ""}
+                            onChange={(value) =>
+                              handleMoveSetChange(index, "move_to_swap", value)
+                            }
+                            classNames={{
+                              input: classes.input,
+                            }}
+                            error={
+                              movesList.indexOf(
+                                moveChange.move_to_swap ?? ""
+                              ) === -1
+                            }
+                            data={movesList}
+                          />
+                        ) : (
+                          <NumberInput
+                            value={moveChange.level}
+                            onChange={(value) =>
+                              handleMoveSetChange(index, "level", value)
+                            }
+                            classNames={{ input: classes.input }}
+                            rightSection={<div></div>}
+                            min={1}
+                            max={100}
+                          />
+                        )
+                      }
                     </td>
                     <td>
                       <ActionIcon variant="subtle">

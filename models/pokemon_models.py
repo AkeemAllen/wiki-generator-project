@@ -85,8 +85,9 @@ class PokemonVersions(Enum):
 
 class MoveChange(BaseModel):
     move_name: str
-    operation: Literal["add", "replace", "shift"]
-    level: int
+    operation: Literal["add", "replace", "shift", "swap"]
+    move_to_swap: Optional[str]
+    level: Optional[int]
 
 
 class PokemonMoveChanges(BaseModel):
