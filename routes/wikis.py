@@ -9,6 +9,7 @@ import json
 
 import yaml
 from evolution_page_generator import generate_evolution_page
+from models.pokemon_models import PokemonVersions
 from routes.matchups import generate_matchup_map
 from type_page_generator import generate_type_page
 from wiki_boilerplate_generator import create_boiler_plate
@@ -124,6 +125,11 @@ async def delete_wiki(wiki_name: str):
 @router.post("/wikis/generate/pokemon")
 async def generate_pokemon_pages(generation_data: GenerationData):
     wiki_name = generation_data.wiki_name
+
+    with open(f"data/wikis.json", encoding="utf-8") as wikis_file:
+        wikis = json.load(wikis_file)
+        wikis_file.close()
+
     with open(
         f"{data_folder_route}/{wiki_name}/pokemon.json",
         encoding="utf-8",
@@ -141,9 +147,11 @@ async def generate_pokemon_pages(generation_data: GenerationData):
         file_moves = json.load(moves_file)
         moves_file.close()
 
+    version_group = wikis[wiki_name]["settings"]["version_group"]
+
     generate_pages_from_range(
         wiki_name=wiki_name,
-        version_group=generation_data.version_group,
+        version_group=PokemonVersions(version_group),
         pokemon=pokemon,
         file_moves=file_moves,
         mkdocs_yaml_dict=mkdocs_yaml_dict,
