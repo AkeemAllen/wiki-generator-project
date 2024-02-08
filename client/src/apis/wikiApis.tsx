@@ -46,13 +46,17 @@ export const useCreateWiki = (onSuccess: (data: any) => void) => {
 
 export const useDeleteWiki = (onSuccess: (data: any) => void) => {
   return useMutation({
-    mutationFn: (wikiName: string) =>
-      fetch(`${import.meta.env.VITE_BASE_URL}/wikis/delete/${wikiName}`, {
+    mutationFn: (wikiName: string) => {
+      const params = new URLSearchParams({ wiki_name: wikiName });
+      const URL = `${import.meta.env.VITE_BASE_URL}/wikis/delete?${params}`;
+
+      return fetch(URL, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
-      }).then((res) => res.json()),
+      }).then((res) => res.json());
+    },
     onSuccess,
   });
 };

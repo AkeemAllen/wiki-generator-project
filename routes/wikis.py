@@ -101,7 +101,7 @@ async def create_wiki(wiki: Wiki):
     return {"message": "Wiki created", "status": 200, "wikis": wikis}
 
 
-@router.delete("/wikis/delete/{wiki_name}")
+@router.delete("/wikis/delete")
 async def delete_wiki(wiki_name: str):
     with open(f"data/wikis.json", encoding="utf-8") as wikis_file:
         wikis = json.load(wikis_file)
