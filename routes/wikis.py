@@ -37,7 +37,7 @@ async def get_wiki_list():
     return wikis
 
 
-@router.post("/wikis/{wiki_name}/settings")
+@router.post("/wikis/settings")
 async def update_wiki_settings(wiki_name: str, settings: WikiSettings):
     with open(f"data/wikis.json", encoding="utf-8") as wikis_file:
         wikis = json.load(wikis_file)

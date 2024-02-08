@@ -18,14 +18,18 @@ type SettingsData = {
 
 export const useEditWikiSettings = (onSuccess: (data: any) => void) => {
   return useMutation({
-    mutationFn: ({ wikiName, settings }: SettingsData) =>
-      fetch(`${import.meta.env.VITE_BASE_URL}/wikis/${wikiName}/settings`, {
+    mutationFn: ({ wikiName, settings }: SettingsData) => {
+      const params = new URLSearchParams({ wiki_name: wikiName });
+      const URL = `${import.meta.env.VITE_BASE_URL}/wikis/settings?${params}`;
+
+      return fetch(URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(settings),
-      }).then((res) => res.json()),
+      }).then((res) => res.json());
+    },
     onSuccess,
   });
 };
