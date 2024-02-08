@@ -199,7 +199,7 @@ const MainAppshell = () => {
                 <Grid>
                   <Grid.Col span={10}>
                     <Text weight={600}>
-                      {wikiList[currentWiki].site_name || "Select Wiki"}
+                      {wikiList[currentWiki]?.site_name || "Select Wiki"}
                     </Text>
                   </Grid.Col>
                   <Grid.Col span={2}>
