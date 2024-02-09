@@ -20,86 +20,6 @@ router = APIRouter()
 data_folder_route = "data"
 
 
-# Get all move names, which is the key of the move dict
-@router.get("/moves/{wiki_name}")
-async def get_moves_list(wiki_name: str):
-    with open(
-        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
-    ) as moves_file:
-        moves = json.load(moves_file)
-        moves_file.close()
-
-    return list(moves.keys())
-
-
-# Mark for deletion
-@router.get("/moves/{wiki_name}/machines")
-async def get_machines(wiki_name: str):
-    with open(
-        f"{data_folder_route}/{wiki_name}/machines.json", encoding="utf-8"
-    ) as machines_file:
-        machines = json.load(machines_file)
-        machines_file.close()
-
-    return machines
-
-
-# Mark for deletion
-@router.post("/moves/{wiki_name}/machines/{move_name}")
-async def save_machines(
-    move_name: str, wiki_name: str, machine_details: List[MachineVersion]
-):
-    with open(
-        f"{data_folder_route}/{wiki_name}/machines.json", encoding="utf-8"
-    ) as machines_file:
-        machines = json.load(machines_file)
-        machines_file.close()
-
-    json_machine_information = json.dumps(machine_details, default=obj_dict)
-
-    machines[move_name] = json_machine_information
-
-    # add tracking for changes
-    with open(f"{data_folder_route}/{wiki_name}/machines.json", "w") as machines_file:
-        machines_file.write(json.dumps(machines))
-        machines_file.close()
-
-    return {"message": "Machines Saved"}
-
-
-# Get move by name
-@router.get("/moves/{wiki_name}/{move_name_or_id}")
-async def get_move(move_name_or_id: str | int, wiki_name: str):
-    with open(
-        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
-    ) as moves_file:
-        moves = json.load(moves_file)
-        moves_file.close()
-
-    if move_name_or_id.isdigit():
-        for move_name in moves:
-            if moves[move_name]["id"] == int(move_name_or_id):
-                return moves[move_name]
-        return {"message": "Move not found", "status": 404}
-
-    move_name = move_name_or_id.lower()
-    if move_name not in moves:
-        return {"message": "Move not found", "status": 404}
-    return moves[move_name_or_id]
-
-
-# Get move by name
-@router.get("/moves/{wiki_name}/{move_name}")
-async def get_moves(move_name: str, wiki_name: str):
-    with open(
-        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
-    ) as moves_file:
-        moves = json.load(moves_file)
-        moves_file.close()
-
-    return moves[move_name]
-
-
 def track_move_changes(moves, move_name, move_attribute, modified_moves, new_value):
     if move_attribute not in modified_moves[move_name]:
         modified_moves[move_name][move_attribute] = {}
@@ -157,8 +77,41 @@ def update_pokemon_with_move_page(moves: dict, move_name: str, wiki_name: str):
     )
 
 
+# Get all move names, which is the key of the move dict
+@router.get("/moves/{wiki_name}")
+async def get_moves_list(wiki_name: str):
+    with open(
+        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
+    ) as moves_file:
+        moves = json.load(moves_file)
+        moves_file.close()
+
+    return list(moves.keys())
+
+
+# Get move by name
+@router.get("/moves/single/{wiki_name}")
+async def get_move(move_name_or_id: str | int, wiki_name: str):
+    with open(
+        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
+    ) as moves_file:
+        moves = json.load(moves_file)
+        moves_file.close()
+
+    if move_name_or_id.isdigit():
+        for move_name in moves:
+            if moves[move_name]["id"] == int(move_name_or_id):
+                return moves[move_name]
+        return {"message": "Move not found", "status": 404}
+
+    move_name = move_name_or_id.lower()
+    if move_name not in moves:
+        return {"message": "Move not found", "status": 404}
+    return moves[move_name_or_id]
+
+
 # Save Changes to move
-@router.post("/moves/edit/{wiki_name}/{move_name}")
+@router.post("/moves/edit/{wiki_name}")
 def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str):
     with open(
         f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
@@ -238,7 +191,7 @@ def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str)
     return {"message": "Changes Saved"}
 
 
-@router.post("/moves/{wiki_name}/prepare-data")
+@router.post("/moves/prepare-data/{wiki_name}")
 async def prepare_data(preparation_data: PreparationData, wiki_name: str):
     if preparation_data.wipe_current_data:
         try:

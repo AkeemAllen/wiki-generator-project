@@ -20,10 +20,14 @@ export const useGetMovesByName = ({ moveName, onSuccess }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useQuery({
     queryKey: ["moves", moveName],
-    queryFn: () =>
-      fetch(
-        `${import.meta.env.VITE_BASE_URL}/moves/${currentWiki}/${moveName}`
-      ).then((res) => res.json()),
+    queryFn: () => {
+      const params = new URLSearchParams({ move_name_or_id: moveName });
+      const URL = `${
+        import.meta.env.VITE_BASE_URL
+      }/moves/single/${currentWiki}?${params}`;
+
+      return fetch(URL).then((res) => res.json());
+    },
     onSuccess,
     refetchOnWindowFocus: false,
     enabled: false,
@@ -46,16 +50,16 @@ export const useSaveMoveChanges = ({
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
     mutationFn: () => {
-      return fetch(
-        `${
-          import.meta.env.VITE_BASE_URL
-        }/moves/edit/${currentWiki}/${moveName}`,
-        {
-          method: "POST",
-          body: JSON.stringify(moveDetails),
-          headers: { "Content-Type": "application/json" },
-        }
-      ).then((res) => res.json());
+      const params = new URLSearchParams({ move_name: moveName });
+      const URL = `${
+        import.meta.env.VITE_BASE_URL
+      }/moves/edit/${currentWiki}?${params}`;
+
+      return fetch(URL, {
+        method: "POST",
+        body: JSON.stringify(moveDetails),
+        headers: { "Content-Type": "application/json" },
+      }).then((res) => res.json());
     },
     onSuccess,
     onError,
@@ -71,7 +75,7 @@ export const usePrepareMoveData = ({ onSuccess, onError }: any) => {
       wipe_current_data,
     }: PreparationData) => {
       return fetch(
-        `${import.meta.env.VITE_BASE_URL}/moves/${currentWiki}/prepare-data`,
+        `${import.meta.env.VITE_BASE_URL}/moves/prepare-data/${currentWiki}`,
         {
           method: "POST",
           body: JSON.stringify({
