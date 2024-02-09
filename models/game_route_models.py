@@ -63,3 +63,8 @@ class Route(BaseModel):
 class NewRoute(BaseModel):
     current_route_name: Optional[str]
     new_route_name: str
+
+
+class DuplicateRoute(BaseModel):
+    current_route_name: str
+    duplicated_route_name: str

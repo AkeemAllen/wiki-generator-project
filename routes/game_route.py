@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import APIRouter
 import json
 
-from models.game_route_models import NewRoute, RouteProperties
+from models.game_route_models import DuplicateRoute, NewRoute, RouteProperties
 from route_pages_generator import generate_routes
 from utils import get_sorted_routes
 
@@ -25,7 +25,7 @@ async def get_game_route_list(wiki_name: str):
 
 
 # Get route by name
-@router.get("/game-route/{wiki_name}/{route_name}")
+@router.get("/game-route/single/{wiki_name}")
 async def get_game_route(route_name: str, wiki_name: str):
     with open(
         f"{data_folder_route}/{wiki_name}/routes.json", encoding="utf-8"
@@ -35,10 +35,11 @@ async def get_game_route(route_name: str, wiki_name: str):
 
     if route_name not in routes:
         return {"message": "Route not found", "status": 404}
+
     return routes[route_name]
 
 
-@router.post("/game-route/{wiki_name}")
+@router.post("/game-route/create/{wiki_name}")
 async def create_game_route(new_route: NewRoute, wiki_name: str):
     with open(
         f"{data_folder_route}/{wiki_name}/routes.json", encoding="utf-8"
@@ -67,7 +68,7 @@ async def create_game_route(new_route: NewRoute, wiki_name: str):
 
 
 # Edit route name
-@router.post("/game-route/{wiki_name}/edit-route-name/")
+@router.post("/game-route/edit-route-name/{wiki_name}")
 async def edit_game_route(new_route: NewRoute, wiki_name: str):
     with open(
         f"{data_folder_route}/{wiki_name}/routes.json", encoding="utf-8"
@@ -77,6 +78,9 @@ async def edit_game_route(new_route: NewRoute, wiki_name: str):
 
     if routes[new_route.current_route_name] is None:
         return {"message": "Route not found", "status": 404}
+
+    if new_route.new_route_name in routes:
+        return {"message": "Route with this name already exists", "status": 400}
 
     routes[new_route.new_route_name] = routes[new_route.current_route_name]
 
@@ -98,7 +102,7 @@ async def edit_game_route(new_route: NewRoute, wiki_name: str):
 
 
 # Save changes to route
-@router.post("/game-route/{wiki_name}/edit/{route_name}")
+@router.post("/game-route/edit/{wiki_name}")
 async def save_single_route_changes(
     route_name: str, route_properties: RouteProperties, wiki_name: str
 ):
@@ -129,7 +133,7 @@ async def save_single_route_changes(
 
 
 # Delete route by name
-@router.delete("/game-route/{wiki_name}/delete/{route_name}")
+@router.delete("/game-route/delete/{wiki_name}")
 async def delete_route(route_name: str, wiki_name: str):
     with open(
         f"{data_folder_route}/{wiki_name}/routes.json", encoding="utf-8"
@@ -157,16 +161,31 @@ async def delete_route(route_name: str, wiki_name: str):
     }
 
 
-@router.post("/game-route/{wiki_name}/duplicate/{route_name}/{new_route_name}")
-async def duplicate_route(route_name: str, new_route_name: str, wiki_name: str):
+@router.post("/game-route/duplicate/{wiki_name}")
+async def duplicate_route(duplicate_route: DuplicateRoute, wiki_name: str):
     with open(
         f"{data_folder_route}/{wiki_name}/routes.json", encoding="utf-8"
     ) as routes_file:
         routes = json.load(routes_file)
         routes_file.close()
 
+    route_name = duplicate_route.current_route_name
+    new_route_name = duplicate_route.duplicated_route_name
+
     if route_name not in routes:
         return {"message": "Route not found", "status": 404}
+
+    if new_route_name in routes:
+        return {
+            "message": "You cannot use the same name for duplicated Route",
+            "status": 400,
+        }
+
+    if new_route_name == route_name:
+        return {
+            "message": "Duplicated Route name cannot be the same as the original Route name",
+            "status": 400,
+        }
 
     routes[new_route_name] = {
         **routes[route_name],
@@ -188,7 +207,7 @@ async def duplicate_route(route_name: str, new_route_name: str, wiki_name: str):
     }
 
 
-@router.patch("/game-route/{wiki_name}/edit-route-positions")
+@router.patch("/game-route/edit-route-positions/{wiki_name}")
 async def edit_route_positions(
     organized_routes_list: Optional[list[str]], wiki_name: str
 ):
