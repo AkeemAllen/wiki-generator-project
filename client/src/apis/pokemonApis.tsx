@@ -20,10 +20,14 @@ export const useGetPokemonByName = ({ pokemonName, onSuccess }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useQuery({
     queryKey: ["pokemon", pokemonName],
-    queryFn: () =>
-      fetch(
-        `${import.meta.env.VITE_BASE_URL}/pokemon/${currentWiki}/${pokemonName}`
-      ).then((res) => res.json()),
+    queryFn: () => {
+      const params = new URLSearchParams({ pokemon_name_or_id: pokemonName });
+      const URL = `${
+        import.meta.env.VITE_BASE_URL
+      }/pokemon/single/${currentWiki}?${params}`;
+
+      return fetch(URL).then((res) => res.json());
+    },
     onSuccess,
     refetchOnWindowFocus: false,
     enabled: false,
@@ -34,12 +38,14 @@ export const useGetPokemonById = ({ onSuccess, onError }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
     mutationFn: ({ pokemonId }: any) => {
-      return fetch(
-        `${import.meta.env.VITE_BASE_URL}/pokemon/${currentWiki}/${pokemonId}`,
-        {
-          method: "GET",
-        }
-      ).then((res) => res.json());
+      const params = new URLSearchParams({ pokemon_name_or_id: pokemonId });
+      const URL = `${
+        import.meta.env.VITE_BASE_URL
+      }/pokemon/single/${currentWiki}?${params}`;
+
+      return fetch(URL, {
+        method: "GET",
+      }).then((res) => res.json());
     },
     onSuccess,
     onError,
@@ -54,16 +60,16 @@ export const useSavePokemonChanges = ({ onSuccess, onError }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
     mutationFn: ({ pokemonName, pokemonChanges }: SavePokemonProps) => {
-      return fetch(
-        `${
-          import.meta.env.VITE_BASE_URL
-        }/pokemon/edit/${currentWiki}/${pokemonName}`,
-        {
-          method: "POST",
-          body: JSON.stringify(pokemonChanges),
-          headers: { "Content-Type": "application/json" },
-        }
-      ).then((res) => res.json());
+      const params = new URLSearchParams({ pokemon_name: pokemonName });
+      const URL = `${
+        import.meta.env.VITE_BASE_URL
+      }/pokemon/edit/${currentWiki}?${params}`;
+
+      return fetch(URL, {
+        method: "POST",
+        body: JSON.stringify(pokemonChanges),
+        headers: { "Content-Type": "application/json" },
+      }).then((res) => res.json());
     },
     onSuccess,
     onError,
@@ -82,6 +88,7 @@ export const useAddMultipleMoves = ({ onSuccess, onError }: any) => {
       pokemon_being_modified,
       moves_being_added,
     }: AddMultipleMovesProps) => {
+      const params = new URLSearchParams({ wiki_name: currentWiki });
       return fetch(
         `${
           import.meta.env.VITE_BASE_URL
@@ -131,7 +138,7 @@ export const usePreparePokemonData = ({ onSuccess, onError }: any) => {
       wipe_current_data,
     }: PreparationData) => {
       return fetch(
-        `${import.meta.env.VITE_BASE_URL}/pokemon/${currentWiki}/prepare-data`,
+        `${import.meta.env.VITE_BASE_URL}/pokemon/prepare-data/${currentWiki}`,
         {
           method: "POST",
           body: JSON.stringify({

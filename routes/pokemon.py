@@ -73,27 +73,8 @@ async def get_pokemon_list(wiki_name: str):
     ]
 
 
-# Get sprite url for pokemon
-@router.get("/pokemon/{wiki_name}/{pokemon_name}/sprite")
-async def get_pokemon_sprite(pokemon_name: str, wiki_name: str):
-    with open(
-        f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
-    ) as pokemon_file:
-        pokemon = json.load(pokemon_file)
-        pokemon_file.close()
-
-    if pokemon_name not in pokemon:
-        return {"message": "Pokemon not found", "status": 404}
-
-    return {
-        "sprite_url": pokemon[pokemon_name]["sprite"],
-        "message": "Success",
-        "status": 200,
-    }
-
-
 # Get pokemon by name
-@router.get("/pokemon/{wiki_name}/{pokemon_name_or_id}")
+@router.get("/pokemon/single/{wiki_name}")
 async def get_pokemon(pokemon_name_or_id: str, wiki_name: str):
     with open(
         f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
@@ -115,7 +96,7 @@ async def get_pokemon(pokemon_name_or_id: str, wiki_name: str):
 
 
 # Save Changes to pokemon
-@router.post("/pokemon/edit/{wiki_name}/{pokemon_name}")
+@router.post("/pokemon/edit/{wiki_name}")
 async def save_pokemon_changes(
     changes: PokemonChanges, pokemon_name: str, wiki_name: str
 ):
@@ -135,6 +116,9 @@ async def save_pokemon_changes(
     ) as pokemon_file:
         pokemon = json.load(pokemon_file)
         pokemon_file.close()
+
+    if pokemon_name not in pokemon:
+        return {"message": "Pokemon not found", "status": 404}
 
     if changes.abilities:
         pokemon[pokemon_name]["abilities"] = changes.abilities
@@ -344,7 +328,7 @@ async def modify_level_moves(pokemonMoveChanges: PokemonMoveChanges, wiki_name: 
 
 
 # convert to websocket for real time updates
-@router.post("/pokemon/{wiki_name}/prepare-data")
+@router.post("/pokemon/prepare-data/{wiki_name}")
 async def prepare_data(preparation_data: PreparationData, wiki_name: str):
     if preparation_data.wipe_current_data:
         try:
