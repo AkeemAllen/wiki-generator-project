@@ -2,9 +2,12 @@ import argparse
 import json
 from genericpath import isfile
 from json import JSONDecodeError
+from fastapi import WebSocket
 import requests
 import tqdm
 import sys
+
+from models.pokemon_models import PreparationState
 
 
 data_folder_route = "data"
@@ -198,18 +201,41 @@ def prepare_items_natures_abilities_data(wiki_name: str):
     prepare_nature_data(wiki_name)
 
 
-def download_pokemon_data(
-    wiki_name: str, pokemon_range_start: int = 1, pokemon_range_end: int = 650
+async def download_pokemon_data(
+    wiki_name: str,
+    websocket: WebSocket,
+    pokemon_range_start: int = 1,
+    pokemon_range_end: int = 650,
 ):
     pokedex_numbers = range(pokemon_range_start, pokemon_range_end + 1)
+    total_pokemon = pokemon_range_end - pokemon_range_start
 
-    pokemon = {}
-    for dex_number in tqdm.tqdm(pokedex_numbers):
+    with open(f"{data_folder_route}/{wiki_name}/pokemon.json", "r") as pokemon_file:
+        pokemon = json.load(pokemon_file)
+        pokemon_file.close()
+
+    await websocket.send_json(
+        {
+            "message": f"Preparing Data for {total_pokemon} Pokemon",
+            "state": PreparationState.START.value,
+        }
+    )
+    for index, dex_number in enumerate(tqdm.tqdm(pokedex_numbers)):
+        progress = (index / total_pokemon) * 100
+        await websocket.send_json(
+            {
+                "message": "Tracking Progress",
+                "state": PreparationState.IN_PROGRESS.value,
+                "progress": int(progress),
+            }
+        )
         response = "Not Found"
         try:
             response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{dex_number}")
         except requests.exceptions.ConnectionError as err:
-            print(f"Pokemon with id {dex_number} failed: {err}")
+            await websocket.send_json(
+                {"message": f"Pokemon with id {dex_number} failed: {err}"}
+            )
             continue
 
         if response == "Not Found":
@@ -276,30 +302,81 @@ def download_pokemon_data(
         del pokemon_data["sprites"]
         pokemon[pokemon_data["name"]] = pokemon_data
 
-    fh = open(f"{data_folder_route}/{wiki_name}/pokemon.json", "w")
-    fh.write(json.dumps(pokemon))
-    fh.close()
+    with open(f"{data_folder_route}/{wiki_name}/pokemon.json", "w") as pokemon_file:
+        pokemon_file.write(json.dumps(pokemon))
+        pokemon_file.close()
+
+    await websocket.send_json(
+        {
+            "message": "Data Preparation Complete",
+            "state": PreparationState.COMPLETE.value,
+        }
+    )
+
+    return pokemon
 
 
-def download_pokemon_sprites(wiki_name: str):
+async def download_pokemon_sprites(
+    wiki_name: str,
+    websocket: WebSocket,
+    pokemon_range_start: int = 1,
+    pokemon_range_end: int = 650,
+):
+    pokedex_numbers = range(pokemon_range_start, pokemon_range_end + 1)
+    total_pokemon = pokemon_range_end - pokemon_range_start
+
     with open(
         f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
     ) as pokemon_file:
-        all_downloaded_pokemon = json.load(pokemon_file)
+        pokemon = json.load(pokemon_file)
         pokemon_file.close()
 
-    for _, pokemon_data in tqdm.tqdm(all_downloaded_pokemon.items()):
-        image_file_name = get_markdown_file_name(pokemon_data["id"])
+    await websocket.send_json(
+        {
+            "message": f"Preparing Sprites for {total_pokemon} Pokemon",
+            "state": PreparationState.START.value,
+        }
+    )
+    for index, dex_number in enumerate(tqdm.tqdm(pokedex_numbers)):
+        progress = (index / total_pokemon) * 100
+        await websocket.send_json(
+            {
+                "message": "Tracking Progress",
+                "state": PreparationState.IN_PROGRESS.value,
+                "progress": int(progress),
+            }
+        )
+        image_file_name = get_markdown_file_name(dex_number)
         if isfile(f"dist/{wiki_name}/docs/img/pokemon/{image_file_name}.png"):
             continue
 
-        image_response = requests.get(f"{pokemon_data['sprite']}")
+        for _, pokemon_data in pokemon.items():
+            if pokemon_data["id"] == dex_number:
+                sprite_url = pokemon_data["sprite"]
+                break
+
+        try:
+            image_response = requests.get(f"{sprite_url}")
+        except requests.exceptions.ConnectionError as err:
+            await websocket.send_json(
+                {
+                    "message": f"Downloading Sprite for pokemon with id {dex_number} failed: {err}"
+                }
+            )
+            continue
 
         with open(
             f"dist/{wiki_name}/docs/img/pokemon/{image_file_name}.png", "wb"
         ) as pokemon_image_sprite_file:
             pokemon_image_sprite_file.write(image_response.content)
             pokemon_image_sprite_file.close()
+
+    await websocket.send_json(
+        {
+            "message": "Sprite Preparation Complete",
+            "state": PreparationState.FINISHED.value,
+        }
+    )
 
 
 if __name__ == "__main__":

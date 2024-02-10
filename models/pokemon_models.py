@@ -117,3 +117,10 @@ pokemon_versions_ordered = {
     PokemonVersions.COLLOSEUM: 18,
     PokemonVersions.XD: 19,
 }
+
+
+class PreparationState(Enum):
+    START = "START"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETE = "COMPLETE"
+    FINISHED = "FINISHED"

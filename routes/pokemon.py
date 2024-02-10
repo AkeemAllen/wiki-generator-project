@@ -1,6 +1,6 @@
 # from typing import List
 from typing import List
-from fastapi import APIRouter
+from fastapi import APIRouter, WebSocket
 import json
 
 import yaml
@@ -11,6 +11,7 @@ from models.pokemon_models import (
     PokemonChanges,
     PokemonMoveChanges,
     PokemonVersions,
+    PreparationState,
 )
 from type_page_generator import generate_type_page
 from evolution_page_generator import generate_evolution_page
@@ -327,31 +328,32 @@ async def modify_level_moves(pokemonMoveChanges: PokemonMoveChanges, wiki_name: 
     return {"message": "Changes Saved"}
 
 
-# convert to websocket for real time updates
-@router.post("/pokemon/prepare-data/{wiki_name}")
-async def prepare_data(preparation_data: PreparationData, wiki_name: str):
-    if preparation_data.wipe_current_data:
-        try:
-            download_pokemon_data(
-                wiki_name, preparation_data.range_start, preparation_data.range_end
-            )
-            download_pokemon_sprites(wiki_name)
-        except Exception as e:
-            return {"message": str(e)}
-    else:
-        return {"message": "Pokemon Data Not Prepared"}
+@router.websocket("/pokemon/prepare-data")
+async def prepare_data(websocket: WebSocket):
+    await websocket.accept()
+    preparation_data = await websocket.receive_json()
 
-    with open(
-        f"{data_folder_route}/{wiki_name}/pokemon.json", encoding="utf-8"
-    ) as pokemon_file:
-        pokemon = json.load(pokemon_file)
-        pokemon_file.close()
+    wiki_name = preparation_data["wiki_name"]
+    range_start = preparation_data["range_start"]
+    range_end = preparation_data["range_end"]
 
-    return {
-        "message": "Pokemon Data Prepared",
-        "status": 200,
-        "pokemon": [
-            {"name": pokemon_name, "id": attributes["id"]}
-            for pokemon_name, attributes in pokemon.items()
-        ],
-    }
+    try:
+        pokemon = await download_pokemon_data(
+            wiki_name, websocket, range_start, range_end
+        )
+        await download_pokemon_sprites(wiki_name, websocket, range_start, range_end)
+    except Exception as e:
+        await websocket.send_json(
+            {"message": "Data Preparation Failed", "message": str(e)}
+        )
+
+    await websocket.send_json(
+        {
+            "message": "All Preparation Complete",
+            "pokemon": [
+                {"name": pokemon_name, "id": attributes["id"]}
+                for pokemon_name, attributes in pokemon.items()
+            ],
+            "state": PreparationState.COMPLETE.value,
+        }
+    )

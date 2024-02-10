@@ -5,6 +5,7 @@ import {
   Grid,
   Image,
   NumberInput,
+  Progress,
   Tabs,
   Text,
 } from "@mantine/core";
@@ -12,6 +13,8 @@ import { useHotkeys, useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useState } from "react";
+import useWebSocket from "react-use-websocket";
+import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
 import {
   useGetPokemonById,
   useGetPokemonByName,
@@ -22,7 +25,7 @@ import MultiplePokemon from "../components/MultiplePokemon";
 import MovesTab from "../components/PokemonTabs/MovesTab";
 import StatsAbilitiesEvoTab from "../components/PokemonTabs/StatsAbilityEvoTab";
 import { usePokemonStore } from "../stores";
-import { PokemonChanges, PokemonData } from "../types";
+import { PokemonChanges, PokemonData, PreparationState } from "../types";
 import { isNullEmptyOrUndefined } from "../utils";
 
 const Pokemon = () => {
@@ -77,6 +80,7 @@ const Pokemon = () => {
   };
 
   const nextPokemon = () => {
+    // use a hasNext function instead of strict ids
     const nextPokemon = pokemonList.find(
       (p) => p.id === (currentId as number) + 1
     );
@@ -119,6 +123,7 @@ const Pokemon = () => {
       <Tabs.List>
         <Tabs.Tab value="pokemon">Pokemon</Tabs.Tab>
         <Tabs.Tab value="multiple-pokemon">Edit Multiple Pokemon</Tabs.Tab>
+        <Tabs.Tab value="prepare-pokemon-data">Prepare Data</Tabs.Tab>
       </Tabs.List>
       <Tabs.Panel value="pokemon">
         <Grid columns={12} mt={20}>
@@ -198,7 +203,101 @@ const Pokemon = () => {
       <Tabs.Panel value="multiple-pokemon">
         <MultiplePokemon />
       </Tabs.Panel>
+      <Tabs.Panel value="prepare-pokemon-data">
+        <DataPreparationTab />
+      </Tabs.Panel>
     </Tabs>
+  );
+};
+
+const SOCKET_URL = `${
+  import.meta.env.VITE_WEBSOCKET_BASE_URL
+}/pokemon/prepare-data`;
+
+const DataPreparationTab = () => {
+  const [currentWiki, _] = useLocalStorage("currentWiki", "none");
+  const [rangeStart, setRangeStart] = useInputState<number>(0);
+  const [rangeEnd, setRangeEnd] = useInputState<number>(0);
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [progress, setProgress] = useState<number>(0);
+
+  const [messageHistory, setMessageHistory] = useState<string[]>([]);
+
+  const { sendJsonMessage, lastMessage } = useWebSocket(SOCKET_URL, {
+    shouldReconnect: () => true,
+  });
+
+  const handlePrepareInitialData = () => {
+    sendJsonMessage({
+      wiki_name: currentWiki,
+      range_end: rangeEnd,
+      range_start: rangeStart,
+    });
+  };
+
+  useUpdateEffect(() => {
+    if (lastMessage) {
+      const data = JSON.parse(lastMessage.data);
+
+      if (data["state"] === PreparationState.START) {
+        notifications.show({ message: data["message"] });
+        setIsLoading(true);
+      }
+
+      if (data["state"] === PreparationState.IN_PROGRESS)
+        setProgress(data["progress"]);
+
+      if (data["state"] === PreparationState.COMPLETE) {
+        notifications.show({ message: data["message"] });
+        setIsLoading(false);
+      }
+
+      if (data["state"] === PreparationState.FINISHED) {
+        notifications.show({ message: data["message"] });
+        notifications.show({ message: "Refreshing the page in 3 seconds" });
+        setIsLoading(false);
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      }
+
+      setMessageHistory((prev) => [...prev, data["message"]]);
+    }
+  }, [lastMessage]);
+
+  return (
+    <Grid mt={20}>
+      <Grid.Col span={6}>
+        <NumberInput
+          label="Range Start"
+          onChange={(value: number) => setRangeStart(value)}
+          value={rangeStart}
+          min={0}
+        />
+      </Grid.Col>
+      <Grid.Col span={6}>
+        <NumberInput
+          label="Range End"
+          onChange={(value: number) => setRangeEnd(value)}
+          value={rangeEnd}
+          min={0}
+        />
+      </Grid.Col>
+      <Grid.Col span={3}>
+        <Button
+          disabled={rangeStart >= rangeEnd || rangeStart <= 0 || rangeEnd <= 0}
+          onClick={handlePrepareInitialData}
+          loading={isLoading}
+        >
+          Prepare Data
+        </Button>
+      </Grid.Col>
+      <Grid.Col>
+        {progress > 0 && progress < 100 && <Progress value={progress} />}
+      </Grid.Col>
+    </Grid>
   );
 };
 
