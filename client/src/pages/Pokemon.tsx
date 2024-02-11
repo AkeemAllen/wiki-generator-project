@@ -1,13 +1,11 @@
 import {
   Autocomplete,
   Button,
-  Checkbox,
   Grid,
   Image,
   NumberInput,
   Progress,
   Tabs,
-  Text,
 } from "@mantine/core";
 import { useHotkeys, useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -18,7 +16,6 @@ import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
 import {
   useGetPokemonById,
   useGetPokemonByName,
-  usePreparePokemonData,
   useSavePokemonChanges,
 } from "../apis/pokemonApis";
 import MultiplePokemon from "../components/MultiplePokemon";
@@ -29,6 +26,7 @@ import { PokemonChanges, PokemonData, PreparationState } from "../types";
 import { isNullEmptyOrUndefined } from "../utils";
 
 const Pokemon = () => {
+  const pokemonList = usePokemonStore((state) => state.pokemonList);
   const [pokemonName, setPokemonName] = useState<string>("");
   const [currentId, setCurrentId] = useState<number | null>(null);
   const [pokemonData, setPokemonData] = useState<PokemonData | null>(null);
@@ -39,11 +37,10 @@ const Pokemon = () => {
     "stats-abilities-evo"
   );
   const [activePokemonTab, setActivePokemonTab] = useState<string | null>(
-    "pokemon"
+    "prepare-pokemon-data"
   );
-  const pokemonList = usePokemonStore((state) => state.pokemonList);
 
-  const { refetch, isLoading } = useGetPokemonByName({
+  const { refetch } = useGetPokemonByName({
     pokemonName,
     onSuccess: (data: any) => {
       if (data.status === 404) {
@@ -55,7 +52,7 @@ const Pokemon = () => {
     },
   });
 
-  const { mutate: fetchById, isLoading: isLoadingById } = useGetPokemonById({
+  const { mutate: fetchById } = useGetPokemonById({
     onSuccess: (data: any) => {
       setPokemonData(data);
       setPokemonName(data.name);
@@ -118,60 +115,65 @@ const Pokemon = () => {
     ["ArrowLeft", prevPokemon],
   ]);
 
+  useUpdateEffect(() => {
+    if (pokemonList.length > 0) {
+      setActivePokemonTab("pokemon");
+    } else {
+      setActivePokemonTab("prepare-pokemon-data");
+    }
+  }, [pokemonList]);
+
   return (
     <Tabs value={activePokemonTab} onTabChange={setActivePokemonTab}>
       <Tabs.List>
-        <Tabs.Tab value="pokemon">Pokemon</Tabs.Tab>
-        <Tabs.Tab value="multiple-pokemon">Edit Multiple Pokemon</Tabs.Tab>
+        {pokemonList.length > 0 && (
+          <>
+            <Tabs.Tab value="pokemon">Pokemon</Tabs.Tab>
+            <Tabs.Tab value="multiple-pokemon">Edit Multiple Pokemon</Tabs.Tab>
+          </>
+        )}
         <Tabs.Tab value="prepare-pokemon-data">Prepare Data</Tabs.Tab>
       </Tabs.List>
       <Tabs.Panel value="pokemon">
         <Grid columns={12} mt={20}>
-          {pokemonList.length === 0 && <EmptyPokemonList />}
-          {pokemonList.length > 0 && (
-            <>
-              <Grid.Col span={3}>
-                <Autocomplete
-                  placeholder="Pokemon Name"
-                  value={pokemonName}
-                  onChange={(value) => setPokemonName(value)}
-                  data={
-                    pokemonList === undefined
-                      ? []
-                      : pokemonList.map((p) => p.name)
-                  }
-                />
-              </Grid.Col>
-              <Grid.Col span={2}>
-                <Button
-                  fullWidth
-                  onClick={handleSearch}
-                  disabled={isNullEmptyOrUndefined(pokemonName)}
-                >
-                  Search
-                </Button>
-              </Grid.Col>
-              <Grid.Col span={2}>
-                <Button
-                  fullWidth
-                  disabled={pokemonChanges === null}
-                  onClick={saveChanges}
-                >
-                  Save Changes
-                </Button>
-              </Grid.Col>
-              <Grid.Col span={1}>
-                <Button onClick={prevPokemon} color="gray">
-                  <IconChevronLeft size={"1rem"} />
-                </Button>
-              </Grid.Col>
-              <Grid.Col span={1}>
-                <Button onClick={nextPokemon} color="gray">
-                  <IconChevronRight size={"1rem"} />
-                </Button>
-              </Grid.Col>
-            </>
-          )}
+          <Grid.Col span={3}>
+            <Autocomplete
+              placeholder="Pokemon Name"
+              value={pokemonName}
+              onChange={(value) => setPokemonName(value)}
+              data={
+                pokemonList === undefined ? [] : pokemonList.map((p) => p.name)
+              }
+            />
+          </Grid.Col>
+          <Grid.Col span={2}>
+            <Button
+              fullWidth
+              onClick={handleSearch}
+              disabled={isNullEmptyOrUndefined(pokemonName)}
+            >
+              Search
+            </Button>
+          </Grid.Col>
+          <Grid.Col span={2}>
+            <Button
+              fullWidth
+              disabled={pokemonChanges === null}
+              onClick={saveChanges}
+            >
+              Save Changes
+            </Button>
+          </Grid.Col>
+          <Grid.Col span={1}>
+            <Button onClick={prevPokemon} color="gray">
+              <IconChevronLeft size={"1rem"} />
+            </Button>
+          </Grid.Col>
+          <Grid.Col span={1}>
+            <Button onClick={nextPokemon} color="gray">
+              <IconChevronRight size={"1rem"} />
+            </Button>
+          </Grid.Col>
         </Grid>
         <Image src={pokemonData?.sprite} maw={200} />
         {pokemonData && (
@@ -216,6 +218,7 @@ const SOCKET_URL = `${
 
 const DataPreparationTab = () => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
+  const setPokemonList = usePokemonStore((state) => state.setPokemonList);
   const [rangeStart, setRangeStart] = useInputState<number>(0);
   const [rangeEnd, setRangeEnd] = useInputState<number>(0);
 
@@ -255,12 +258,9 @@ const DataPreparationTab = () => {
 
       if (data["state"] === PreparationState.FINISHED) {
         notifications.show({ message: data["message"] });
-        notifications.show({ message: "Refreshing the page in 3 seconds" });
         setIsLoading(false);
 
-        setTimeout(() => {
-          window.location.reload();
-        }, 3000);
+        setPokemonList(data["pokemon"]);
       }
 
       setMessageHistory((prev) => [...prev, data["message"]]);
@@ -298,80 +298,6 @@ const DataPreparationTab = () => {
         {progress > 0 && progress < 100 && <Progress value={progress} />}
       </Grid.Col>
     </Grid>
-  );
-};
-
-const EmptyPokemonList = () => {
-  const [rangeStart, setRangeStart] = useInputState<number>(0);
-  const [rangeEnd, setRangeEnd] = useInputState<number>(0);
-  const [wipeCurrentData, setWipeCurrentData] = useState<boolean>(false);
-  const setPokemonList = usePokemonStore((state) => state.setPokemonList);
-  const {
-    mutate: mutatePreparePokemonData,
-    isLoading: isLoadingPreparePokemonData,
-  } = usePreparePokemonData({
-    onSuccess: (data: any) => {
-      notifications.show({ message: "Data Prepared" });
-      setPokemonList(data.pokemon);
-    },
-    onError: () => {},
-  });
-  const handlePrepareInitialData = () => {
-    mutatePreparePokemonData({
-      range_end: rangeEnd,
-      range_start: rangeStart,
-      wipe_current_data: wipeCurrentData,
-    });
-  };
-  return (
-    <>
-      <Grid.Col>
-        <Text>
-          We detected that there is no pokemon data in this wiki right now. Do
-          you want to prepare initial data with original pokemon data?
-        </Text>
-      </Grid.Col>
-      <Grid.Col>
-        <Text color="red">
-          NOTE: THIS WILL TAKE SEVERAL MINUTES TO PREPARE ALL THE DATA DEPENDING
-          ON THE RANGE YOU SET. The pokemon data set is being downloaded from
-          pokeapi and modified through the download_pokemon_data funtion in the
-          backend.
-        </Text>
-      </Grid.Col>
-      <Grid.Col>
-        <NumberInput
-          label="Range Start"
-          onChange={(value: number) => setRangeStart(value)}
-          value={rangeStart}
-          min={0}
-        />
-      </Grid.Col>
-      <Grid.Col>
-        <NumberInput
-          label="Range End"
-          onChange={(value: number) => setRangeEnd(value)}
-          value={rangeEnd}
-          min={0}
-        />
-      </Grid.Col>
-      <Grid.Col>
-        <Checkbox
-          label="Wipe Current Data (Needs to be checked actually run the operation)"
-          checked={wipeCurrentData}
-          onChange={(event) => setWipeCurrentData(event.currentTarget.checked)}
-        />
-      </Grid.Col>
-      <Grid.Col>
-        <Button
-          disabled={rangeStart >= rangeEnd || rangeStart <= 0 || rangeEnd <= 0}
-          onClick={handlePrepareInitialData}
-          loading={isLoadingPreparePokemonData}
-        >
-          Prepare Initial Data
-        </Button>
-      </Grid.Col>
-    </>
   );
 };
 

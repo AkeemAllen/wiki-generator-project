@@ -354,6 +354,6 @@ async def prepare_data(websocket: WebSocket):
                 {"name": pokemon_name, "id": attributes["id"]}
                 for pokemon_name, attributes in pokemon.items()
             ],
-            "state": PreparationState.COMPLETE.value,
+            "state": PreparationState.FINISHED.value,
         }
     )

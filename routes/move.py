@@ -1,13 +1,13 @@
 import cProfile
 import pstats
 from typing import List
-from fastapi import APIRouter
+from fastapi import APIRouter, WebSocket
 import json
 
 import yaml
 
 from models.move_models import MachineVersion, MoveDetails
-from models.pokemon_models import PokemonVersions
+from models.pokemon_models import PokemonVersions, PreparationState
 from models.wikis_models import PreparationData
 from move_page_generator import generate_move_page
 from pokemon_pages_generator import generate_pages_from_pokemon_list
@@ -191,24 +191,26 @@ def save_move_changes(move_details: MoveDetails, move_name: str, wiki_name: str)
     return {"message": "Changes Saved"}
 
 
-@router.post("/moves/prepare-data/{wiki_name}")
-async def prepare_data(preparation_data: PreparationData, wiki_name: str):
-    if preparation_data.wipe_current_data:
-        try:
-            prepare_move_data(
-                wiki_name, preparation_data.range_start, preparation_data.range_end
-            )
-        except Exception as e:
-            return {"message": str(e)}
+# Note: Data preparation here is EXTREMELLY slow.
+# It's best to just copy over and modify moves already in generator_assets folder.
+@router.websocket("/moves/prepare-data")
+async def prepare_data(websocket: WebSocket):
+    await websocket.accept()
+    preparation_data = await websocket.receive_json()
 
-    with open(
-        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
-    ) as moves_file:
-        moves = json.load(moves_file)
-        moves_file.close()
+    wiki_name = preparation_data["wiki_name"]
+    range_start = preparation_data["range_start"]
+    range_end = preparation_data["range_end"]
 
-    return {
-        "message": "Move Data Prepared",
-        "status": 200,
-        "moves": list(moves.keys()),
-    }
+    try:
+        moves = await prepare_move_data(websocket, wiki_name, range_start, range_end)
+    except Exception as e:
+        return {"message": str(e)}
+
+    await websocket.send_json(
+        {
+            "message": "Move Data Prepared",
+            "state": PreparationState.FINISHED.value,
+            "moves": list(moves.keys()),
+        }
+    )

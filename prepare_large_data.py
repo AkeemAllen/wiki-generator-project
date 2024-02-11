@@ -55,11 +55,26 @@ def prepare_technical_and_hidden_machines_data(wiki_name: str):
         machine_data_file.close()
 
 
-def prepare_move_data(wiki_name: str, range_start: int, range_end: int):
+async def prepare_move_data(
+    websocket: WebSocket, wiki_name: str, range_start: int, range_end: int
+):
     move_range = range(range_start, range_end + 1)
     moves = {}
 
+    await websocket.send_json(
+        {
+            "message": f"Preparing Data for {range_end} Moves",
+            "state": PreparationState.START.value,
+        }
+    )
     for move_id in tqdm.tqdm(move_range):
+        await websocket.send_json(
+            {
+                "message": "Tracking Progress",
+                "state": PreparationState.IN_PROGRESS.value,
+                "progress": int((move_id / range_end) * 100),
+            }
+        )
         response = requests.get(f"https://pokeapi.co/api/v2/move/{move_id}")
         if response == "Not Found":
             continue
@@ -109,6 +124,8 @@ def prepare_move_data(wiki_name: str, range_start: int, range_end: int):
     fh = open(f"{data_folder_route}/{wiki_name}/moves.json", "w")
     fh.write(json.dumps(moves))
     fh.close()
+
+    return moves
 
 
 def prepare_items_data():
@@ -374,7 +391,7 @@ async def download_pokemon_sprites(
     await websocket.send_json(
         {
             "message": "Sprite Preparation Complete",
-            "state": PreparationState.FINISHED.value,
+            "state": PreparationState.COMPLETE.value,
         }
     )
 
