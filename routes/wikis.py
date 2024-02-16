@@ -147,6 +147,12 @@ async def generate_pokemon_pages(generation_data: GenerationData):
         file_moves = json.load(moves_file)
         moves_file.close()
 
+    with open(
+        f"{data_folder_route}/{wiki_name}/abilities.json", encoding="utf-8"
+    ) as abilities_file:
+        abilities = json.load(abilities_file)
+        abilities_file.close()
+
     version_group = wikis[wiki_name]["settings"]["version_group"]
 
     generate_pages_from_range(
@@ -154,6 +160,7 @@ async def generate_pokemon_pages(generation_data: GenerationData):
         version_group=PokemonVersions(version_group),
         pokemon=pokemon,
         file_moves=file_moves,
+        file_abilities=abilities,
         mkdocs_yaml_dict=mkdocs_yaml_dict,
         range_start=generation_data.range_start,
         range_end=generation_data.range_end,

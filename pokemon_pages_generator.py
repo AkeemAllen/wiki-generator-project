@@ -215,9 +215,12 @@ def create_defenses_table(doc: Document, pokemon_data: PokemonData, wiki_name: s
     )
 
 
-def create_ability_table(doc: Document, pokemon_data: PokemonData):
+def create_ability_table(doc: Document, pokemon_data: PokemonData, file_abilities):
     data = pokemon_data
-    abilities = [ability.title() for ability in data.abilities]
+    abilities = [
+        f'<abbr title="{file_abilities[ability]["effect"]}">{ability.title()}</abbr>'
+        for ability in data.abilities
+    ]
 
     doc.add_header("Abilities", 2)
     doc.add_table(["Version", "Ability"], [["All", " / ".join(map(str, abilities))]])
@@ -385,6 +388,7 @@ def generate_pages_from_pokemon_list(
     version_group: PokemonVersions,
     file_pokemon: dict,
     file_moves: dict,
+    file_abilities: dict,
     pokemon_to_generate_page_for: list,
     mkdocs_yaml_dict: dict = None,
 ):
@@ -406,7 +410,7 @@ def generate_pages_from_pokemon_list(
         add_sprite(doc, pokemon_data, pokemon["dex_number"])
         create_type_table(doc, pokemon_data)
         create_defenses_table(doc, pokemon_data, wiki_name)
-        create_ability_table(doc, pokemon_data)
+        create_ability_table(doc, pokemon_data, file_abilities)
         create_stats_table(doc, pokemon_data)
         create_evolution_table(doc, pokemon_data)
         create_level_up_moves_table(doc, file_moves, pokemon_data)
@@ -434,6 +438,7 @@ def generate_pages_from_pokemon_list(
 def generate_pages_from_range(
     wiki_name: str,
     version_group: PokemonVersions,
+    file_abilities: dict,
     pokemon: dict = None,
     file_moves: dict = None,
     mkdocs_yaml_dict: dict = None,
@@ -459,7 +464,7 @@ def generate_pages_from_range(
         add_sprite(doc, pokemon_data, pokedex_number)
         create_type_table(doc, pokemon_data)
         create_defenses_table(doc, pokemon_data, wiki_name)
-        create_ability_table(doc, pokemon_data)
+        create_ability_table(doc, pokemon_data, file_abilities)
         create_stats_table(doc, pokemon_data)
         create_evolution_table(doc, pokemon_data)
         create_level_up_moves_table(doc, file_moves, pokemon_data)

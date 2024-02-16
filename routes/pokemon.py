@@ -47,6 +47,10 @@ def save_and_generate_pokemon(
         wikis = json.load(wikis_file)
         wikis_file.close()
 
+    with open(f"{data_folder_route}/{wiki_name}/abilities.json", "r") as abilities_file:
+        abilities = json.load(abilities_file)
+        abilities_file.close()
+
     version_group = wikis[wiki_name]["settings"]["version_group"]
 
     generate_pages_from_pokemon_list(
@@ -54,6 +58,7 @@ def save_and_generate_pokemon(
         version_group=PokemonVersions(version_group),
         file_pokemon=pokemon,
         file_moves=file_moves,
+        file_abilities=abilities,
         mkdocs_yaml_dict=mkdocs_yaml_dict,
         pokemon_to_generate_page_for=pokemon_generation_list,
     )

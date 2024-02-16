@@ -58,6 +58,12 @@ def update_pokemon_with_move_page(moves: dict, move_name: str, wiki_name: str):
         wikis = json.load(wikis_file)
         wikis_file.close()
 
+    with open(
+        f"{data_folder_route}/{wiki_name}/abilities.json", encoding="utf-8"
+    ) as abilities_file:
+        abilities = json.load(abilities_file)
+        abilities_file.close()
+
     version_group = wikis[wiki_name]["settings"]["version_group"]
 
     pokemon_to_generate_page_for = []
@@ -72,6 +78,7 @@ def update_pokemon_with_move_page(moves: dict, move_name: str, wiki_name: str):
         version_group=PokemonVersions(version_group),
         file_pokemon=pokemon,
         file_moves=moves,
+        file_abilities=abilities,
         pokemon_to_generate_page_for=pokemon_to_generate_page_for,
         mkdocs_yaml_dict=mkdocs_yaml_dict,
     )
