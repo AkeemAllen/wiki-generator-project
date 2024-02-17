@@ -239,21 +239,43 @@ def create_regular_trainers(trainers: Trainers, doc: Document):
     )
 
 
-def create_important_trainer_details_table(trainers: Trainers, doc: Document):
+def create_important_trainer_details_table(
+    trainers: Trainers, doc: Document, file_abilities: Dict, file_items: Dict
+):
     for trainer_name, trainer_info in trainers.__root__.items():
         doc.add_header(trainer_name.title(), 2)
         table_rows = []
         for pokemon in trainer_info.pokemon:
+            item_entry = get_item_entry_markdown(pokemon.item)
+            item_entry_markdown = (
+                f'<abbr title="{file_items[pokemon.item]["effect"]}">{item_entry}</abbr>'
+                if item_entry != "N/A"
+                else item_entry
+            )
+
+            nature_entry = (
+                pokemon.nature
+                if pokemon.nature != None and pokemon.nature != ""
+                else "N/A"
+            )
+
+            ability_entry = (
+                pokemon.ability
+                if pokemon.ability != None and pokemon.ability != ""
+                else "N/A"
+            )
+            ability_entry_markdown = (
+                f'<abbr title="{file_abilities[ability_entry]["effect"]}">{ability_entry.title()}</abbr>'
+                if ability_entry != "N/A"
+                else ability_entry
+            )
+
             table_rows.append(
                 [
                     generate_pokemon_entry_markdown(pokemon, is_trainer_mapping=True),
-                    get_item_entry_markdown(pokemon.item),
-                    pokemon.nature.title()
-                    if pokemon.nature != None and pokemon.nature != ""
-                    else "N/A",
-                    pokemon.ability.title()
-                    if pokemon.ability != None and pokemon.ability != ""
-                    else "N/A",
+                    item_entry_markdown,
+                    nature_entry.title(),
+                    ability_entry_markdown,
                     generate_move_string(pokemon.moves),
                 ]
             )
@@ -267,7 +289,13 @@ def create_important_trainer_details_table(trainers: Trainers, doc: Document):
         )
 
 
-def create_trainer_table(route_name: str, route_directory: str, trainers: Trainers):
+def create_trainer_table(
+    route_name: str,
+    route_directory: str,
+    trainers: Trainers,
+    file_abilities: Dict,
+    file_items: Dict,
+):
     doc = Document("trainers")
     doc.add_header(f"{route_name.capitalize()}", 1)
 
@@ -301,7 +329,7 @@ def create_trainer_table(route_name: str, route_directory: str, trainers: Traine
     create_trainer_with_diff_versions(trainers_with_diff_versions, doc)
 
     create_important_trainer_details_table(
-        important_trainers_without_diff_versions, doc
+        important_trainers_without_diff_versions, doc, file_abilities, file_items
     )
 
     for trainer_name, trainer_info in trainers_with_diff_versions.__root__.items():
@@ -327,12 +355,16 @@ def create_trainer_table(route_name: str, route_directory: str, trainers: Traine
                             pokemon, is_trainer_mapping=True
                         ),
                         get_item_entry_markdown(pokemon.item),
-                        pokemon.nature.title()
-                        if pokemon.nature != None and pokemon.nature != ""
-                        else "N/A",
-                        pokemon.ability.title()
-                        if pokemon.ability != None and pokemon.ability != ""
-                        else "N/A",
+                        (
+                            pokemon.nature.title()
+                            if pokemon.nature != None and pokemon.nature != ""
+                            else "N/A"
+                        ),
+                        (
+                            pokemon.ability.title()
+                            if pokemon.ability != None and pokemon.ability != ""
+                            else "N/A"
+                        ),
                         generate_move_string(pokemon.moves),
                     ]
                 )
@@ -364,6 +396,18 @@ def generate_routes(wiki_name: str):
         routes = Route.parse_raw(json.dumps(routes))
         routes_file.close()
 
+    with open(
+        f"{data_folder_route}/{wiki_name}/abilities.json", encoding="utf-8"
+    ) as abilities_file:
+        abilities = json.load(abilities_file)
+        abilities_file.close()
+
+    with open(
+        f"{data_folder_route}/{wiki_name}/items.json", encoding="utf-8"
+    ) as items_file:
+        items = json.load(items_file)
+        items_file.close()
+
     sorted_routes = sorted(routes.__root__.items(), key=lambda route: route[1].position)
 
     mkdoc_routes = []
@@ -388,7 +432,9 @@ def generate_routes(wiki_name: str):
             )
 
         if route_properties.trainers:
-            create_trainer_table(route_name, route_directory, route_properties.trainers)
+            create_trainer_table(
+                route_name, route_directory, route_properties.trainers, abilities, items
+            )
             route_entry[formatted_route_name].append(
                 {"Trainers": f"routes/{route_name}/trainers.md"}
             )
