@@ -48,13 +48,12 @@ const MovesTab = ({
   const [opened, { open, close }] = useDisclosure(false);
   const [moveSetChangeList, setMoveSetChangeList] = useState<MoveChange[]>([]);
 
-  const { mutate: modifyLevelMoves, isLoading: isLoadingModifyLevelMoves } =
-    useModifyLevelMoves({
-      onSuccess: (data: any) => {
-        refreshSearch();
-        notifications.show({ message: data.message });
-      },
-    });
+  const { mutate: modifyLevelMoves } = useModifyLevelMoves({
+    onSuccess: (data: any) => {
+      refreshSearch();
+      notifications.show({ message: data.message });
+    },
+  });
 
   const addNewRow = () => {
     setMoveSetChangeList((moveSetChangeList) => {
@@ -203,11 +202,7 @@ const MovesTab = ({
                           input: classes.input,
                         }}
                         error={movesList.indexOf(moveName) === -1}
-                        data={
-                          operation === Operation.ADD
-                            ? movesList
-                            : Object.keys(moves)
-                        }
+                        data={movesList}
                       />
                     </td>
                     <td>
@@ -222,11 +217,7 @@ const MovesTab = ({
                             input: classes.input,
                           }}
                           error={movesList.indexOf(secondaryMove ?? "") === -1}
-                          data={
-                            operation === Operation.SWAP_MOVES
-                              ? Object.keys(moves)
-                              : movesList
-                          }
+                          data={movesList}
                         />
                       ) : (
                         <NumberInput
