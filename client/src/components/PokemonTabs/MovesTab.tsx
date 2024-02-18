@@ -165,7 +165,8 @@ const MovesTab = ({
               <tr>
                 <th>Operation</th>
                 <th>Move</th>
-                <th>Level/Move</th>
+                <th>Level</th>
+                <th>Secondary Move</th>
                 <th></th>
               </tr>
               {moveSetChangeList.map((moveChange, index) => {
@@ -206,32 +207,40 @@ const MovesTab = ({
                       />
                     </td>
                     <td>
-                      {operation === Operation.SWAP_MOVES ||
-                      operation === Operation.REPLACE_MOVE ? (
-                        <Autocomplete
-                          value={secondaryMove ?? ""}
-                          onChange={(value) =>
-                            handleMoveSetChange(index, "secondary_move", value)
-                          }
-                          classNames={{
-                            input: classes.input,
-                          }}
-                          error={movesList.indexOf(secondaryMove ?? "") === -1}
-                          data={movesList}
-                        />
-                      ) : (
-                        <NumberInput
-                          value={level}
-                          onChange={(value) =>
-                            handleMoveSetChange(index, "level", value)
-                          }
-                          classNames={{ input: classes.input }}
-                          rightSection={<div></div>}
-                          disabled={operation === Operation.DELETE}
-                          min={1}
-                          max={100}
-                        />
-                      )}
+                      <NumberInput
+                        value={level}
+                        onChange={(value) =>
+                          handleMoveSetChange(index, "level", value)
+                        }
+                        classNames={{ input: classes.input }}
+                        rightSection={<div></div>}
+                        disabled={
+                          operation === Operation.DELETE ||
+                          operation === Operation.REPLACE_MOVE ||
+                          operation === Operation.SWAP_MOVES
+                        }
+                        min={1}
+                        max={100}
+                      />
+                    </td>
+                    <td>
+                      <Autocomplete
+                        value={secondaryMove ?? ""}
+                        onChange={(value) =>
+                          handleMoveSetChange(index, "secondary_move", value)
+                        }
+                        classNames={{
+                          input: classes.input,
+                        }}
+                        error={movesList.indexOf(secondaryMove ?? "") === -1}
+                        disabled={
+                          operation === Operation.DELETE ||
+                          operation === Operation.ADD ||
+                          operation === Operation.SHIFT ||
+                          operation === Operation.REPLACE_BY_LEVEL
+                        }
+                        data={movesList}
+                      />
                     </td>
                     <td>
                       <ActionIcon variant="subtle">

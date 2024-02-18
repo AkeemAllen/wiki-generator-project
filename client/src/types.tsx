@@ -67,6 +67,7 @@ export type MoveChange = {
     | "delete"
     | "replace_move"
     | "replace_by_level"
+    | "replace_move_and_level"
     | "swap_moves";
   secondary_move?: string;
   level?: number;
@@ -78,6 +79,7 @@ export enum Operation {
   DELETE = "delete",
   REPLACE_MOVE = "replace_move",
   REPLACE_BY_LEVEL = "replace_by_level",
+  REPLACE_MOVE_AND_LEVEL = "replace_move_and_level",
   SWAP_MOVES = "swap_moves",
 }
 

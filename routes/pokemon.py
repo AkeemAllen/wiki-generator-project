@@ -345,6 +345,15 @@ async def modify_level_moves(pokemonMoveChanges: PokemonMoveChanges, wiki_name: 
                 move_name,
                 move_change.secondary_move,
             )
+        elif operation == Operation.REPLACE_MOVE_AND_LEVEL.value:
+            replace_move(pokemon, pokemon_name, move_name, move_change.secondary_move)
+            add_or_shift_move(
+                pokemon,
+                pokemon_name,
+                move_change.secondary_move,
+                move_change.level,
+                previous_learn_method,
+            )
         elif operation == Operation.REPLACE_BY_LEVEL.value:
             replace_by_level(
                 pokemon,
