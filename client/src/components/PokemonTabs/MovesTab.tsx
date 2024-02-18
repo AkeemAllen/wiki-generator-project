@@ -8,21 +8,23 @@ import {
   NumberInput,
   SimpleGrid,
   Table,
+  TextInput,
   Title,
 } from "@mantine/core";
-import {
-  getHotkeyHandler,
-  useDisclosure,
-  useHotkeys,
-  useInputState,
-} from "@mantine/hooks";
+import { useDisclosure, useHotkeys, useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { useUpdateEffect } from "usehooks-ts";
 import { useModifyLevelMoves } from "../../apis/pokemonApis";
 import { useMovesStore } from "../../stores";
-import { Move, MoveChange, PokemonChanges, PokemonData } from "../../types";
+import {
+  Move,
+  MoveChange,
+  Operation,
+  PokemonChanges,
+  PokemonData,
+} from "../../types";
 import MovesTable from "../MovesTable";
 import classes from "./MovesTab.module.css";
 
@@ -79,7 +81,7 @@ const MovesTab = ({
   // feels inefficient
   const handleMoveSetChange = (
     index: number,
-    change: "move_name" | "level" | "operation" | "move_to_swap",
+    change: "move_name" | "level" | "operation" | "secondary_move",
     value: string | number
   ) => {
     setMoveSetChangeList((moveSetChangeList) => {
@@ -133,13 +135,11 @@ const MovesTab = ({
     <>
       <SimpleGrid cols={3} mt="50px">
         <Title order={2}>Moves</Title>
-        <Autocomplete
+        <TextInput
           icon={<IconSearch size={"1rem"} />}
           placeholder="Search Moves"
           onChange={setSearchTerm}
           value={searchTerm}
-          onKeyDown={getHotkeyHandler([["enter", () => console.log("enter")]])}
-          data={Object.keys(moves)}
         />
         <Box w={200}>
           <Button leftIcon={<IconPlus size={"1rem"} />} onClick={open}>
@@ -164,30 +164,23 @@ const MovesTab = ({
           <Table withBorder>
             <thead>
               <tr>
-                <th>Move</th>
                 <th>Operation</th>
-                <th>Level</th>
+                <th>Move</th>
+                <th>Level/Move</th>
                 <th></th>
               </tr>
               {moveSetChangeList.map((moveChange, index) => {
+                const {
+                  operation,
+                  move_name: moveName,
+                  secondary_move: secondaryMove,
+                  level,
+                } = moveChange;
                 return (
                   <tr key={index}>
                     <td>
-                      <Autocomplete
-                        value={moveChange.move_name}
-                        onChange={(value) =>
-                          handleMoveSetChange(index, "move_name", value)
-                        }
-                        classNames={{
-                          input: classes.input,
-                        }}
-                        error={movesList.indexOf(moveChange.move_name) === -1}
-                        data={movesList}
-                      />
-                    </td>
-                    <td>
                       <NativeSelect
-                        value={moveChange.operation}
+                        value={operation}
                         onChange={(event) =>
                           handleMoveSetChange(
                             index,
@@ -197,41 +190,57 @@ const MovesTab = ({
                         }
                         classNames={{ input: classes.input }}
                         rightSection={<div></div>}
-                        data={["add", "replace", "shift", "swap"]}
+                        data={Object.values(Operation)}
                       />
                     </td>
                     <td>
-                      {
-                        // if operation is swap, show move_to_swap
-                        moveChange.operation === "swap" ? (
-                          <Autocomplete
-                            value={moveChange.move_to_swap ?? ""}
-                            onChange={(value) =>
-                              handleMoveSetChange(index, "move_to_swap", value)
-                            }
-                            classNames={{
-                              input: classes.input,
-                            }}
-                            error={
-                              movesList.indexOf(
-                                moveChange.move_to_swap ?? ""
-                              ) === -1
-                            }
-                            data={movesList}
-                          />
-                        ) : (
-                          <NumberInput
-                            value={moveChange.level}
-                            onChange={(value) =>
-                              handleMoveSetChange(index, "level", value)
-                            }
-                            classNames={{ input: classes.input }}
-                            rightSection={<div></div>}
-                            min={1}
-                            max={100}
-                          />
-                        )
-                      }
+                      <Autocomplete
+                        value={moveName}
+                        onChange={(value) =>
+                          handleMoveSetChange(index, "move_name", value)
+                        }
+                        classNames={{
+                          input: classes.input,
+                        }}
+                        error={movesList.indexOf(moveName) === -1}
+                        data={
+                          operation === Operation.ADD
+                            ? movesList
+                            : Object.keys(moves)
+                        }
+                      />
+                    </td>
+                    <td>
+                      {operation === Operation.SWAP_MOVES ||
+                      operation === Operation.REPLACE_MOVE ? (
+                        <Autocomplete
+                          value={secondaryMove ?? ""}
+                          onChange={(value) =>
+                            handleMoveSetChange(index, "secondary_move", value)
+                          }
+                          classNames={{
+                            input: classes.input,
+                          }}
+                          error={movesList.indexOf(secondaryMove ?? "") === -1}
+                          data={
+                            operation === Operation.SWAP_MOVES
+                              ? Object.keys(moves)
+                              : movesList
+                          }
+                        />
+                      ) : (
+                        <NumberInput
+                          value={level}
+                          onChange={(value) =>
+                            handleMoveSetChange(index, "level", value)
+                          }
+                          classNames={{ input: classes.input }}
+                          rightSection={<div></div>}
+                          disabled={operation === Operation.DELETE}
+                          min={1}
+                          max={100}
+                        />
+                      )}
                     </td>
                     <td>
                       <ActionIcon variant="subtle">

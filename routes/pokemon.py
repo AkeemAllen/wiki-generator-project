@@ -8,6 +8,7 @@ import yaml
 
 from models.pokemon_models import (
     MoveChange,
+    Operation,
     PokemonChanges,
     PokemonMoveChanges,
     PokemonVersions,
@@ -248,6 +249,56 @@ async def save_multiple_pokemon_move_changes(
     return {"message": "Changes Saved"}
 
 
+def add_or_shift_move(pokemon, pokemon_name, move_name, level, previous_learn_method):
+    pokemon[pokemon_name]["moves"][move_name] = {
+        "level_learned_at": level,
+        "learn_method": (
+            ["level-up", "machine"]
+            if "machine" in previous_learn_method
+            else ["level-up"]
+        ),
+    }
+
+
+def replace_move(pokemon, pokemon_name, move_name, secondary_move):
+    pokemon[pokemon_name]["moves"][secondary_move] = pokemon[pokemon_name]["moves"][
+        move_name
+    ]
+    del pokemon[pokemon_name]["moves"][move_name]
+
+
+def replace_by_level(pokemon, pokemon_name, level, move_name, previous_learn_method):
+    # consider presorting moves on pokemon by level to make this more effecient
+    for move in pokemon[pokemon_name]["moves"]:
+        if pokemon[pokemon_name]["moves"][move]["level_learned_at"] == level:
+            del pokemon[pokemon_name]["moves"][move]
+            break
+    pokemon[pokemon_name]["moves"][move_name] = {
+        "level_learned_at": level,
+        "learn_method": (
+            ["level-up", "machine"]
+            if "machine" in previous_learn_method
+            else ["level-up"]
+        ),
+    }
+
+
+def swap_moves(pokemon, pokemon_name, move_name, secondary_move, previous_learn_method):
+    temp = pokemon[pokemon_name]["moves"][move_name]
+    pokemon[pokemon_name]["moves"][move_name] = pokemon[pokemon_name]["moves"][
+        secondary_move
+    ]
+    pokemon[pokemon_name]["moves"][secondary_move] = temp
+
+    # Setting Learn Method to level-up for swapped moves
+    pokemon[pokemon_name]["moves"][move_name]["learn_method"] = (
+        ["level-up", "machine"] if "machine" in previous_learn_method else ["level-up"]
+    )
+    pokemon[pokemon_name]["moves"][secondary_move]["learn_method"] = (
+        ["level-up", "machine"] if "machine" in previous_learn_method else ["level-up"]
+    )
+
+
 @router.post("/pokemon/modify-level-moves/{wiki_name}")
 async def modify_level_moves(pokemonMoveChanges: PokemonMoveChanges, wiki_name: str):
     with open(
@@ -256,11 +307,11 @@ async def modify_level_moves(pokemonMoveChanges: PokemonMoveChanges, wiki_name: 
         pokemon = json.load(pokemon_file)
         pokemon_file.close()
 
-    with open(
-        f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
-    ) as moves_file:
-        moves = json.load(moves_file)
-        moves_file.close()
+    # with open(
+    #     f"{data_folder_route}/{wiki_name}/moves.json", encoding="utf-8"
+    # ) as moves_file:
+    #     moves = json.load(moves_file)
+    #     moves_file.close()
 
     pokemon_name = pokemonMoveChanges.pokemon
 
@@ -268,8 +319,8 @@ async def modify_level_moves(pokemonMoveChanges: PokemonMoveChanges, wiki_name: 
         operation = move_change.operation
         move_name = move_change.move_name
 
-        if move_name not in moves:
-            return {"message": f"Move {move_name} not found", "status": 404}
+        # if move_name not in moves:
+        #     return {"message": f"Move {move_name} not found", "status": 404}
 
         previous_learn_method = []
         if move_name in pokemon[pokemon_name]["moves"]:
@@ -277,51 +328,38 @@ async def modify_level_moves(pokemonMoveChanges: PokemonMoveChanges, wiki_name: 
                 "learn_method"
             ]
 
-        if operation == "add" or operation == "shift":
-            # Add check just in case move already exists
-            pokemon[pokemon_name]["moves"][move_name] = {
-                "level_learned_at": move_change.level,
-                "learn_method": (
-                    ["level-up", "machine"]
-                    if "machine" in previous_learn_method
-                    else ["level-up"]
-                ),
-            }
-        elif operation == "replace":
-            # consider presorting moves on pokemon by level to make this more effecient
-            for move in pokemon[pokemon_name]["moves"]:
-                if (
-                    pokemon[pokemon_name]["moves"][move]["level_learned_at"]
-                    == move_change.level
-                ):
-                    del pokemon[pokemon_name]["moves"][move]
-                    break
-            pokemon[pokemon_name]["moves"][move_name] = {
-                "level_learned_at": move_change.level,
-                "learn_method": (
-                    ["level-up", "machine"]
-                    if "machine" in previous_learn_method
-                    else ["level-up"]
-                ),
-            }
-        elif operation == "swap":
-            move_to_swap = move_change.move_to_swap
-            temp = pokemon[pokemon_name]["moves"][move_name]
-            pokemon[pokemon_name]["moves"][move_name] = pokemon[pokemon_name]["moves"][
-                move_to_swap
-            ]
-            pokemon[pokemon_name]["moves"][move_to_swap] = temp
-
-            # Setting Learn Method to level-up for swapped moves
-            pokemon[pokemon_name]["moves"][move_name]["learn_method"] = (
-                ["level-up", "machine"]
-                if "machine" in previous_learn_method
-                else ["level-up"]
+        if operation == Operation.ADD.value or operation == Operation.SHIFT.value:
+            add_or_shift_move(
+                pokemon,
+                pokemon_name,
+                move_name,
+                move_change.level,
+                previous_learn_method,
             )
-            pokemon[pokemon_name]["moves"][move_to_swap]["learn_method"] = (
-                ["level-up", "machine"]
-                if "machine" in previous_learn_method
-                else ["level-up"]
+        elif operation == Operation.DELETE.value:
+            del pokemon[pokemon_name]["moves"][move_name]
+        elif operation == Operation.REPLACE_MOVE.value:
+            replace_move(
+                pokemon,
+                pokemon_name,
+                move_name,
+                move_change.secondary_move,
+            )
+        elif operation == Operation.REPLACE_BY_LEVEL.value:
+            replace_by_level(
+                pokemon,
+                pokemon_name,
+                move_change.level,
+                move_name,
+                previous_learn_method,
+            )
+        elif operation == Operation.SWAP_MOVES.value:
+            swap_moves(
+                pokemon,
+                pokemon_name,
+                move_name,
+                move_change.secondary_move,
+                previous_learn_method,
             )
 
     save_and_generate_pokemon(

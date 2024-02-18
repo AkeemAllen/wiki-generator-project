@@ -85,9 +85,27 @@ class PokemonVersions(Enum):
 
 class MoveChange(BaseModel):
     move_name: str
-    operation: Literal["add", "replace", "shift", "swap"]
-    move_to_swap: Optional[str]
+    operation: Literal[
+        "add",
+        "shift",
+        "delete",
+        "replace_move",
+        "replace_by_level",
+        "swap_moves",
+    ]
+    secondary_move: Optional[str]
     level: Optional[int]
+
+
+class Operation(Enum):
+    ADD = "add"  # Add <move_name> at level <level>
+    SHIFT = "shift"  # Shift <move_name> to level <level>
+    DELETE = "delete"  # Delete <move_name>
+    REPLACE_MOVE = "replace_move"  # Replace move <move_name> with <secondary_move>
+    REPLACE_BY_LEVEL = (
+        "replace_by_level"  # Replace move at level <level> with <move_name>
+    )
+    SWAP_MOVES = "swap_moves"  # Swap <move_name> with <secondary_move>
 
 
 class PokemonMoveChanges(BaseModel):

@@ -61,10 +61,25 @@ export type PokemonData = {
 
 export type MoveChange = {
   move_name: string;
-  operation: "add" | "replace" | "shift" | "swap";
-  move_to_swap?: string;
+  operation:
+    | "add"
+    | "shift"
+    | "delete"
+    | "replace_move"
+    | "replace_by_level"
+    | "swap_moves";
+  secondary_move?: string;
   level?: number;
 };
+
+export enum Operation {
+  ADD = "add",
+  SHIFT = "shift",
+  DELETE = "delete",
+  REPLACE_MOVE = "replace_move",
+  REPLACE_BY_LEVEL = "replace_by_level",
+  SWAP_MOVES = "swap_moves",
+}
 
 export type TrainerOrWildPokemon = {
   id?: number;

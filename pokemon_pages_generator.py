@@ -220,6 +220,7 @@ def create_ability_table(doc: Document, pokemon_data: PokemonData, file_abilitie
     abilities = [
         f'<abbr title="{file_abilities[ability]["effect"]}">{ability.title()}</abbr>'
         for ability in data.abilities
+        if ability != ""
     ]
 
     doc.add_header("Abilities", 2)
