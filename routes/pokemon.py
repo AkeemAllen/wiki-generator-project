@@ -339,13 +339,6 @@ async def modify_level_moves(pokemonMoveChanges: PokemonMoveChanges, wiki_name: 
         elif operation == Operation.DELETE.value:
             del pokemon[pokemon_name]["moves"][move_name]
         elif operation == Operation.REPLACE_MOVE.value:
-            replace_move(
-                pokemon,
-                pokemon_name,
-                move_name,
-                move_change.secondary_move,
-            )
-        elif operation == Operation.REPLACE_MOVE_AND_LEVEL.value:
             replace_move(pokemon, pokemon_name, move_name, move_change.secondary_move)
             add_or_shift_move(
                 pokemon,

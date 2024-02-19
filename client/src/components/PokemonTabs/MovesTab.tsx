@@ -14,7 +14,7 @@ import {
 import { useDisclosure, useHotkeys, useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useUpdateEffect } from "usehooks-ts";
 import { useModifyLevelMoves } from "../../apis/pokemonApis";
 import { useMovesStore } from "../../stores";
@@ -47,6 +47,7 @@ const MovesTab = ({
   const [searchTerm, setSearchTerm] = useInputState<string>("");
   const [opened, { open, close }] = useDisclosure(false);
   const [moveSetChangeList, setMoveSetChangeList] = useState<MoveChange[]>([]);
+  const seachMovesRef = useRef<HTMLInputElement>(null);
 
   const { mutate: modifyLevelMoves } = useModifyLevelMoves({
     onSuccess: (data: any) => {
@@ -89,6 +90,16 @@ const MovesTab = ({
         ...newMoveSetChangeList[index],
         [change]: value,
       };
+
+      // Setting current level of the move
+      if (
+        change === "move_name" &&
+        Object.keys(moves).includes(value as string) &&
+        moves[value as string].learn_method.includes("level-up")
+      ) {
+        newMoveSetChangeList[index].level =
+          moves[value as string].level_learned_at;
+      }
       return newMoveSetChangeList;
     });
   };
@@ -126,6 +137,7 @@ const MovesTab = ({
       ["alt+m", open],
       ["alt+l", addNewRow],
       ["alt+enter", saveLevelMoveChanges],
+      ["alt+s", () => seachMovesRef.current?.focus()],
     ],
     []
   );
@@ -139,6 +151,7 @@ const MovesTab = ({
           placeholder="Search Moves"
           onChange={setSearchTerm}
           value={searchTerm}
+          ref={seachMovesRef}
         />
         <Box w={200}>
           <Button leftIcon={<IconPlus size={"1rem"} />} onClick={open}>
@@ -216,7 +229,6 @@ const MovesTab = ({
                         rightSection={<div></div>}
                         disabled={
                           operation === Operation.DELETE ||
-                          operation === Operation.REPLACE_MOVE ||
                           operation === Operation.SWAP_MOVES
                         }
                         min={1}

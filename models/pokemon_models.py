@@ -91,7 +91,6 @@ class MoveChange(BaseModel):
         "delete",
         "replace_move",
         "replace_by_level",
-        "replace_move_and_level",
         "swap_moves",
     ]
     secondary_move: Optional[str]
@@ -106,7 +105,6 @@ class Operation(Enum):
     REPLACE_BY_LEVEL = (
         "replace_by_level"  # Replace move at level <level> with <move_name>
     )
-    REPLACE_MOVE_AND_LEVEL = "replace_move_and_level"  # Replace move <move_name> with <secondary_move> at level <level>
     SWAP_MOVES = "swap_moves"  # Swap <move_name> with <secondary_move>
 
 
