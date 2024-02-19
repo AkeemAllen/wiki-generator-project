@@ -48,8 +48,8 @@ const GenerateWiki = () => {
   return (
     <Tabs value={activeTab} onTabChange={setActiveTab}>
       <Tabs.List>
-        <Tabs.Tab value="generate-pokemon">Generate Pokemon</Tabs.Tab>
-        <Tabs.Tab value="generate-routes">Generate Routes</Tabs.Tab>
+        <Tabs.Tab value="generate-pokemon">Generate Pokemon Pages</Tabs.Tab>
+        <Tabs.Tab value="generate-routes">Generate Routes Pages</Tabs.Tab>
       </Tabs.List>
       <Tabs.Panel value="generate-pokemon">
         <Grid mt={20}>
