@@ -407,6 +407,7 @@ def generate_pages_from_pokemon_list(
         doc = Document(pokedex_markdown_file_name)
 
         doc.add_header(f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}")
+        doc.add_header(f"[Report Inaccurate Information](https://www.google.com)", 5)
 
         add_sprite(doc, pokemon_data, pokemon["dex_number"])
         create_type_table(doc, pokemon_data)
@@ -470,6 +471,10 @@ def generate_pages_from_range(
         create_evolution_table(doc, pokemon_data)
         create_level_up_moves_table(doc, file_moves, pokemon_data)
         create_learnable_moves(doc, version_group, file_moves, pokemon_data)
+
+        doc.add_header("Noticing Any Inaccuracies?", 2)
+        doc.add_paragraph("Use the link below to help use fix those!")
+        doc.add_paragraph("[Report Inaccuracies](https://www.google.com)")
 
         doc.output_page(markdown_file_path)
 
