@@ -218,9 +218,7 @@ def create_defenses_table(doc: Document, pokemon_data: PokemonData, wiki_name: s
 def create_ability_table(doc: Document, pokemon_data: PokemonData, file_abilities):
     data = pokemon_data
     abilities = [
-        f'<abbr title="{file_abilities[ability]["effect"]}">{ability.title()}</abbr>'
-        for ability in data.abilities
-        if ability != ""
+        f'[{ability.title()}]("effect")' for ability in data.abilities if ability != ""
     ]
 
     doc.add_header("Abilities", 2)
