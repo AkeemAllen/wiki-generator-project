@@ -1,0 +1,7 @@
+A syntax error happened on venv/lib/python3.11/site-packages/uvicorn/logging.py. This file cannot be formatted.
+Check https://github.com/pydantic/bump-pydantic/issues/124 for more information.
+Syntax Error @ 1:1.
+parser error: error at 1:1: expected one of (, *, +, -, ..., AWAIT, EOF, False, NAME, NUMBER, None, True, [, break, continue, lambda, match, not, pass, ~
+
+%
+^

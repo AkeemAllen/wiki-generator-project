@@ -286,7 +286,7 @@ def create_level_up_moves_table(
     data = pokemon_data
     moves = {}
 
-    for move_name, details in data.moves.__root__.items():
+    for move_name, details in data.moves.root.items():
         if (
             details.learn_method != "level-up"
             and "level-up" not in details.learn_method
@@ -296,7 +296,9 @@ def create_level_up_moves_table(
             continue
 
         try:
-            move_data = MoveDetails.parse_raw(json.dumps(file_moves[move_name]))
+            move_data = MoveDetails.model_validate_json(
+                json.dumps(file_moves[move_name])
+            )
         except ValidationError as err:
             print(f"Error parsing move {move_name} for {data.name}: {err}")
             continue
@@ -331,7 +333,7 @@ def create_learnable_moves(
     data = pokemon_data
     moves = {}
 
-    for move_name, details in data.moves.__root__.items():
+    for move_name, details in data.moves.root.items():
         # TODO: Consider removing this check since any move could be a machine
         if file_moves[move_name]["machine_details"] is None:
             continue
@@ -357,7 +359,9 @@ def create_learnable_moves(
                     break
 
         try:
-            move_data = MoveDetails.parse_raw(json.dumps(file_moves[move_name]))
+            move_data = MoveDetails.model_validate_json(
+                json.dumps(file_moves[move_name])
+            )
 
         except ValidationError as err:
             print(f"Error parsing move {move_name} for {data.name}: {err}")
@@ -395,7 +399,9 @@ def generate_pages_from_pokemon_list(
     specific_changes = get_specific_changes_from_yaml(mkdocs_yaml_dict)
 
     for pokemon in tqdm.tqdm(pokemon_to_generate_page_for):
-        pokemon_data = PokemonData.parse_raw(json.dumps(file_pokemon[pokemon["name"]]))
+        pokemon_data = PokemonData.model_validate_json(
+            json.dumps(file_pokemon[pokemon["name"]])
+        )
 
         pokedex_markdown_file_name = get_pokemon_dex_formatted_name(
             pokemon["dex_number"]
@@ -455,7 +461,9 @@ def generate_pages_from_range(
 
     for pokedex_number in tqdm.tqdm(pokemon_range):
         pokemon_name = pokebase.pokemon(pokedex_number).name
-        pokemon_data = PokemonData.parse_raw(json.dumps(pokemon[pokemon_name]))
+        pokemon_data = PokemonData.model_validate_json(
+            json.dumps(pokemon[pokemon_name])
+        )
 
         pokedex_markdown_file_name = get_pokemon_dex_formatted_name(pokedex_number)
 
