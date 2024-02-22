@@ -1,7 +1,7 @@
 import json
 import yaml
 
-from snakemd import Document, InlineText, Table, Paragraph
+from snakemd import new_doc, Document, Heading
 
 from utils import get_pokemon_dex_formatted_name
 
@@ -49,9 +49,9 @@ def generate_type_page(wiki_name: str, modified_pokemon: dict = None):
         pokemon_list = json.load(pokemon_file)
         pokemon_file.close()
 
-    markdown_file_path = f"dist/{wiki_name}/docs/"
-    doc = Document("type_changes")
-    doc.add_header("Type Changes")
+    markdown_file_path = f"dist/{wiki_name}/docs/type_changes"
+    doc = new_doc()
+    doc.add_block(Heading("Type Changes", 1))
 
     pokemon_with_type_changes = []
     for pokemon in modified_pokemon:
@@ -75,7 +75,7 @@ def generate_type_page(wiki_name: str, modified_pokemon: dict = None):
             ],
         )
 
-    doc.output_page(markdown_file_path)
+    doc.dump(markdown_file_path)
 
     # Modify this to search for specific changes
     for nav_item in mkdocs_yaml_dict["nav"][1]["Pokemon"]:

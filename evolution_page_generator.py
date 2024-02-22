@@ -1,5 +1,5 @@
 import json
-from snakemd import Document, InlineText, Table, Paragraph
+from snakemd import new_doc, Heading
 import yaml
 
 from utils import get_pokemon_dex_formatted_name
@@ -47,9 +47,9 @@ def generate_evolution_page(wiki_name: str, modified_pokemon: dict = None):
         pokemon_list = json.load(pokemon_file)
         pokemon_file.close()
 
-    markdown_file_path = f"dist/{wiki_name}/docs/"
-    doc = Document("evolution_changes")
-    doc.add_header("Evolution Changes")
+    markdown_file_path = f"dist/{wiki_name}/docs/evolution_changes"
+    doc = new_doc()
+    doc.add_block(Heading("Evolution Changes", 1))
 
     evo_level_changed_pokemon = []
     evo_item_changed_pokemon = []
@@ -68,7 +68,7 @@ def generate_evolution_page(wiki_name: str, modified_pokemon: dict = None):
             other_changed_pokemon.append(pokemon)
 
     if len(evo_level_changed_pokemon) != 0:
-        doc.add_header("Level Changes", 2)
+        doc.add_block(Heading("Level Changes", 2))
         doc.add_table(
             ["Base Pokemon", "Level", "Evolved Pokemon"],
             [
@@ -86,7 +86,7 @@ def generate_evolution_page(wiki_name: str, modified_pokemon: dict = None):
         )
 
     if len(evo_item_changed_pokemon) != 0:
-        doc.add_header("Item Interaction Changes", 2)
+        doc.add_block(Heading("Item Interaction Changes", 2))
         doc.add_table(
             ["Base Pokemon", "Item", "Evolved Pokemon"],
             [
@@ -104,7 +104,7 @@ def generate_evolution_page(wiki_name: str, modified_pokemon: dict = None):
         )
 
     if len(other_changed_pokemon) != 0:
-        doc.add_header("Other Changes", 2)
+        doc.add_block(Heading("Other Changes", 2))
         doc.add_table(
             ["Base Pokemon", "Method", "Evolved Pokemon"],
             [
@@ -121,7 +121,7 @@ def generate_evolution_page(wiki_name: str, modified_pokemon: dict = None):
             ],
         )
 
-    doc.output_page(markdown_file_path)
+    doc.dump(markdown_file_path)
 
     for nav_item in mkdocs_yaml_dict["nav"][1]["Pokemon"]:
         if "Specific Changes" in nav_item:

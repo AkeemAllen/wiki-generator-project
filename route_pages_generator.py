@@ -7,7 +7,7 @@ from typing import Dict
 import tqdm
 from models.game_route_models import TrainerInfo
 import yaml
-from snakemd import Document
+from snakemd import new_doc, Document, Heading
 from models.game_route_models import (
     AreaLevels,
     Encounters,
@@ -135,8 +135,8 @@ def get_encounter_table_rows(encounters: Encounters, area_levels: AreaLevels):
 def create_encounter_table(
     route_name: str, route_directory: str, encounters, area_levels
 ):
-    doc = Document("wild_encounters")
-    doc.add_header(f"{route_name.capitalize()}", 1)
+    doc = new_doc()
+    doc.add_block(Heading(f"{route_name.capitalize()}", 1))
 
     table_rows, max_number_of_pokemon_on_single_route = get_encounter_table_rows(
         encounters, area_levels
@@ -149,7 +149,7 @@ def create_encounter_table(
         table_rows,
     )
 
-    doc.output_page(f"{route_directory}/")
+    doc.dump(f"{route_directory}/wild_encounters")
 
 
 # endregion
@@ -201,10 +201,14 @@ def create_trainer_with_diff_versions(trainers: Trainers, doc: Document):
         for version in trainer_info.trainer_versions:
             filtered_pokemon = []
             # breakpoint()
-            doc.add_paragraph(f'=== "{version.title()}"')
             for pokemon in trainer_info.pokemon:
                 if version in pokemon.trainer_version:
                     filtered_pokemon.append(pokemon)
+
+            if len(filtered_pokemon) == 0:
+                continue
+
+            doc.add_paragraph(f'=== "{version.title()}"')
 
             filtered_pokemon_trainer = Trainers(
                 __root__={
@@ -243,7 +247,7 @@ def create_important_trainer_details_table(
     trainers: Trainers, doc: Document, file_abilities: Dict, file_items: Dict
 ):
     for trainer_name, trainer_info in trainers.__root__.items():
-        doc.add_header(trainer_name.title(), 2)
+        doc.add_block(Heading(trainer_name.title(), 2))
         table_rows = []
         for pokemon in trainer_info.pokemon:
             item_entry = get_item_entry_markdown(pokemon.item)
@@ -296,8 +300,8 @@ def create_trainer_table(
     file_abilities: Dict,
     file_items: Dict,
 ):
-    doc = Document("trainers")
-    doc.add_header(f"{route_name.capitalize()}", 1)
+    doc = new_doc()
+    doc.add_block(Heading(f"{route_name.capitalize()}", 1))
 
     regular_trainers = {}
     trainers_with_diff_versions = {}
@@ -333,13 +337,17 @@ def create_trainer_table(
     )
 
     for trainer_name, trainer_info in trainers_with_diff_versions.__root__.items():
-        doc.add_header(trainer_name.title(), 2)
+        doc.add_block(Heading(trainer_name.title(), 2))
         for version in trainer_info.trainer_versions:
             filtered_pokemon = []
-            doc.add_paragraph(f'=== "{version.title()}"')
             for pokemon in trainer_info.pokemon:
                 if version in pokemon.trainer_version:
                     filtered_pokemon.append(pokemon)
+
+            if len(filtered_pokemon) == 0:
+                continue
+
+            doc.add_paragraph(f'=== "{version.title()}"')
 
             filtered_trainer_info = TrainerInfo(
                 trainer_versions=trainer_info.trainer_versions,
@@ -377,7 +385,7 @@ def create_trainer_table(
                 table_rows,
                 indent=4,
             )
-    doc.output_page(f"{route_directory}/")
+    doc.dump(f"{route_directory}/trainers.md")
 
 
 # endregion
