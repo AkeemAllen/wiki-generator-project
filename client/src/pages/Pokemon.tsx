@@ -12,7 +12,7 @@ import { notifications } from "@mantine/notifications";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useState } from "react";
 import useWebSocket from "react-use-websocket";
-import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
+import { useLocalStorage } from "usehooks-ts";
 import {
   useGetPokemonById,
   useGetPokemonByName,
@@ -21,6 +21,7 @@ import {
 import MultiplePokemon from "../components/MultiplePokemon";
 import MovesTab from "../components/PokemonTabs/MovesTab";
 import StatsAbilitiesEvoTab from "../components/PokemonTabs/StatsAbilityEvoTab";
+import { useUpdateEffect } from "../hooks/useUpdateEffect";
 import { usePokemonStore } from "../stores";
 import { PokemonChanges, PokemonData, PreparationState } from "../types";
 import { isNullEmptyOrUndefined } from "../utils";

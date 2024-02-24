@@ -3,7 +3,8 @@ import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import useWebSocket from "react-use-websocket";
-import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
+import { useLocalStorage } from "usehooks-ts";
+import { useUpdateEffect } from "../hooks/useUpdateEffect";
 import { DeploymentState, Wikis } from "../types";
 import { isNullEmptyOrUndefined } from "../utils";
 

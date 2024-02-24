@@ -9,8 +9,8 @@ import {
 } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
 import { useState } from "react";
-import { useUpdateEffect } from "usehooks-ts";
 import { Types } from "../../constants";
+import { useUpdateEffect } from "../../hooks/useUpdateEffect";
 import { useAbilityStore, useItemsStore, usePokemonStore } from "../../stores";
 import { Evolution, PokemonChanges, PokemonData, Stats } from "../../types";
 import StatsInputs from "../StatsInputs";

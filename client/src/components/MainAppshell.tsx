@@ -19,13 +19,14 @@ import {
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
+import { useLocalStorage } from "usehooks-ts";
 import { useGetAbilities } from "../apis/abilitiesApis";
 import { useGetItems } from "../apis/itemsApis";
 import { useGetMoves } from "../apis/movesApis";
 import { useGetNatures } from "../apis/naturesApis";
 import { useGetPokemon } from "../apis/pokemonApis";
 import { useGetRoutes } from "../apis/routesApis";
+import { useUpdateEffect } from "../hooks/useUpdateEffect";
 import {
   useAbilityStore,
   useItemsStore,

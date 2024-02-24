@@ -12,7 +12,7 @@ import {
 import { useDisclosure, useInputState } from "@mantine/hooks";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { useUpdateEffect } from "usehooks-ts";
+import { useUpdateEffect } from "../hooks/useUpdateEffect";
 import {
   useAbilityStore,
   useItemsStore,

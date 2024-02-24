@@ -13,8 +13,9 @@ import {
 import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { IconInfoCircle } from "@tabler/icons-react";
-import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
+import { useLocalStorage } from "usehooks-ts";
 import { useCreateWiki } from "../apis/wikiApis";
+import { useUpdateEffect } from "../hooks/useUpdateEffect";
 import { PokemonVersions, Wikis } from "../types";
 
 type NewWikiModalProps = {

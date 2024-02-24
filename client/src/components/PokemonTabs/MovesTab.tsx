@@ -15,8 +15,8 @@ import { useDisclosure, useHotkeys, useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import { useRef, useState } from "react";
-import { useUpdateEffect } from "usehooks-ts";
 import { useModifyLevelMoves } from "../../apis/pokemonApis";
+import { useUpdateEffect } from "../../hooks/useUpdateEffect";
 import { useMovesStore } from "../../stores";
 import {
   Move,
