@@ -33,7 +33,7 @@ const MultiplePokemon = () => {
   const [abilityOne, setAbilityOne] = useInputState<string>("");
   const [abilityTwo, setAbilityTwo] = useInputState<string>("");
 
-  const { mutate: addMovesToPokemon, isLoading } = useAddMultipleMoves({});
+  const { mutate: addMovesToPokemon, isPending } = useAddMultipleMoves({});
 
   const handleSubmit = () => {
     addMovesToPokemon(
@@ -103,7 +103,7 @@ const MultiplePokemon = () => {
       <Button
         mt={20}
         onClick={handleSubmit}
-        loading={isLoading}
+        loading={isPending}
         disabled={
           pokemonBeingModified.length === 0 || movesBeingAdded.length === 0
         }

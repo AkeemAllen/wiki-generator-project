@@ -49,7 +49,7 @@ const Moves = () => {
     },
   });
 
-  const { mutate: mutateMove, isLoading: isLoadingMutateMove } =
+  const { mutate: mutateMove, isPending: isPendingMutateMove } =
     useSaveMoveChanges({
       moveName,
       moveDetails,
@@ -106,7 +106,7 @@ const Moves = () => {
               <Grid.Col span={3}>
                 <Button
                   fullWidth
-                  loading={isLoadingMutateMove}
+                  loading={isPendingMutateMove}
                   disabled={_.isEqual(moveDetailsChangeTracker, moveDetails)}
                   onClick={() => mutateMove()}
                 >

@@ -61,28 +61,12 @@ const MainAppshell = () => {
   const [deployModalOpened, { close: closeDeploy, open: openDeploy }] =
     useDisclosure(false);
 
-  const { refetch: refetchPokemon } = useGetPokemon((data: any) =>
-    setPokemonList(data)
-  );
-  const { refetch: refetchMoves } = useGetMoves((data: any) =>
-    setMovesList(data)
-  );
-
-  const { refetch: refetchRoutes } = useGetRoutes((data: any) =>
-    setRoutes(data)
-  );
-
-  const { refetch: refetchItems } = useGetItems((data: any) =>
-    setItemsList(data)
-  );
-
-  const { refetch: refetchAbilities } = useGetAbilities((data: any) =>
-    setAbilityList(data)
-  );
-
-  const { refetch: refetchNatures } = useGetNatures((data: any) =>
-    setNatureList(data)
-  );
+  const { refetch: refetchPokemon, data: pokemonData } = useGetPokemon();
+  const { refetch: refetchMoves, data: moveData } = useGetMoves();
+  const { refetch: refetchRoutes, data: routeData } = useGetRoutes();
+  const { refetch: refetchItems, data: itemData } = useGetItems();
+  const { refetch: refetchAbilities, data: abilityData } = useGetAbilities();
+  const { refetch: refetchNatures, data: natureData } = useGetNatures();
 
   // Currently using 2 effects because
   // 1. If the currentWiki is not empty, we want to fetch the data
@@ -110,6 +94,42 @@ const MainAppshell = () => {
     refetchAbilities();
     refetchNatures();
   }, [currentWiki]);
+
+  useEffect(() => {
+    if (pokemonData) {
+      setPokemonList(pokemonData);
+    }
+  }, [pokemonData]);
+
+  useEffect(() => {
+    if (moveData) {
+      setMovesList(moveData);
+    }
+  }, [moveData]);
+
+  useEffect(() => {
+    if (routeData) {
+      setRoutes(routeData);
+    }
+  }, [routeData]);
+
+  useEffect(() => {
+    if (itemData) {
+      setItemsList(itemData);
+    }
+  }, [itemData]);
+
+  useEffect(() => {
+    if (abilityData) {
+      setAbilityList(abilityData);
+    }
+  }, [abilityData]);
+
+  useEffect(() => {
+    if (natureData) {
+      setNatureList(natureData);
+    }
+  }, [natureData]);
 
   return (
     <>

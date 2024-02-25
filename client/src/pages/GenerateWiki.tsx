@@ -18,14 +18,14 @@ const GenerateWiki = () => {
 
   const {
     mutate: mutateGeneratePokemon,
-    isLoading: isLoadingGeneratePokemonData,
+    isPending: isPendingGeneratePokemonData,
   } = useGeneratePokemon((data: any) => {
     notifications.show({ message: data.message });
   });
 
   const {
     mutate: mutateGenerateRoutes,
-    isLoading: isLoadingGenerateRoutesData,
+    isPending: isPendingGenerateRoutesData,
   } = useGenerateRoutes((data: any) => {
     notifications.show({ message: data.message });
   });
@@ -87,7 +87,7 @@ const GenerateWiki = () => {
                 rangeStart >= rangeEnd || rangeStart <= 0 || rangeEnd <= 0
               }
               onClick={handleGeneratePokemonData}
-              loading={isLoadingGeneratePokemonData}
+              loading={isPendingGeneratePokemonData}
             >
               Generate
             </Button>
@@ -103,7 +103,7 @@ const GenerateWiki = () => {
           <Grid.Col>
             <Button
               onClick={handleGenerateRoutesData}
-              loading={isLoadingGenerateRoutesData}
+              loading={isPendingGenerateRoutesData}
             >
               Generate Routes
             </Button>

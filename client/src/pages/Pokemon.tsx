@@ -32,25 +32,17 @@ const Pokemon = () => {
   const [currentId, setCurrentId] = useState<number | null>(null);
   const [pokemonData, setPokemonData] = useState<PokemonData | null>(null);
   const [pokemonChanges, setPokemonChanges] = useState<PokemonChanges | null>(
-    null
+    null,
   );
   const [activeTab, setActiveTab] = useState<string | null>(
-    "stats-abilities-evo"
+    "stats-abilities-evo",
   );
   const [activePokemonTab, setActivePokemonTab] = useState<string | null>(
-    "prepare-pokemon-data"
+    "prepare-pokemon-data",
   );
 
-  const { refetch } = useGetPokemonByName({
+  const { refetch, data: pokemonSearchData } = useGetPokemonByName({
     pokemonName,
-    onSuccess: (data: any) => {
-      if (data.status === 404) {
-        notifications.show({ message: "Pokemon not found", color: "red" });
-        return;
-      }
-      setPokemonData(data);
-      setCurrentId(data.id);
-    },
   });
 
   const { mutate: fetchById } = useGetPokemonById({
@@ -80,7 +72,7 @@ const Pokemon = () => {
   const nextPokemon = () => {
     // use a hasNext function instead of strict ids
     const nextPokemon = pokemonList.find(
-      (p) => p.id === (currentId as number) + 1
+      (p) => p.id === (currentId as number) + 1,
     );
     if (nextPokemon) {
       setPokemonData(null);
@@ -93,7 +85,7 @@ const Pokemon = () => {
 
   const prevPokemon = () => {
     const prevPokemon = pokemonList.find(
-      (p) => p.id === (currentId as number) - 1
+      (p) => p.id === (currentId as number) - 1,
     );
     if (prevPokemon) {
       setPokemonData(null);
@@ -123,6 +115,17 @@ const Pokemon = () => {
       setActivePokemonTab("prepare-pokemon-data");
     }
   }, [pokemonList]);
+
+  useUpdateEffect(() => {
+    if (pokemonSearchData) {
+      if (pokemonSearchData.status === 404) {
+        notifications.show({ message: "Pokemon not found", color: "red" });
+        return;
+      }
+      setPokemonData(pokemonSearchData);
+      setCurrentId(pokemonSearchData.id);
+    }
+  }, [pokemonSearchData]);
 
   return (
     <Tabs value={activePokemonTab} onTabChange={setActivePokemonTab}>
