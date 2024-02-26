@@ -34,7 +34,7 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
   const [encounterRate, setEncounterRate] = useState<number>(0);
   const [areaLevels, setAreaLevels] = useState<AreaLevels>({} as AreaLevels);
   const [wildEncounters, setWildEncounters] = useState<Encounters>(
-    {} as Encounters
+    {} as Encounters,
   );
   const viewport: any = useRef<HTMLDivElement>(null);
 
@@ -77,13 +77,13 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
 
   const removePokemonFromEncountertype = (
     pokemonName: string,
-    encounterType: string
+    encounterType: string,
   ) => {
     setWildEncounters((wildEncounters: Encounters) => {
       let currentEncounters = {
         ...wildEncounters,
         [encounterType]: wildEncounters[encounterType].filter(
-          (pokemon) => pokemon.name !== pokemonName
+          (pokemon) => pokemon.name !== pokemonName,
         ),
       };
       if (currentEncounters[encounterType].length === 0) {
@@ -122,7 +122,6 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
         <Grid.Col span={2}>
           <NativeSelect
             label="Encounter Type"
-            placeholder="Encounter Type"
             onChange={(value) => setCurrentEncountertype(value)}
             value={currentEncountertype}
             data={[
@@ -195,7 +194,7 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
                 <TextInput
                   placeholder="Level Range. Eg.'20 - 30'"
                   mt={10}
-                  sx={{ width: "12rem" }}
+                  style={{ width: "12rem" }}
                   value={areaLevels[encounterType] || ""}
                   onChange={(e) =>
                     setAreaLevels({
@@ -215,7 +214,7 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
                           removePokemon={() =>
                             removePokemonFromEncountertype(
                               pokemon.name as string,
-                              encounterType
+                              encounterType,
                             )
                           }
                         />

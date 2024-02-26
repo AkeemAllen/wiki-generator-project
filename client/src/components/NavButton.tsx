@@ -1,5 +1,6 @@
 import { Group, Text, ThemeIcon, UnstyledButton } from "@mantine/core";
 import { ReactNode } from "react";
+import classes from "../styles/NavButton.module.css";
 
 type NavButtonProps = {
   color: string;
@@ -11,28 +12,14 @@ type NavButtonProps = {
 const NavButton = ({ color, text, icon, isActive = false }: NavButtonProps) => {
   return (
     <UnstyledButton
-      sx={(theme) => ({
-        display: "block",
-        width: "100%",
-        padding: theme.spacing.xs,
-        borderRadius: theme.radius.sm,
-        backgroundColor: isActive ? theme.colors.blue[0] : "transparent",
-        color:
-          theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
-
-        "&:hover": {
-          backgroundColor: isActive
-            ? theme.colors.blue[0]
-            : theme.colors.gray[0],
-        },
-      })}
+      classNames={{ root: isActive ? classes.rootActive : classes.root }}
     >
-      <Group>
+      <Group className={classes.group}>
         <ThemeIcon color={color} variant="light">
           {icon}
         </ThemeIcon>
 
-        <Text size="sm" color="#545454">
+        <Text size="sm" c="#545454">
           {text}
         </Text>
       </Group>

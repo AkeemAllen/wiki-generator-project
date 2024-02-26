@@ -4,16 +4,16 @@ import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 import { useGeneratePokemon, useGenerateRoutes } from "../apis/wikiApis";
-import { PokemonVersions } from "../types";
+import { PokemonVersions, Wikis } from "../types";
 
 const GenerateWiki = () => {
   const [activeTab, setActiveTab] = useState<string | null>("generate-pokemon");
   const [rangeStart, setRangeStart] = useInputState<number>(0);
   const [rangeEnd, setRangeEnd] = useInputState<number>(0);
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
-  const [wikiList, __] = useLocalStorage("wikiList", {});
+  const [wikiList, __] = useLocalStorage<Wikis>("wikiList", {});
   const [versionGroup, setVersionGroup] = useInputState<string>(
-    wikiList[currentWiki]?.settings?.version_group
+    wikiList[currentWiki]?.settings?.version_group,
   );
 
   const {
@@ -46,7 +46,7 @@ const GenerateWiki = () => {
   };
 
   return (
-    <Tabs value={activeTab} onTabChange={setActiveTab}>
+    <Tabs value={activeTab} onChange={setActiveTab}>
       <Tabs.List>
         <Tabs.Tab value="generate-pokemon">Generate Pokemon</Tabs.Tab>
         <Tabs.Tab value="generate-routes">Generate Routes</Tabs.Tab>

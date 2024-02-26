@@ -1,0 +1,10 @@
+.box {
+    background-color: var(--mantine-black);
+    box-shadow: var(--mantine-shadow-sm);
+    border: 1px solid;
+    border-color: var(--mantine-color-gray-2);
+    border-radius: var(--mantine-radius-sm);
+    color: var(--mantine-black);
+    padding: var(--mantine-spacing-lg);
+    margin-bottom: var(--mantine-spacing-md);
+}

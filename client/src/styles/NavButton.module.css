@@ -1,0 +1,31 @@
+.root {
+    display: block;
+    width: 100%;
+    background-color: transparent;
+    border-radius: var(--mantine-radius-sm);
+    color: var(--mantine-color-white-0);
+
+    &:hover {
+        background-color: var(--mantine-color-gray-0);
+    }
+}
+
+.rootActive {
+    display: block;
+    width: 100%;
+    background-color: var(--mantine-color-blue-0) !important;
+    border-radius: var(--mantine-radius-sm);
+    color: var(--mantine-color-white-0);
+
+    &:hover {
+        background-color: var(--mantine-color-blue-0) !important;
+    }
+}
+
+.navButton_active {
+    background-color: var(--mantine-color-blue-0);
+}
+
+.group {
+    padding: var(--mantine-spacing-xs);
+}

@@ -6,6 +6,7 @@ import {
   NumberInput,
   Progress,
   Tabs,
+  Text,
 } from "@mantine/core";
 import { useHotkeys, useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -55,7 +56,10 @@ const Pokemon = () => {
 
   const { mutate: mutatePokemon } = useSavePokemonChanges({
     onSuccess: () => {
-      notifications.show({ message: "Changes Saved" });
+      console.log("Save Ran");
+      notifications.show({
+        message: "Changes Saved",
+      });
       setPokemonChanges(null);
     },
     onError: () => {
@@ -128,7 +132,7 @@ const Pokemon = () => {
   }, [pokemonSearchData]);
 
   return (
-    <Tabs value={activePokemonTab} onTabChange={setActivePokemonTab}>
+    <Tabs value={activePokemonTab} onChange={setActivePokemonTab}>
       <Tabs.List>
         {pokemonList.length > 0 && (
           <>
@@ -148,6 +152,7 @@ const Pokemon = () => {
               data={
                 pokemonList === undefined ? [] : pokemonList.map((p) => p.name)
               }
+              limit={5}
             />
           </Grid.Col>
           <Grid.Col span={2}>
@@ -181,7 +186,7 @@ const Pokemon = () => {
         </Grid>
         <Image src={pokemonData?.sprite} maw={200} />
         {pokemonData && (
-          <Tabs mt={20} value={activeTab} onTabChange={setActiveTab}>
+          <Tabs mt={20} value={activeTab} onChange={setActiveTab}>
             <Tabs.List>
               <Tabs.Tab value="stats-abilities-evo">
                 Stats_Abilities_Evo
@@ -210,7 +215,8 @@ const Pokemon = () => {
         <MultiplePokemon />
       </Tabs.Panel>
       <Tabs.Panel value="prepare-pokemon-data">
-        <DataPreparationTab />
+        <Text>Prepare Data</Text>
+        {/* <DataPreparationTab /> */}
       </Tabs.Panel>
     </Tabs>
   );

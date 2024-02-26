@@ -30,7 +30,7 @@ const Moves = () => {
   // This makes sure the page title doesn't change when moveName changes
   const [currentMoveName, setCurrentMoveName] = useInputState<string>("");
   const [moveDetails, setMoveDetails] = useState<MoveDetails>(
-    {} as MoveDetails
+    {} as MoveDetails,
   );
 
   // To compare original state of moveDetails to the current state
@@ -64,7 +64,7 @@ const Moves = () => {
 
   const handleMoveDetailChanges = (
     e: number | string | MachineVersion[],
-    detail: string
+    detail: string,
   ) => {
     setMoveDetails((moveDetails: MoveDetails) => {
       return {
@@ -75,7 +75,7 @@ const Moves = () => {
   };
 
   return (
-    <Tabs value={activeMoveTab} onTabChange={setActiveMoveTab}>
+    <Tabs value={activeMoveTab} onChange={setActiveMoveTab}>
       <Tabs.List>
         {movesList.length > 0 && <Tabs.Tab value="moves">Moves</Tabs.Tab>}
         <Tabs.Tab value="prepare-move-data">Prepare Data</Tabs.Tab>
@@ -89,6 +89,7 @@ const Moves = () => {
                   placeholder="Move Name"
                   onChange={setMoveName}
                   data={movesList}
+                  limit={5}
                 />
               </Grid.Col>
               <Grid.Col span={3}>
@@ -125,7 +126,8 @@ const Moves = () => {
         )}
       </Tabs.Panel>
       <Tabs.Panel value="prepare-move-data">
-        <MovePreparationTab movesList={movesList} setMovesList={setMovesList} />
+        <p>Prepare Data</p>
+        {/* <MovePreparationTab movesList={movesList} setMovesList={setMovesList} /> */}
       </Tabs.Panel>
     </Tabs>
   );
@@ -137,7 +139,7 @@ type MoveDetailsProps = {
   moveDetails: MoveDetails;
   handleMoveDetailChanges: (
     e: number | string | MachineVersion[],
-    detail: string
+    detail: string,
   ) => void;
 };
 
@@ -152,7 +154,7 @@ const MoveDetails = ({
       <Title order={2} mt="lg">
         {capitalize(moveName)}
       </Title>
-      <Tabs mt={20} value={activeTab} onTabChange={setActiveTab}>
+      <Tabs mt={20} value={activeTab} onChange={setActiveTab}>
         <Tabs.List>
           <Tabs.Tab value="stats">Stats</Tabs.Tab>
           <Tabs.Tab value="machine-information">Machine Information</Tabs.Tab>
@@ -169,7 +171,7 @@ const MoveDetails = ({
               value={moveDetails.type}
               onChange={(e) => handleMoveDetailChanges(e.target.value, "type")}
               data={Object.keys(Types).map(
-                (key: string) => Types[key as keyof typeof Types]
+                (key: string) => Types[key as keyof typeof Types],
               )}
             />
             <NumberInput
@@ -253,7 +255,7 @@ const MovePreparationTab = ({ movesList, setMovesList }: any) => {
       {movesList.length == 0 ? (
         <Grid.Col>
           <Text>No move Data detected. Prepare all moves</Text>
-          <Text color="red">
+          <Text c="red">
             Note: All Move data must be prepared or else errors will occur
             durint wiki generation
           </Text>

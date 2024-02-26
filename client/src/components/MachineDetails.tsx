@@ -17,7 +17,7 @@ type MachineDetailsProps = {
   moveDetails: MoveDetails;
   handleMoveDetailsChange: (
     e: number | string | MachineVersion[],
-    detail: string
+    detail: string,
   ) => void;
 };
 
@@ -30,7 +30,7 @@ const MachineDetails = ({
     { open: openNewVersionModal, close: closeNewVersionModal },
   ] = useDisclosure(false);
   const [newMachineVersion, setNewMachineVersion] = useState<MachineVersion>(
-    {} as MachineVersion
+    {} as MachineVersion,
   );
 
   const handleClose = () => {
@@ -41,7 +41,7 @@ const MachineDetails = ({
   const addMachineVersion = () => {
     handleMoveDetailsChange(
       [...(moveDetails.machine_details as MachineVersion[]), newMachineVersion],
-      "machine_details"
+      "machine_details",
     );
     handleClose();
   };
@@ -59,13 +59,13 @@ const MachineDetails = ({
     <>
       <Box w={200} mt="lg">
         <Button
-          leftIcon={<IconPlus size={"1rem"} />}
+          leftSection={<IconPlus size={"1rem"} />}
           onClick={openNewVersionModal}
         >
           Add Version
         </Button>
       </Box>
-      <Table withBorder mt="lg">
+      <Table withRowBorders withTableBorder withColumnBorders mt="lg">
         <thead>
           <tr>
             <th>
@@ -85,7 +85,7 @@ const MachineDetails = ({
                 <td>{machineVersion.technical_name}</td>
                 <td>
                   <Button
-                    leftIcon={<IconTrash size={"1rem"} />}
+                    leftSection={<IconTrash size={"1rem"} />}
                     onClick={() => deleteMachineVersion(index)}
                   >
                     Delete
