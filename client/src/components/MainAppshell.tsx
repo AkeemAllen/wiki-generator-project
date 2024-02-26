@@ -1,4 +1,4 @@
-import { AppShell, Burger, Grid, Menu, Text } from "@mantine/core";
+import { AppShell, Grid, Menu, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
   IconArrowBackUp,
@@ -28,7 +28,6 @@ import {
 } from "../stores";
 import { Wikis } from "../types";
 import DeleteWikiModal from "./DeleteWikiModal";
-import DeployWikiModal from "./DeployWikiModal";
 import NavButton from "./NavButton";
 import NewWikiModal from "./NewWikiModal";
 
@@ -246,7 +245,7 @@ const MainAppshell = () => {
       </AppShell>
       <NewWikiModal opened={createModalOpened} onClose={closeCreate} />
       <DeleteWikiModal opened={deleteModalOpened} onClose={closeDelete} />
-      <DeployWikiModal opened={deployModalOpened} onClose={closeDeploy} />
+      {/* <DeployWikiModal opened={deployModalOpened} onClose={closeDeploy} /> */}
     </>
   );
 };

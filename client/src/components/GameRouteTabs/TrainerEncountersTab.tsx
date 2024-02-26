@@ -178,13 +178,14 @@ const TrainersEncounterTab = ({ routeName }: TabProps) => {
             data={
               pokemonList === undefined ? [] : pokemonList.map((p) => p.name)
             }
+            limit={5}
           />
         </Grid.Col>
         <Grid.Col span={2}>
           <NumberInput
             label="Level"
             value={level}
-            onChange={(e: number) => setLevel(e)}
+            onChange={(e) => setLevel(e as number)}
           />
         </Grid.Col>
         <Grid.Col span={2} mt={25}>

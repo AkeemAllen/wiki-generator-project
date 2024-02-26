@@ -34,7 +34,7 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
   const [encounterRate, setEncounterRate] = useState<number>(0);
   const [areaLevels, setAreaLevels] = useState<AreaLevels>({} as AreaLevels);
   const [wildEncounters, setWildEncounters] = useState<Encounters>(
-    {} as Encounters,
+    {} as Encounters
   );
   const viewport: any = useRef<HTMLDivElement>(null);
 
@@ -77,13 +77,13 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
 
   const removePokemonFromEncountertype = (
     pokemonName: string,
-    encounterType: string,
+    encounterType: string
   ) => {
     setWildEncounters((wildEncounters: Encounters) => {
       let currentEncounters = {
         ...wildEncounters,
         [encounterType]: wildEncounters[encounterType].filter(
-          (pokemon) => pokemon.name !== pokemonName,
+          (pokemon) => pokemon.name !== pokemonName
         ),
       };
       if (currentEncounters[encounterType].length === 0) {
@@ -161,6 +161,7 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
             data={
               pokemonList === undefined ? [] : pokemonList.map((p) => p.name)
             }
+            limit={5}
           />
         </Grid.Col>
         <Grid.Col span={2}>
@@ -214,7 +215,7 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
                           removePokemon={() =>
                             removePokemonFromEncountertype(
                               pokemon.name as string,
-                              encounterType,
+                              encounterType
                             )
                           }
                         />

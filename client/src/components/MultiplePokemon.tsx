@@ -86,6 +86,7 @@ const MultiplePokemon = () => {
             onChange={setMovesBeingAdded}
             data={moveList === undefined ? [] : moveList}
             label="Move to Add"
+            limit={5}
             searchable
           />
         </SimpleGrid>
@@ -96,6 +97,7 @@ const MultiplePokemon = () => {
           value={pokemonBeingModified}
           onChange={setPokemonBeingModified}
           data={pokemonList.map((pokemon) => pokemon.name)}
+          limit={5}
           searchable
         />
       </SimpleGrid>
