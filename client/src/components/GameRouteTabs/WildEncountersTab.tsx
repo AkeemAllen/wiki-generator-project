@@ -168,7 +168,7 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
           <NumberInput
             label="Encounter Rate"
             value={encounterRate}
-            onChange={(e: number) => setEncounterRate(e)}
+            onChange={(e) => setEncounterRate(e as number)}
           />
         </Grid.Col>
         <Grid.Col span={2} mt={25}>
