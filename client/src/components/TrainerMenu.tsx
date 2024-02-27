@@ -39,10 +39,10 @@ const TrainerMenu = ({
   const [newTrainerName, setNewTrainerName] = useInputState<string>("");
 
   return (
-    <Menu shadow="sm" width={200} position="right-start">
+    <Menu shadow="sm" position="right-start">
       <Menu.Target>
-        <ActionIcon mt={15} ml={10}>
-          <IconDots />
+        <ActionIcon variant="transparent">
+          <IconDots color="gray" />
         </ActionIcon>
       </Menu.Target>
 

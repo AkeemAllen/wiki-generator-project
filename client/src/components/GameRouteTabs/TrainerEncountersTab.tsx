@@ -4,7 +4,6 @@ import {
   Grid,
   NumberInput,
   ScrollArea,
-  TextInput,
   Title,
 } from "@mantine/core";
 import { useDisclosure, useInputState } from "@mantine/hooks";
@@ -163,10 +162,11 @@ const TrainersEncounterTab = ({ routeName }: TabProps) => {
     <>
       <Grid mt={5} mb={10}>
         <Grid.Col span={2}>
-          <TextInput
+          <Autocomplete
             label="Trainer Name"
             value={currentTrainer}
             onChange={setCurrentTrainer}
+            data={Object.keys(trainers)}
           />
         </Grid.Col>
         <Grid.Col span={4}>
@@ -210,13 +210,11 @@ const TrainersEncounterTab = ({ routeName }: TabProps) => {
           Object.keys(trainers).map((trainer, index) => {
             return (
               <div key={index}>
-                <Grid columns={36}>
+                <Grid mt={20} align="center">
                   <Grid.Col span={2}>
-                    <Title order={4} mt={20}>
-                      {capitalize(trainer)}
-                    </Title>
+                    <Title order={4}>{capitalize(trainer)}</Title>
                   </Grid.Col>
-                  <Grid.Col span={4}>
+                  <Grid.Col span={1}>
                     <TrainerMenu
                       trainerName={trainer}
                       trainerInfo={trainers[trainer]}
