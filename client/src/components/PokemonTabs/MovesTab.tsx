@@ -18,6 +18,7 @@ import { useRef, useState } from "react";
 import { useModifyLevelMoves } from "../../apis/pokemonApis";
 import { useUpdateEffect } from "../../hooks/useUpdateEffect";
 import { useMovesStore } from "../../stores";
+import classes from "../../styles/MovesTab.module.css";
 import {
   Move,
   MoveChange,
@@ -26,7 +27,6 @@ import {
   PokemonData,
 } from "../../types";
 import MovesTable from "../MovesTable";
-import classes from "../../styles/MovesTab.module.css";
 
 type MovesTabProps = {
   pokemonData: PokemonData;
@@ -82,7 +82,7 @@ const MovesTab = ({
   const handleMoveSetChange = (
     index: number,
     change: "move_name" | "level" | "operation" | "secondary_move",
-    value: string | number,
+    value: string | number
   ) => {
     setMoveSetChangeList((moveSetChangeList) => {
       const newMoveSetChangeList = [...moveSetChangeList];
@@ -139,7 +139,7 @@ const MovesTab = ({
       ["alt+enter", saveLevelMoveChanges],
       ["alt+s", () => seachMovesRef.current?.focus()],
     ],
-    [],
+    []
   );
 
   return (
@@ -198,7 +198,7 @@ const MovesTab = ({
                           handleMoveSetChange(
                             index,
                             "operation",
-                            event.currentTarget.value,
+                            event.currentTarget.value
                           )
                         }
                         classNames={{ input: classes.input }}
@@ -217,6 +217,7 @@ const MovesTab = ({
                         }}
                         error={movesList.indexOf(moveName) === -1}
                         data={movesList}
+                        limit={10}
                       />
                     </td>
                     <td>
@@ -252,6 +253,7 @@ const MovesTab = ({
                           operation === Operation.REPLACE_BY_LEVEL
                         }
                         data={movesList}
+                        limit={10}
                       />
                     </td>
                     <td>

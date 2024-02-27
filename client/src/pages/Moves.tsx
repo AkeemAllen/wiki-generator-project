@@ -30,7 +30,7 @@ const Moves = () => {
   // This makes sure the page title doesn't change when moveName changes
   const [currentMoveName, setCurrentMoveName] = useInputState<string>("");
   const [moveDetails, setMoveDetails] = useState<MoveDetails>(
-    {} as MoveDetails,
+    {} as MoveDetails
   );
 
   // To compare original state of moveDetails to the current state
@@ -64,7 +64,7 @@ const Moves = () => {
 
   const handleMoveDetailChanges = (
     e: number | string | MachineVersion[],
-    detail: string,
+    detail: string
   ) => {
     setMoveDetails((moveDetails: MoveDetails) => {
       return {
@@ -139,7 +139,7 @@ type MoveDetailsProps = {
   moveDetails: MoveDetails;
   handleMoveDetailChanges: (
     e: number | string | MachineVersion[],
-    detail: string,
+    detail: string
   ) => void;
 };
 
@@ -164,25 +164,25 @@ const MoveDetails = ({
             <NumberInput
               label="Power"
               value={moveDetails.power}
-              onChange={(e: number) => handleMoveDetailChanges(e, "power")}
+              onChange={(e) => handleMoveDetailChanges(e as number, "power")}
             />
             <NativeSelect
               label="Type"
               value={moveDetails.type}
               onChange={(e) => handleMoveDetailChanges(e.target.value, "type")}
               data={Object.keys(Types).map(
-                (key: string) => Types[key as keyof typeof Types],
+                (key: string) => Types[key as keyof typeof Types]
               )}
             />
             <NumberInput
               label="Accuracy"
               value={moveDetails.accuracy}
-              onChange={(e: number) => handleMoveDetailChanges(e, "accuracy")}
+              onChange={(e) => handleMoveDetailChanges(e as number, "accuracy")}
             />
             <NumberInput
               label="PP"
               value={moveDetails.pp}
-              onChange={(e: number) => handleMoveDetailChanges(e, "pp")}
+              onChange={(e) => handleMoveDetailChanges(e as number, "pp")}
             />
             <NativeSelect
               label="Damage Class"
