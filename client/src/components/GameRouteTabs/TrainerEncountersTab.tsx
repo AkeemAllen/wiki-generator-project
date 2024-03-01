@@ -8,7 +8,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure, useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useEditRoute } from "../../apis/routesApis";
 import { usePokemonStore, useRouteStore } from "../../stores";
 import { TrainerInfo, Trainers } from "../../types";
@@ -28,6 +28,7 @@ const TrainersEncounterTab = ({ routeName }: TabProps) => {
   const setRoutes = useRouteStore((state) => state.setRoutes);
 
   const [currentTrainer, setCurrentTrainer] = useInputState<string>("");
+  // Try using usememo where applicable for this.
   const [trainerVersions, setTrainerVersions] = useState<string[]>([]);
   const [pokemonName, setPokemonName] = useState<string>("");
   const [level, setLevel] = useState<number>(0);
@@ -44,15 +45,6 @@ const TrainersEncounterTab = ({ routeName }: TabProps) => {
     trainerVersionsModalOpened,
     { close: closeTrainerVersionsModal, open: openTrainerVersionsModal },
   ] = useDisclosure(false);
-
-  const viewport: any = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    return viewport.current.scrollTo({
-      top: viewport.current.scrollHeight,
-      behavior: "smooth",
-    });
-  };
 
   const updateTrainer = (trainerName: string, trainerInfo: TrainerInfo) => {
     setTrainers((trainers: Trainers) => {
@@ -145,6 +137,7 @@ const TrainersEncounterTab = ({ routeName }: TabProps) => {
     },
     onSuccess: (data: any) => {
       close();
+      console.log(data.routes);
       setRoutes(data.routes);
       notifications.show({ message: "Trainers updated successfully" });
     },
@@ -201,11 +194,7 @@ const TrainersEncounterTab = ({ routeName }: TabProps) => {
           </Button>
         </Grid.Col>
       </Grid>
-      <ScrollArea.Autosize
-        mah={"calc(100vh - 300px)"}
-        offsetScrollbars
-        viewportRef={viewport}
-      >
+      <ScrollArea.Autosize mah={"calc(100vh - 300px)"} offsetScrollbars>
         {!isNullEmptyOrUndefined(trainers) &&
           Object.keys(trainers).map((trainer, index) => {
             return (

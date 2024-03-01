@@ -21,59 +21,11 @@ type LoaderData = {
 
 const GameRoutesDetails = () => {
   const { routeName } = useLoaderData() as LoaderData;
-  const setRoutes = useRouteStore((state) => state.setRoutes);
-  const navigate = useNavigate();
-
-  const [newRouteName, setNewRouteName] = useInputState<string>(routeName);
   const [activeTab, setActiveTab] = useState<string | null>("wild-encounters");
-  const [isBeingEdited, setIsBeingEdited] = useState<boolean>(false);
-
-  const { mutate: editRouteName } = useEditRouteName((data) => {
-    setRoutes(data.routes);
-    notifications.show({ message: "Route name changed successfully!" });
-    navigate(`/game-routes/${newRouteName}`);
-    setIsBeingEdited(false);
-  });
-
-  const { mutate: deleteRoute } = useDeleteRoute((data) => {
-    setRoutes(data.routes);
-    notifications.show({
-      message: "Route deleted successfully!",
-      color: "red",
-    });
-    navigate(`/game-routes`);
-  });
 
   return (
     <>
-      {isBeingEdited ? (
-        <TextInput
-          mt={20}
-          value={newRouteName}
-          onChange={setNewRouteName}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              editRouteName({ routeNameToEdit: routeName, newRouteName });
-            }
-          }}
-        />
-      ) : (
-        <Grid mt={20} columns={24}>
-          <Grid.Col span={3}>
-            <Title order={4}>{routeName}</Title>
-          </Grid.Col>
-          <Grid.Col span={1}>
-            <ActionIcon variant="outline" color="blue">
-              <IconTrash onClick={() => deleteRoute(routeName)} />
-            </ActionIcon>
-          </Grid.Col>
-          <Grid.Col span={1}>
-            <ActionIcon variant="outline" color="blue">
-              <IconEdit onClick={() => setIsBeingEdited(true)} />
-            </ActionIcon>
-          </Grid.Col>
-        </Grid>
-      )}
+      <RouteNameHeader routeName={routeName} />
       <Tabs mt={20} value={activeTab} onChange={setActiveTab}>
         <Tabs.List>
           <Tabs.Tab value="wild-encounters">Wild Encounters</Tabs.Tab>
@@ -93,6 +45,67 @@ const GameRoutesDetails = () => {
         </Tabs.Panel> */}
       </Tabs>
     </>
+  );
+};
+
+const RouteNameHeader = ({ routeName }: { routeName: string }) => {
+  const setRoutes = useRouteStore((state) => state.setRoutes);
+
+  const navigate = useNavigate();
+
+  const [isBeingEdited, setIsBeingEdited] = useState<boolean>(false);
+  const [newRouteName, setNewRouteName] = useInputState<string>(routeName);
+
+  const { mutate: editRouteName } = useEditRouteName((data) => {
+    setRoutes(data.routes);
+    notifications.show({ message: "Route name changed successfully!" });
+    navigate(`/game-routes/${newRouteName}`);
+    setIsBeingEdited(false);
+  });
+
+  const { mutate: deleteRoute } = useDeleteRoute((data) => {
+    setRoutes(data.routes);
+    notifications.show({
+      message: "Route deleted successfully!",
+      color: "red",
+    });
+    navigate(`/game-routes`);
+  });
+
+  if (isBeingEdited) {
+    return (
+      <TextInput
+        mt={20}
+        value={newRouteName}
+        onChange={setNewRouteName}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            if (newRouteName === routeName) {
+              setIsBeingEdited(false);
+              return;
+            }
+            editRouteName({ routeNameToEdit: routeName, newRouteName });
+          }
+        }}
+      />
+    );
+  }
+  return (
+    <Grid mt={20} columns={24}>
+      <Grid.Col span={3}>
+        <Title order={4}>{routeName}</Title>
+      </Grid.Col>
+      <Grid.Col span={1}>
+        <ActionIcon variant="outline" color="blue">
+          <IconTrash onClick={() => deleteRoute(routeName)} />
+        </ActionIcon>
+      </Grid.Col>
+      <Grid.Col span={1}>
+        <ActionIcon variant="outline" color="blue">
+          <IconEdit onClick={() => setIsBeingEdited(true)} />
+        </ActionIcon>
+      </Grid.Col>
+    </Grid>
   );
 };
 

@@ -195,3 +195,19 @@ export enum PreparationState {
   COMPLETE = "COMPLETE",
   FINISHED = "FINISHED",
 }
+
+export const EncounterTypes = [
+  "grass-normal",
+  "grass-doubles",
+  "grass-special",
+  "sand-normal",
+  "surf-normal",
+  "surf-special",
+  "fishing-normal",
+  "fishing-special",
+  "cave-normal",
+  "cave-special",
+  "legendary-encounter",
+  "special-encounter",
+  "other",
+];

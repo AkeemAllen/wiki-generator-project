@@ -10,18 +10,15 @@ import {
 } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useEditRoute } from "../../apis/routesApis";
 import { usePokemonStore, useRouteStore } from "../../stores";
-import { AreaLevels, Encounters } from "../../types";
+import { AreaLevels, EncounterTypes, Encounters } from "../../types";
 import { capitalize, isNullEmptyOrUndefined } from "../../utils";
 import PokemonCard from "../PokemonCard";
 
-type ModalProps = {
-  routeName: string;
-};
-
-const WildEncountersTab = ({ routeName }: ModalProps) => {
+// TODO: Fix bug where changing wikis leaves you on the same page, though it doesn't exist
+const WildEncountersTab = ({ routeName }: { routeName: string }) => {
   const routes = useRouteStore((state) => state.routes);
   const setRoutes = useRouteStore((state) => state.setRoutes);
   const pokemonList = usePokemonStore((state) => state.pokemonList);
@@ -36,14 +33,6 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
   const [wildEncounters, setWildEncounters] = useState<Encounters>(
     {} as Encounters
   );
-  const viewport: any = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    return viewport.current.scrollTo({
-      top: viewport.current.scrollHeight,
-      behavior: "smooth",
-    });
-  };
 
   const addPokemonToEncountertype = () => {
     setWildEncounters((wildEncounters: Encounters) => {
@@ -72,7 +61,6 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
     });
     submitWildEncounters();
     setPokemonName("");
-    scrollToBottom();
   };
 
   const removePokemonFromEncountertype = (
@@ -124,21 +112,7 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
             label="Encounter Type"
             onChange={(value) => setCurrentEncountertype(value)}
             value={currentEncountertype}
-            data={[
-              "grass-normal",
-              "grass-doubles",
-              "grass-special",
-              "sand-normal",
-              "surf-normal",
-              "surf-special",
-              "fishing-normal",
-              "fishing-special",
-              "cave-normal",
-              "cave-special",
-              "legendary-encounter",
-              "special-encounter",
-              "other",
-            ]}
+            data={EncounterTypes.map((type) => type)}
           />
         </Grid.Col>
         {(currentEncountertype === "special-encounter" ||
@@ -180,11 +154,7 @@ const WildEncountersTab = ({ routeName }: ModalProps) => {
           </Button>
         </Grid.Col>
       </Grid>
-      <ScrollArea.Autosize
-        mah={"calc(100vh - 300px)"}
-        offsetScrollbars
-        viewportRef={viewport}
-      >
+      <ScrollArea.Autosize mah={"calc(100vh - 300px)"} offsetScrollbars>
         {!isNullEmptyOrUndefined(wildEncounters) &&
           Object.keys(wildEncounters).map((encounterType, index) => {
             return (
