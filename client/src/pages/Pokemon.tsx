@@ -224,7 +224,7 @@ const Pokemon = () => {
       </Tabs.Panel>
       <Tabs.Panel value="prepare-pokemon-data">
         <Text>Prepare Data</Text>
-        {/* <DataPreparationTab /> */}
+        <DataPreparationTab />
       </Tabs.Panel>
     </Tabs>
   );
