@@ -202,7 +202,10 @@ def create_trainer_with_diff_versions(trainers: Trainers, doc: Document):
             filtered_pokemon = []
             # breakpoint()
             for pokemon in trainer_info.pokemon:
-                if version in pokemon.trainer_version:
+                if (
+                    pokemon.trainer_version is not None
+                    and version in pokemon.trainer_version
+                ):
                     filtered_pokemon.append(pokemon)
 
             if len(filtered_pokemon) == 0:
@@ -341,7 +344,10 @@ def create_trainer_table(
         for version in trainer_info.trainer_versions:
             filtered_pokemon = []
             for pokemon in trainer_info.pokemon:
-                if version in pokemon.trainer_version:
+                if (
+                    pokemon.trainer_version is not None
+                    and version in pokemon.trainer_version
+                ):
                     filtered_pokemon.append(pokemon)
 
             if len(filtered_pokemon) == 0:
