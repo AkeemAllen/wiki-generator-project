@@ -2,7 +2,7 @@ from typing import Dict, Optional, Union
 from pydantic import BaseModel, RootModel
 
 
-class TrainerOrWildPokemon(BaseModel):
+class TrainerPokemonOrWildPokemon(BaseModel):
     # The pokemon dex number
     id: Optional[int] = None
 
@@ -27,21 +27,25 @@ class TrainerOrWildPokemon(BaseModel):
 
 
 class Encounters(RootModel):
-    root: Dict[str, list[TrainerOrWildPokemon]]
+    root: Dict[str, list[TrainerPokemonOrWildPokemon]]
 
 
 class TrainerInfo(BaseModel):
-    is_important: bool
-    pokemon: list[TrainerOrWildPokemon]
-    sprite_name: Optional[str] = None
+    pokemon: list[TrainerPokemonOrWildPokemon]
 
-    # the features below this are shelved for now
-    # has_diff_versions: Optional[bool]
+
+class ImportantTrainerInfo(BaseModel):
+    pokemon: list[TrainerPokemonOrWildPokemon]
+    sprite_name: Optional[str] = None
     trainer_versions: Optional[list[str]] = None
 
 
 class Trainers(RootModel):
     root: Dict[str, TrainerInfo]
+
+
+class ImportantTrainers(RootModel):
+    root: Dict[str, ImportantTrainerInfo]
 
 
 class AreaLevels(RootModel):
@@ -53,6 +57,7 @@ class RouteProperties(BaseModel):
     wiki_name: Optional[str] = None
     wild_encounters: Optional[Encounters] = None
     trainers: Optional[Trainers] = None
+    important_trainers: Optional[ImportantTrainers] = None
     wild_encounters_area_levels: Optional[AreaLevels] = None
 
 

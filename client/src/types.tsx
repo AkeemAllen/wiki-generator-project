@@ -81,7 +81,7 @@ export enum Operation {
   SWAP_MOVES = "swap_moves",
 }
 
-export type TrainerOrWildPokemon = {
+export type TrainerPokemonOrWildPokemon = {
   id?: number;
   name?: string;
   level?: number;
@@ -96,18 +96,25 @@ export type TrainerOrWildPokemon = {
 };
 
 export type Encounters = {
-  [key: string]: TrainerOrWildPokemon[];
+  [key: string]: TrainerPokemonOrWildPokemon[];
 };
 
 export type TrainerInfo = {
-  is_important: boolean;
-  pokemon: TrainerOrWildPokemon[];
+  pokemon: TrainerPokemonOrWildPokemon[];
+};
+
+export type ImportantTrainerInfo = {
+  pokemon: TrainerPokemonOrWildPokemon[];
   sprite_name: string;
   trainer_versions?: string[];
 };
 
 export type Trainers = {
   [key: string]: TrainerInfo;
+};
+
+export type ImportantTrainers = {
+  [key: string]: ImportantTrainerInfo;
 };
 
 export type AreaLevels = {
@@ -117,6 +124,7 @@ export type AreaLevels = {
 export type RouteProperties = {
   wild_encounters?: Encounters;
   trainers?: Trainers;
+  important_trainers?: ImportantTrainers;
   wild_encounters_area_levels?: AreaLevels;
   position: number;
 };
