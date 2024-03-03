@@ -162,6 +162,14 @@ def create_important_trainer_table(
 
     # Create table for trainers with different versions
     for trainer_name, trainer_info in trainers_with_diff_versions.root.items():
+        any_pokemon_has_version = any(
+            pokemon.trainer_version is not None and pokemon.trainer_version != []
+            for pokemon in trainer_info.pokemon
+        )
+
+        if not any_pokemon_has_version:
+            continue
+
         doc.add_block(Heading(trainer_name.title(), 2))
         for version in trainer_info.trainer_versions:
             filtered_pokemon = []
@@ -175,7 +183,12 @@ def create_important_trainer_table(
             if len(filtered_pokemon) == 0:
                 continue
 
-            doc.add_paragraph(f'=== "{version.title()}"')
+            # Indent needs to be 4 if there are multiple versions
+            # or else markdown will not render properly
+            indent = 2
+            if len(trainer_info.trainer_versions) > 1:
+                doc.add_paragraph(f'=== "{version.title()}"')
+                indent = 4
 
             filtered_trainer_info = ImportantTrainerInfo(
                 trainer_versions=trainer_info.trainer_versions,
@@ -183,7 +196,12 @@ def create_important_trainer_table(
                 pokemon=filtered_pokemon,
             )
             create_trainer_details_table(
-                file_abilities, file_items, filtered_trainer_info, doc, trainer_name, 4
+                file_abilities,
+                file_items,
+                filtered_trainer_info,
+                doc,
+                trainer_name,
+                indent,
             )
 
     doc.dump(f"{route_directory}/important_trainers")
