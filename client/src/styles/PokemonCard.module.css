@@ -23,3 +23,9 @@
     right: 10px;
     top: 10px;
 }
+
+.nameBox {
+    border: 2px solid #e9ecef;
+    border-radius: 5px;
+    text-align: center;
+}

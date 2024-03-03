@@ -5,6 +5,7 @@ import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { useDeleteRoute, useEditRouteName } from "../apis/routesApis";
+import ImportantTrainerEncountersTab from "../components/GameRouteTabs/ImportantTrainerEncountersTab";
 import TrainersEncounterTab from "../components/GameRouteTabs/TrainerEncountersTab";
 import WildEncountersTab from "../components/GameRouteTabs/WildEncountersTab";
 import { useRouteStore } from "../stores";
@@ -30,8 +31,9 @@ const GameRoutesDetails = () => {
         <Tabs.List>
           <Tabs.Tab value="wild-encounters">Wild Encounters</Tabs.Tab>
           <Tabs.Tab value="trainer-encounters">Trainer Encounters</Tabs.Tab>
-          {/* Revisit Rival Encounter tab idea */}
-          {/* <Tabs.Tab value="rival-encounters">Rival Encounters</Tabs.Tab> */}
+          <Tabs.Tab value="important-trainer-encounters">
+            Important Trainer Encounters
+          </Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="wild-encounters">
@@ -40,9 +42,9 @@ const GameRoutesDetails = () => {
         <Tabs.Panel value="trainer-encounters">
           <TrainersEncounterTab routeName={routeName} />
         </Tabs.Panel>
-        {/* <Tabs.Panel value="rival-encounters">
-          <RivalsEncounterTab routeName={routeName} />
-        </Tabs.Panel> */}
+        <Tabs.Panel value="important-trainer-encounters">
+          <ImportantTrainerEncountersTab routeName={routeName} />
+        </Tabs.Panel>
       </Tabs>
     </>
   );

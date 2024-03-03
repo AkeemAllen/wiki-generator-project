@@ -1,105 +1,84 @@
-import { ActionIcon, Checkbox, Menu, Modal, TextInput } from "@mantine/core";
+import { ActionIcon, Menu, Modal, TextInput } from "@mantine/core";
 import { useDisclosure, useInputState } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import { IconDots } from "@tabler/icons-react";
-import React from "react";
-import { TrainerInfo } from "../types";
+import { useMemo } from "react";
+import { useEditTrainers } from "../apis/routesApis";
+import { useRouteStore } from "../stores";
+import UpdateSpriteModal from "./TrainerEncountersModals/UpdateSpriteModal";
+import UpdateTrainerVersionsModal from "./TrainerEncountersModals/UpdateTrainerVersionsModal";
 
 type TrainerMenuProps = {
+  routeName: string;
   trainerName: string;
-  trainerInfo: TrainerInfo;
-  functions: {
-    updateTrainer: (trainerName: string, trainerInfo: TrainerInfo) => void;
-    openSpriteModal: () => void;
-    openTrainerVersionsModal: () => void;
-    editTrainerName: (trainerName: string, newTrainerName: string) => void;
-    setTrainerVersions: React.Dispatch<React.SetStateAction<string[]>>;
-    setTrainerToUpdate: React.Dispatch<
-      React.SetStateAction<{
-        trainerName: string;
-        info: TrainerInfo;
-      }>
-    >;
-  };
+  is_important_trainer?: boolean;
 };
-const TrainerMenu = ({
-  trainerInfo,
-  trainerName,
-  functions,
-}: TrainerMenuProps) => {
-  const {
-    updateTrainer,
-    setTrainerToUpdate,
-    setTrainerVersions,
-    openSpriteModal,
-    openTrainerVersionsModal,
-    editTrainerName,
-  } = functions;
 
-  const [opened, { close, open }] = useDisclosure(false);
+const TrainerMenu = ({
+  is_important_trainer,
+  trainerName,
+  routeName,
+}: TrainerMenuProps) => {
+  const routes = useRouteStore((state) => state.routes);
+  const setRoutes = useRouteStore((state) => state.setRoutes);
+
+  const [editModalOpened, { close: closeEditModal, open: openEditModal }] =
+    useDisclosure(false);
+  const [
+    spriteModalOpened,
+    { close: closeSpriteModal, open: openSpriteModal },
+  ] = useDisclosure(false);
+  const [
+    versionsModalOpened,
+    { close: closeVersionsModal, open: openVersionsModal },
+  ] = useDisclosure(false);
   const [newTrainerName, setNewTrainerName] = useInputState<string>("");
 
-  return (
-    <Menu shadow="sm" position="right-start">
-      <Menu.Target>
-        <ActionIcon variant="transparent">
-          <IconDots color="gray" />
-        </ActionIcon>
-      </Menu.Target>
+  const { mutate: submitTrainers } = useEditTrainers((data) =>
+    setRoutes(data.routes)
+  );
 
-      <Menu.Dropdown>
-        <Menu.Item onClick={open}>Edit Name</Menu.Item>
-        <Menu.Item
-          closeMenuOnClick={false}
-          rightSection={
-            <Checkbox
-              mr={10}
-              size={"xs"}
-              checked={trainerInfo.is_important}
-              onChange={() => {
-                updateTrainer(trainerName, {
-                  ...trainerInfo,
-                  is_important: !trainerInfo.is_important,
-                });
-              }}
-            />
-          }
-        >
-          Important Trainer
-        </Menu.Item>
-        {trainerInfo?.is_important && (
-          <>
-            <Menu.Item
-              onClick={() => {
-                setTrainerToUpdate({
-                  trainerName,
-                  info: trainerInfo,
-                });
-                openSpriteModal();
-              }}
-            >
-              Update Sprite
-            </Menu.Item>
-            <Menu.Item
-              onClick={() => {
-                setTrainerToUpdate({
-                  trainerName,
-                  info: trainerInfo,
-                });
-                setTrainerVersions((versions) => [
-                  ...versions,
-                  ...(trainerInfo?.trainer_versions || []),
-                ]);
-                openTrainerVersionsModal();
-              }}
-            >
-              Modify Trainer Versions
-            </Menu.Item>
-          </>
-        )}
-      </Menu.Dropdown>
+  const trainers = useMemo(
+    () => routes[routeName]?.important_trainers,
+    [routes]
+  );
+
+  const editTrainerName = () => {
+    const currentTrainers = { ...trainers };
+    const trainerInfo = currentTrainers[trainerName];
+    delete currentTrainers[trainerName];
+    currentTrainers[newTrainerName] = trainerInfo;
+    submitTrainers({
+      routeName,
+      important_trainers: currentTrainers,
+    });
+    notifications.show({ message: "Trainer Name Changed Successfully" });
+  };
+
+  return (
+    <>
+      <Menu shadow="sm" position="right-start">
+        <Menu.Target>
+          <ActionIcon variant="transparent">
+            <IconDots color="gray" />
+          </ActionIcon>
+        </Menu.Target>
+
+        <Menu.Dropdown>
+          <Menu.Item onClick={openEditModal}>Edit Name</Menu.Item>
+          {is_important_trainer && (
+            <>
+              <Menu.Item onClick={openSpriteModal}>Update Sprite</Menu.Item>
+              <Menu.Item onClick={openVersionsModal}>
+                Modify Trainer Versions
+              </Menu.Item>
+            </>
+          )}
+        </Menu.Dropdown>
+      </Menu>
       <Modal
-        opened={opened}
-        onClose={close}
+        opened={editModalOpened}
+        onClose={closeEditModal}
         title="Edit Trainer Name"
         withCloseButton={false}
       >
@@ -108,13 +87,26 @@ const TrainerMenu = ({
           onChange={setNewTrainerName}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              editTrainerName(trainerName, newTrainerName);
-              close();
+              editTrainerName();
+              closeEditModal();
             }
           }}
         />
       </Modal>
-    </Menu>
+      <UpdateTrainerVersionsModal
+        opened={versionsModalOpened}
+        close={closeVersionsModal}
+        trainerName={trainerName}
+        routeName={routeName}
+      />
+      <UpdateSpriteModal
+        opened={spriteModalOpened}
+        close={closeSpriteModal}
+        spriteName={trainers && trainers[trainerName].sprite_name}
+        trainerName={trainerName}
+        routeName={routeName}
+      />
+    </>
   );
 };
 
