@@ -69,7 +69,7 @@ export const useEditTrainers = (onSuccess: (data: any) => void) => {
       important_trainers,
     }: {
       routeName: string;
-      trainers?: ImportantTrainers;
+      trainers?: Trainers;
       important_trainers?: ImportantTrainers;
     }) => {
       const params = new URLSearchParams({ route_name: routeName });

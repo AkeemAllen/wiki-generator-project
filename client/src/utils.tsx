@@ -16,7 +16,13 @@ export const setUniquePokemonId = (
 ) => {
   let teamLength = 0;
 
-  if (trainers[trainerName]) {
+  if (isNullEmptyOrUndefined(trainers)) {
+    return `${
+      pokemonList?.find((p: any) => p.name === pokemonName)?.id
+    }_${teamLength}_${Math.floor(Math.random() * 9000 + 1000)}`;
+  }
+
+  if (trainerName in trainers) {
     if (!isNullEmptyOrUndefined(trainers[trainerName].pokemon)) {
       teamLength = trainers[trainerName].pokemon.length;
     }

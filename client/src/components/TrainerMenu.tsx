@@ -5,6 +5,7 @@ import { IconDots } from "@tabler/icons-react";
 import { useMemo } from "react";
 import { useEditTrainers } from "../apis/routesApis";
 import { useRouteStore } from "../stores";
+import { ImportantTrainers } from "../types";
 import UpdateSpriteModal from "./TrainerEncountersModals/UpdateSpriteModal";
 import UpdateTrainerVersionsModal from "./TrainerEncountersModals/UpdateTrainerVersionsModal";
 
@@ -38,20 +39,29 @@ const TrainerMenu = ({
     setRoutes(data.routes)
   );
 
-  const trainers = useMemo(
-    () => routes[routeName]?.important_trainers,
-    [routes]
-  );
+  const trainers = useMemo(() => {
+    if (is_important_trainer) {
+      return routes[routeName]?.important_trainers;
+    }
+    return routes[routeName]?.trainers;
+  }, [routes]);
 
   const editTrainerName = () => {
     const currentTrainers = { ...trainers };
     const trainerInfo = currentTrainers[trainerName];
     delete currentTrainers[trainerName];
     currentTrainers[newTrainerName] = trainerInfo;
-    submitTrainers({
-      routeName,
-      important_trainers: currentTrainers,
-    });
+    if (is_important_trainer) {
+      submitTrainers({
+        routeName,
+        important_trainers: currentTrainers as ImportantTrainers,
+      });
+    } else {
+      submitTrainers({
+        routeName,
+        trainers: currentTrainers,
+      });
+    }
     notifications.show({ message: "Trainer Name Changed Successfully" });
   };
 
@@ -93,19 +103,26 @@ const TrainerMenu = ({
           }}
         />
       </Modal>
-      <UpdateTrainerVersionsModal
-        opened={versionsModalOpened}
-        close={closeVersionsModal}
-        trainerName={trainerName}
-        routeName={routeName}
-      />
-      <UpdateSpriteModal
-        opened={spriteModalOpened}
-        close={closeSpriteModal}
-        spriteName={trainers && trainers[trainerName].sprite_name}
-        trainerName={trainerName}
-        routeName={routeName}
-      />
+      {is_important_trainer && (
+        <>
+          <UpdateTrainerVersionsModal
+            opened={versionsModalOpened}
+            close={closeVersionsModal}
+            trainerName={trainerName}
+            routeName={routeName}
+          />
+          <UpdateSpriteModal
+            opened={spriteModalOpened}
+            close={closeSpriteModal}
+            spriteName={
+              trainers &&
+              (trainers as ImportantTrainers)[trainerName].sprite_name
+            }
+            trainerName={trainerName}
+            routeName={routeName}
+          />
+        </>
+      )}
     </>
   );
 };

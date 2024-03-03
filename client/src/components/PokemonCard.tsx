@@ -14,21 +14,21 @@ import PokemonCardModal from "./PokemonCardModal";
 
 type PokemonCardProps = {
   removePokemon: () => void;
-  routeName: string;
-  trainerName: string;
+  routeName?: string;
+  trainerName?: string;
   is_important_trainer?: boolean;
-  trainerInfo: TrainerInfo | ImportantTrainerInfo;
-  trainers: Trainers | ImportantTrainers;
+  trainerInfo?: TrainerInfo | ImportantTrainerInfo;
+  trainers?: Trainers | ImportantTrainers;
   pokemon: TrainerPokemonOrWildPokemon;
 };
 
 const PokemonCard = ({
   removePokemon,
-  trainerName,
+  trainerName = "",
   is_important_trainer,
-  routeName,
-  trainers,
-  trainerInfo,
+  routeName = "",
+  trainers = {} as Trainers | ImportantTrainers,
+  trainerInfo = {} as TrainerInfo | ImportantTrainerInfo,
   pokemon,
 }: PokemonCardProps) => {
   const [
@@ -77,15 +77,17 @@ const PokemonCard = ({
             : `lv.${pokemon?.level}`}
         </Box>
       </Card>
-      <PokemonCardModal
-        opened={pokemonCardModalOpened}
-        close={closePokemonCardModal}
-        routeName={routeName}
-        trainerName={trainerName}
-        pokemon={pokemon}
-        trainers={trainers}
-        trainerInfo={trainerInfo}
-      />
+      {is_important_trainer && (
+        <PokemonCardModal
+          opened={pokemonCardModalOpened}
+          close={closePokemonCardModal}
+          routeName={routeName}
+          trainerName={trainerName}
+          pokemon={pokemon}
+          trainers={trainers}
+          trainerInfo={trainerInfo}
+        />
+      )}
     </>
   );
 };
