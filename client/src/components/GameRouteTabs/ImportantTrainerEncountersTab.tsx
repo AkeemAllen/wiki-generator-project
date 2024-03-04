@@ -1,24 +1,14 @@
-import {
-  Autocomplete,
-  Button,
-  Grid,
-  NumberInput,
-  ScrollAreaAutosize,
-  Title,
-} from "@mantine/core";
+import { Grid, ScrollAreaAutosize, Title } from "@mantine/core";
 import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useMemo, useState } from "react";
 import { useEditTrainers } from "../../apis/routesApis";
 import { usePokemonStore, useRouteStore } from "../../stores";
 import { ImportantTrainers, TrainerPokemonOrWildPokemon } from "../../types";
-import {
-  capitalize,
-  isNullEmptyOrUndefined,
-  setUniquePokemonId,
-} from "../../utils";
+import { capitalize, setUniquePokemonId } from "../../utils";
 import PokemonCard from "../PokemonCard";
 import TrainerMenu from "../TrainerMenu";
+import { TrainerPokemonAddition } from "../TrainerPokemonAddition";
 
 const ImportantTrainerEncountersTab = ({
   routeName,
@@ -97,47 +87,16 @@ const ImportantTrainerEncountersTab = ({
 
   return (
     <>
-      <Grid mt={5} mb={10}>
-        <Grid.Col span={2}>
-          <Autocomplete
-            label="Trainer Name"
-            value={currentTrainer}
-            onChange={setCurrentTrainer}
-            data={trainers ? Object.keys(trainers) : []}
-          />
-        </Grid.Col>
-        <Grid.Col span={4}>
-          <Autocomplete
-            label="Pokemon for current trainer"
-            placeholder="Pokemon Name"
-            value={pokemonName}
-            onChange={(value) => setPokemonName(value)}
-            data={
-              pokemonList === undefined ? [] : pokemonList.map((p) => p.name)
-            }
-            limit={5}
-          />
-        </Grid.Col>
-        <Grid.Col span={2}>
-          <NumberInput
-            label="Level"
-            value={level}
-            onChange={(e) => setLevel(e as number)}
-          />
-        </Grid.Col>
-        <Grid.Col span={2} mt={25}>
-          <Button
-            disabled={
-              isNullEmptyOrUndefined(pokemonName) ||
-              level === 0 ||
-              isNullEmptyOrUndefined(currentTrainer)
-            }
-            onClick={addPokemonToTrainer}
-          >
-            Add Pokemon
-          </Button>
-        </Grid.Col>
-      </Grid>
+      <TrainerPokemonAddition
+        trainer={currentTrainer}
+        setTrainer={setCurrentTrainer}
+        trainers={trainers as ImportantTrainers}
+        pokemonName={pokemonName}
+        setPokemonName={setPokemonName}
+        level={level}
+        setLevel={setLevel}
+        addPokemonToTrainer={addPokemonToTrainer}
+      />
       <ScrollAreaAutosize mah={"calc(100vh - 300px)"} offsetScrollbars>
         {trainers &&
           Object.entries(trainers).map(([trainer, trainerInfo], index) => {
