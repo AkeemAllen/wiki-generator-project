@@ -20,17 +20,22 @@ def get_encounter_table_rows(encounters: Encounters, area_levels: AreaLevels):
     table_array_rows_for_encounters = []
 
     for encounter_type, pokemon_encounter_list in encounters.root.items():
-        if len(pokemon_encounter_list) > max_number_of_pokemon_on_single_route:
+        # Length of table rows should not exceed 6
+        if len(pokemon_encounter_list) >= 6:
+            max_number_of_pokemon_on_single_route = 6
+        elif len(pokemon_encounter_list) > max_number_of_pokemon_on_single_route:
             max_number_of_pokemon_on_single_route = len(pokemon_encounter_list)
 
         mapped_encounter_list = map_pokemon_entry_to_markdown(pokemon_encounter_list)
         extra_encounter_array = []
         extra_encounter_list = []
 
+        # If there are more than 6 encounters, split the list into two arrays
+        # Note that a scenario for more than 12 encounters is not accounted for
         if len(mapped_encounter_list) > 6:
             extra_encounter_list = mapped_encounter_list[6:]
             mapped_encounter_list = mapped_encounter_list[:6]
-            extra_encounter_array = [f"", *extra_encounter_list]
+            extra_encounter_array = [f"Extra", *extra_encounter_list]
 
         level_for_encounter_type = ""
         try:
@@ -54,6 +59,12 @@ def get_encounter_table_rows(encounters: Encounters, area_levels: AreaLevels):
         table_array_rows_for_encounters.append(encounter_array)
         if extra_encounter_array:
             table_array_rows_for_encounters.append(extra_encounter_array)
+
+    # Add empty strings to the end of each row if the number of pokemon is less than the max
+    for row in table_array_rows_for_encounters:
+        if len(row) < max_number_of_pokemon_on_single_route:
+            while range(len(row), max_number_of_pokemon_on_single_route + 1):
+                row.append("")
 
     return (
         table_array_rows_for_encounters,

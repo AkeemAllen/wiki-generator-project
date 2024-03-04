@@ -52,6 +52,13 @@ def get_trainer_table_rows(trainers: Trainers | ImportantTrainers):
         ]
         table_array_rows_for_trainers.append(trainer_array)
 
+    # Add empty strings to the end of each row if the number of pokemon is less than the max
+    # This avoids error from doc.add_table where the number of columns in each row is not the same
+    for row in table_array_rows_for_trainers:
+        if len(row) < max_number_of_pokemon_single_trainer + 1:
+            while range(len(row), max_number_of_pokemon_single_trainer + 1):
+                row.append("")
+
     return (table_array_rows_for_trainers, max_number_of_pokemon_single_trainer)
 
 

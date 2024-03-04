@@ -179,9 +179,7 @@ const WildEncountersTab = ({ routeName }: { routeName: string }) => {
                     return (
                       <Grid.Col key={index} span={2}>
                         <PokemonCard
-                          pokemonId={pokemon.id as number}
-                          pokemonName={pokemon.name as string}
-                          encounterRate={pokemon.encounter_rate as number}
+                          pokemon={pokemon}
                           removePokemon={() =>
                             removePokemonFromEncountertype(
                               pokemon.name as string,
