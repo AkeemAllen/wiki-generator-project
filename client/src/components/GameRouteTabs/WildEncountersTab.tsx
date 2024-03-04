@@ -8,9 +8,9 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { useInputState } from "@mantine/hooks";
+import { useHotkeys, useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useEditRoute } from "../../apis/routesApis";
 import { usePokemonStore, useRouteStore } from "../../stores";
 import { AreaLevels, EncounterTypes, Encounters } from "../../types";
@@ -104,6 +104,15 @@ const WildEncountersTab = ({ routeName }: { routeName: string }) => {
     // TODO: This causes more rerenders than I'd like so I should find a better way to do this at some point
   }, [routeName, routes]);
 
+  const encounterTypeSelectRef = useRef<HTMLSelectElement>(null);
+
+  useHotkeys(
+    [
+      ["alt+l", () => encounterTypeSelectRef.current?.focus()], // This speeds up the process of selecting the encounter type dropdown to add a new pokemon
+    ],
+    []
+  );
+
   return (
     <>
       <Grid mt={5} mb={10}>
@@ -113,6 +122,7 @@ const WildEncountersTab = ({ routeName }: { routeName: string }) => {
             onChange={(value) => setCurrentEncountertype(value)}
             value={currentEncountertype}
             data={EncounterTypes.map((type) => type)}
+            ref={encounterTypeSelectRef}
           />
         </Grid.Col>
         {(currentEncountertype === "special-encounter" ||

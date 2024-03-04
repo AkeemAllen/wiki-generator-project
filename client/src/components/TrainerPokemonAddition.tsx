@@ -1,4 +1,6 @@
 import { Autocomplete, Button, Grid, NumberInput } from "@mantine/core";
+import { useHotkeys } from "@mantine/hooks";
+import { useRef } from "react";
 import { usePokemonStore } from "../stores";
 import { ImportantTrainers, Trainers } from "../types";
 import { isNullEmptyOrUndefined } from "../utils";
@@ -25,6 +27,14 @@ export const TrainerPokemonAddition = ({
   addPokemonToTrainer,
 }: TrainerPokemonAdditionProps) => {
   const pokemonList = usePokemonStore((state) => state.pokemonList);
+  const trainerNameSelectRef = useRef<HTMLInputElement>(null);
+
+  useHotkeys(
+    [
+      ["alt+l", () => trainerNameSelectRef.current?.focus()], // This speeds up the process of selecting the trainer name to add a new pokemon
+    ],
+    []
+  );
   return (
     <Grid mt={5} mb={10}>
       <Grid.Col span={2}>
@@ -33,6 +43,7 @@ export const TrainerPokemonAddition = ({
           value={trainer}
           onChange={setTrainer}
           data={trainers ? Object.keys(trainers) : []}
+          ref={trainerNameSelectRef}
         />
       </Grid.Col>
       <Grid.Col span={4}>

@@ -13,7 +13,7 @@ const GenerateWiki = () => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   const [wikiList, __] = useLocalStorage<Wikis>("wikiList", {});
   const [versionGroup, setVersionGroup] = useInputState<string>(
-    wikiList[currentWiki]?.settings?.version_group,
+    wikiList[currentWiki]?.settings?.version_group
   );
 
   const {
@@ -68,7 +68,7 @@ const GenerateWiki = () => {
           <Grid.Col>
             <NumberInput
               label="Range Start"
-              onChange={(value: number) => setRangeStart(value)}
+              onChange={(value) => setRangeStart(value as number)}
               value={rangeStart}
               min={0}
             />
@@ -76,7 +76,7 @@ const GenerateWiki = () => {
           <Grid.Col>
             <NumberInput
               label="Range End"
-              onChange={(value: number) => setRangeEnd(value)}
+              onChange={(value) => setRangeEnd(value as number)}
               value={rangeEnd}
               min={0}
             />
