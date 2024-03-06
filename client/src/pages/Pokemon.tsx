@@ -6,7 +6,6 @@ import {
   NumberInput,
   Progress,
   Tabs,
-  Text,
 } from "@mantine/core";
 import { useHotkeys, useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -223,7 +222,6 @@ const Pokemon = () => {
         <MultiplePokemon />
       </Tabs.Panel>
       <Tabs.Panel value="prepare-pokemon-data">
-        <Text>Prepare Data</Text>
         <DataPreparationTab />
       </Tabs.Panel>
     </Tabs>

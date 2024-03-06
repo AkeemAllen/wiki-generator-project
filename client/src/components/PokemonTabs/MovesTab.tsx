@@ -171,17 +171,17 @@ const MovesTab = ({
         centered
         size={"lg"}
       >
-        <SimpleGrid cols={1}>
+        <SimpleGrid cols={1} mt={20}>
           <Button onClick={addNewRow}>Add Row</Button>
-          <Table withRowBorders withTableBorder withColumnBorders>
-            <thead>
-              <tr>
-                <th>Operation</th>
-                <th>Move</th>
-                <th>Level</th>
-                <th>Secondary Move</th>
-                <th></th>
-              </tr>
+          <Table withTableBorder withRowBorders withColumnBorders={false}>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Operation</Table.Th>
+                <Table.Th>Move</Table.Th>
+                <Table.Th>Level</Table.Th>
+                <Table.Th>Secondary Move</Table.Th>
+                <Table.Th></Table.Th>
+              </Table.Tr>
               {moveSetChangeList.map((moveChange, index) => {
                 const {
                   operation,
@@ -190,8 +190,8 @@ const MovesTab = ({
                   level,
                 } = moveChange;
                 return (
-                  <tr key={index}>
-                    <td>
+                  <Table.Tr key={index}>
+                    <Table.Td>
                       <NativeSelect
                         value={operation}
                         onChange={(event) =>
@@ -205,8 +205,8 @@ const MovesTab = ({
                         rightSection={<div></div>}
                         data={Object.values(Operation)}
                       />
-                    </td>
-                    <td>
+                    </Table.Td>
+                    <Table.Td>
                       <Autocomplete
                         value={moveName}
                         onChange={(value) =>
@@ -219,8 +219,8 @@ const MovesTab = ({
                         data={movesList}
                         limit={10}
                       />
-                    </td>
-                    <td>
+                    </Table.Td>
+                    <Table.Td>
                       <NumberInput
                         value={level}
                         onChange={(value) =>
@@ -235,8 +235,8 @@ const MovesTab = ({
                         min={1}
                         max={100}
                       />
-                    </td>
-                    <td>
+                    </Table.Td>
+                    <Table.Td>
                       <Autocomplete
                         value={secondaryMove ?? ""}
                         onChange={(value) =>
@@ -255,19 +255,19 @@ const MovesTab = ({
                         data={movesList}
                         limit={10}
                       />
-                    </td>
-                    <td>
+                    </Table.Td>
+                    <Table.Td>
                       <ActionIcon variant="subtle">
                         <IconTrash
                           size={"1rem"}
                           onClick={() => removeRow(index)}
                         />
                       </ActionIcon>
-                    </td>
-                  </tr>
+                    </Table.Td>
+                  </Table.Tr>
                 );
               })}
-            </thead>
+            </Table.Thead>
           </Table>
           <Button
             onClick={saveLevelMoveChanges}
