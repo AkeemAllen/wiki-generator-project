@@ -491,7 +491,8 @@ def generate_pages_from_range(
 
         doc.add_paragraph(f'!!! note "Noticing Inaccuracies?"')
         doc.add_raw(
-            f"\tUse this google form to report inaccurate data. <a target='blank' href='https://docs.google.com/forms/d/e/1FAIpQLSdlJ2TgPQHehY8J8UPIsHLTyfALUCNDpO9JwVUpV0GBdjeznw/viewform'>Report Here</a>"
+            f"\tUse this google form to report inaccurate data."
+            " <a target='blank' href='https://docs.google.com/forms/d/e/1FAIpQLSdlJ2TgPQHehY8J8UPIsHLTyfALUCNDpO9JwVUpV0GBdjeznw/viewform'>Report Here</a>"
         )
 
         add_sprite(doc, pokemon_data, pokedex_number)
