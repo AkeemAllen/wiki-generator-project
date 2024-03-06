@@ -9,11 +9,10 @@ import {
   Title,
 } from "@mantine/core";
 import { useHotkeys, useInputState } from "@mantine/hooks";
-import { notifications } from "@mantine/notifications";
-import { useEffect, useRef, useState } from "react";
-import { useEditRoute } from "../../apis/routesApis";
+import { useMemo, useRef, useState } from "react";
+import { useEditWildEncounters } from "../../apis/routesApis";
 import { usePokemonStore, useRouteStore } from "../../stores";
-import { AreaLevels, EncounterTypes, Encounters } from "../../types";
+import { AreaLevels, EncounterTypes } from "../../types";
 import { capitalize, isNullEmptyOrUndefined } from "../../utils";
 import PokemonCard from "../PokemonCard";
 
@@ -30,36 +29,46 @@ const WildEncountersTab = ({ routeName }: { routeName: string }) => {
   const [pokemonName, setPokemonName] = useInputState<string>("");
   const [encounterRate, setEncounterRate] = useState<number>(0);
   const [areaLevels, setAreaLevels] = useState<AreaLevels>({} as AreaLevels);
-  const [wildEncounters, setWildEncounters] = useState<Encounters>(
-    {} as Encounters
+  // const [wildEncounters, setWildEncounters] = useState<Encounters>(
+  //   {} as Encounters
+  // );
+
+  const { mutate: submitWildEncounters } = useEditWildEncounters((data) =>
+    setRoutes(data.routes)
+  );
+
+  const wildEncounters = useMemo(
+    () => routes[routeName]?.wild_encounters,
+    [routes]
   );
 
   const addPokemonToEncountertype = () => {
-    setWildEncounters((wildEncounters: Encounters) => {
-      let encounterType = currentEncountertype;
-      if (
-        currentEncountertype === "special-encounter" ||
-        currentEncountertype === "legendary-encounter"
-      ) {
-        encounterType = `${currentEncountertype} ${specialEncounterArea}`;
-      }
-      if (currentEncountertype === "other") {
-        encounterType = specialEncounterArea;
-      }
-
-      return {
-        ...wildEncounters,
-        [encounterType]: [
-          ...(wildEncounters[encounterType] ?? []),
-          {
-            name: pokemonName,
-            id: pokemonList?.find((p) => p.name === pokemonName)?.id,
-            encounter_rate: encounterRate,
-          },
-        ],
-      };
+    const currentEncounters = { ...wildEncounters };
+    let encounterType = currentEncountertype;
+    if (
+      currentEncountertype === "special-encounter" ||
+      currentEncountertype === "legendary-encounter"
+    ) {
+      encounterType = `${currentEncountertype} ${specialEncounterArea}`;
+    }
+    if (currentEncountertype === "other") {
+      encounterType = specialEncounterArea;
+    }
+    currentEncounters[encounterType] = [
+      ...(currentEncounters[encounterType] ?? []),
+      {
+        name: pokemonName,
+        id: pokemonList?.find((p) => p.name === pokemonName)?.id,
+        encounter_rate: encounterRate,
+      },
+    ];
+    submitWildEncounters({
+      routeName,
+      body: {
+        wild_encounters: currentEncounters,
+        wild_encounters_area_levels: areaLevels,
+      },
     });
-    submitWildEncounters();
     setPokemonName("");
   };
 
@@ -67,42 +76,43 @@ const WildEncountersTab = ({ routeName }: { routeName: string }) => {
     pokemonName: string,
     encounterType: string
   ) => {
-    setWildEncounters((wildEncounters: Encounters) => {
-      let currentEncounters = {
-        ...wildEncounters,
-        [encounterType]: wildEncounters[encounterType].filter(
-          (pokemon) => pokemon.name !== pokemonName
-        ),
-      };
-      if (currentEncounters[encounterType].length === 0) {
-        delete currentEncounters[encounterType];
-      }
-      return currentEncounters;
+    let currentEncounters = { ...wildEncounters };
+    currentEncounters[encounterType] = currentEncounters[encounterType].filter(
+      (pokemon) => pokemon.name !== pokemonName
+    );
+    if (currentEncounters[encounterType].length === 0) {
+      delete currentEncounters[encounterType];
+    }
+    submitWildEncounters({
+      routeName,
+      body: {
+        wild_encounters: currentEncounters,
+        wild_encounters_area_levels: areaLevels,
+      },
     });
-    submitWildEncounters();
   };
 
-  const { mutate: submitWildEncounters } = useEditRoute({
-    routeName,
-    body: {
-      wild_encounters: wildEncounters,
-      wild_encounters_area_levels: areaLevels,
-    },
-    onSuccess: (data: any) => {
-      close();
-      setRoutes(data.routes);
-      notifications.show({ message: "Successfully updated wild encounters" });
-    },
-  });
+  // const { mutate: submitWildEncounters } = useEditRoute({
+  //   routeName,
+  //   body: {
+  //     wild_encounters: wildEncounters,
+  //     wild_encounters_area_levels: areaLevels,
+  //   },
+  //   onSuccess: (data: any) => {
+  //     close();
+  //     setRoutes(data.routes);
+  //     notifications.show({ message: "Successfully updated wild encounters" });
+  //   },
+  // });
 
-  useEffect(() => {
-    setWildEncounters(routes[routeName]?.wild_encounters || {});
-    setAreaLevels(routes[routeName]?.wild_encounters_area_levels || {});
-    // When the page is refreshed, the routes are not loaded yet, so we also have to listen for
-    // changes to the routes and update the wild encounters when the routes are loaded
-    //
-    // TODO: This causes more rerenders than I'd like so I should find a better way to do this at some point
-  }, [routeName, routes]);
+  // useEffect(() => {
+  //   setWildEncounters(routes[routeName]?.wild_encounters || {});
+  //   setAreaLevels(routes[routeName]?.wild_encounters_area_levels || {});
+  //   // When the page is refreshed, the routes are not loaded yet, so we also have to listen for
+  //   // changes to the routes and update the wild encounters when the routes are loaded
+  //   //
+  //   // TODO: This causes more rerenders than I'd like so I should find a better way to do this at some point
+  // }, [routeName, routes]);
 
   const encounterTypeSelectRef = useRef<HTMLSelectElement>(null);
 
@@ -165,7 +175,7 @@ const WildEncountersTab = ({ routeName }: { routeName: string }) => {
         </Grid.Col>
       </Grid>
       <ScrollArea.Autosize mah={"calc(100vh - 300px)"} offsetScrollbars>
-        {!isNullEmptyOrUndefined(wildEncounters) &&
+        {wildEncounters &&
           Object.keys(wildEncounters).map((encounterType, index) => {
             return (
               <div key={index}>
@@ -185,21 +195,22 @@ const WildEncountersTab = ({ routeName }: { routeName: string }) => {
                   }
                 />
                 <Grid mt={10}>
-                  {wildEncounters[encounterType]?.map((pokemon, index) => {
-                    return (
-                      <Grid.Col key={index} span={2}>
-                        <PokemonCard
-                          pokemon={pokemon}
-                          removePokemon={() =>
-                            removePokemonFromEncountertype(
-                              pokemon.name as string,
-                              encounterType
-                            )
-                          }
-                        />
-                      </Grid.Col>
-                    );
-                  })}
+                  {wildEncounters &&
+                    wildEncounters[encounterType]?.map((pokemon, index) => {
+                      return (
+                        <Grid.Col key={index} span={2}>
+                          <PokemonCard
+                            pokemon={pokemon}
+                            removePokemon={() =>
+                              removePokemonFromEncountertype(
+                                pokemon.name as string,
+                                encounterType
+                              )
+                            }
+                          />
+                        </Grid.Col>
+                      );
+                    })}
                 </Grid>
               </div>
             );

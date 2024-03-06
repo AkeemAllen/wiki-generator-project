@@ -101,6 +101,29 @@ export const useEditTrainers = (onSuccess: (data: any) => void) => {
   });
 };
 
+export const useEditWildEncounters = (onSuccess: (data: any) => void) => {
+  const routes = useRouteStore((state) => state.routes);
+  const [currentWiki, _] = useLocalStorage("currentWiki", "none");
+  return useMutation({
+    mutationFn: async ({ routeName, body }: any) => {
+      const params = new URLSearchParams({ route_name: routeName });
+      const URL = `${
+        import.meta.env.VITE_BASE_URL
+      }/game-route/edit/${currentWiki}?${params}`;
+
+      return fetch(URL, {
+        method: "POST",
+        body: JSON.stringify({
+          ...routes[routeName],
+          ...body,
+        }),
+        headers: { "Content-Type": "application/json" },
+      }).then((res) => res.json());
+    },
+    onSuccess,
+  });
+};
+
 export const useEditRouteName = (onSuccess: (data: any) => void) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
