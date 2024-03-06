@@ -6,13 +6,14 @@ import {
   NumberInput,
   Progress,
   Tabs,
+  Text,
 } from "@mantine/core";
 import { useHotkeys, useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useState } from "react";
 import useWebSocket from "react-use-websocket";
-import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
+import { useLocalStorage } from "usehooks-ts";
 import {
   useGetPokemonById,
   useGetPokemonByName,
@@ -21,6 +22,7 @@ import {
 import MultiplePokemon from "../components/MultiplePokemon";
 import MovesTab from "../components/PokemonTabs/MovesTab";
 import StatsAbilitiesEvoTab from "../components/PokemonTabs/StatsAbilityEvoTab";
+import { useUpdateEffect } from "../hooks/useUpdateEffect";
 import { usePokemonStore } from "../stores";
 import { PokemonChanges, PokemonData, PreparationState } from "../types";
 import { isNullEmptyOrUndefined } from "../utils";
@@ -31,25 +33,17 @@ const Pokemon = () => {
   const [currentId, setCurrentId] = useState<number | null>(null);
   const [pokemonData, setPokemonData] = useState<PokemonData | null>(null);
   const [pokemonChanges, setPokemonChanges] = useState<PokemonChanges | null>(
-    null
+    null,
   );
   const [activeTab, setActiveTab] = useState<string | null>(
-    "stats-abilities-evo"
+    "stats-abilities-evo",
   );
   const [activePokemonTab, setActivePokemonTab] = useState<string | null>(
-    "prepare-pokemon-data"
+    "prepare-pokemon-data",
   );
 
-  const { refetch } = useGetPokemonByName({
+  const { refetch, data: pokemonSearchData } = useGetPokemonByName({
     pokemonName,
-    onSuccess: (data: any) => {
-      if (data.status === 404) {
-        notifications.show({ message: "Pokemon not found", color: "red" });
-        return;
-      }
-      setPokemonData(data);
-      setCurrentId(data.id);
-    },
   });
 
   const { mutate: fetchById } = useGetPokemonById({
@@ -62,7 +56,10 @@ const Pokemon = () => {
 
   const { mutate: mutatePokemon } = useSavePokemonChanges({
     onSuccess: () => {
-      notifications.show({ message: "Changes Saved" });
+      console.log("Save Ran");
+      notifications.show({
+        message: "Changes Saved",
+      });
       setPokemonChanges(null);
     },
     onError: () => {
@@ -79,7 +76,7 @@ const Pokemon = () => {
   const nextPokemon = () => {
     // use a hasNext function instead of strict ids
     const nextPokemon = pokemonList.find(
-      (p) => p.id === (currentId as number) + 1
+      (p) => p.id === (currentId as number) + 1,
     );
     if (nextPokemon) {
       setPokemonData(null);
@@ -92,7 +89,7 @@ const Pokemon = () => {
 
   const prevPokemon = () => {
     const prevPokemon = pokemonList.find(
-      (p) => p.id === (currentId as number) - 1
+      (p) => p.id === (currentId as number) - 1,
     );
     if (prevPokemon) {
       setPokemonData(null);
@@ -123,8 +120,19 @@ const Pokemon = () => {
     }
   }, [pokemonList]);
 
+  useUpdateEffect(() => {
+    if (pokemonSearchData) {
+      if (pokemonSearchData.status === 404) {
+        notifications.show({ message: "Pokemon not found", color: "red" });
+        return;
+      }
+      setPokemonData(pokemonSearchData);
+      setCurrentId(pokemonSearchData.id);
+    }
+  }, [pokemonSearchData]);
+
   return (
-    <Tabs value={activePokemonTab} onTabChange={setActivePokemonTab}>
+    <Tabs value={activePokemonTab} onChange={setActivePokemonTab}>
       <Tabs.List>
         {pokemonList.length > 0 && (
           <>
@@ -144,6 +152,7 @@ const Pokemon = () => {
               data={
                 pokemonList === undefined ? [] : pokemonList.map((p) => p.name)
               }
+              limit={5}
             />
           </Grid.Col>
           <Grid.Col span={2}>
@@ -177,7 +186,7 @@ const Pokemon = () => {
         </Grid>
         <Image src={pokemonData?.sprite} maw={200} />
         {pokemonData && (
-          <Tabs mt={20} value={activeTab} onTabChange={setActiveTab}>
+          <Tabs mt={20} value={activeTab} onChange={setActiveTab}>
             <Tabs.List>
               <Tabs.Tab value="stats-abilities-evo">
                 Stats_Abilities_Evo
@@ -206,7 +215,8 @@ const Pokemon = () => {
         <MultiplePokemon />
       </Tabs.Panel>
       <Tabs.Panel value="prepare-pokemon-data">
-        <DataPreparationTab />
+        <Text>Prepare Data</Text>
+        {/* <DataPreparationTab /> */}
       </Tabs.Panel>
     </Tabs>
   );

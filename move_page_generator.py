@@ -1,5 +1,5 @@
 import json
-from snakemd import Document
+from snakemd import new_doc, Heading
 import yaml
 
 
@@ -12,15 +12,15 @@ def generate_move_page(wiki_name: str):
         modified_moves = json.load(move_file)
         move_file.close()
 
-    markdown_file_path = f"dist/{wiki_name}/docs/"
-    doc = Document("move_changes")
-    doc.add_header("Move Changes")
+    markdown_file_path = f"dist/{wiki_name}/docs/move_changes"
+    doc = new_doc()
+    doc.add_block(Heading("Move Changes", 1))
 
     for move, move_details in modified_moves.items():
         if len(move_details.keys()) == 1 and "machine_details" in move_details.keys():
             continue
 
-        doc.add_header(move.title(), 2)
+        doc.add_block(Heading(move.title(), 2))
         doc.add_table(
             ["Attribute", "Old", "New"],
             [
@@ -30,7 +30,7 @@ def generate_move_page(wiki_name: str):
             ],
         )
 
-    doc.output_page(markdown_file_path)
+    doc.dump(markdown_file_path)
 
     for nav_item in mkdocs_yaml_dict["nav"][1]["Pokemon"]:
         if "Specific Changes" in nav_item:

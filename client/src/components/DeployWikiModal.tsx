@@ -3,7 +3,8 @@ import { useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import useWebSocket from "react-use-websocket";
-import { useLocalStorage, useUpdateEffect } from "usehooks-ts";
+import { useLocalStorage } from "usehooks-ts";
+import { useUpdateEffect } from "../hooks/useUpdateEffect";
 import { DeploymentState, Wikis } from "../types";
 import { isNullEmptyOrUndefined } from "../utils";
 
@@ -18,7 +19,7 @@ const DeployWikiModal = ({ opened, onClose }: DeployWikiModalProps) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   const [wikiList, __] = useLocalStorage<Wikis>("wikiList", {});
   const [deploymentUrl, setDeploymentUrl] = useInputState<string>(
-    wikiList[currentWiki]?.settings?.deployment_url
+    wikiList[currentWiki]?.settings?.deployment_url,
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -58,7 +59,7 @@ const DeployWikiModal = ({ opened, onClose }: DeployWikiModalProps) => {
       withCloseButton={false}
     >
       <SimpleGrid cols={1}>
-        <Text color="red">
+        <Text c="red">
           Ensure that a repository with the same name as this wiki{" "}
           <strong>{currentWiki}</strong> exists in your github account before
           proceeding
@@ -74,7 +75,7 @@ const DeployWikiModal = ({ opened, onClose }: DeployWikiModalProps) => {
         </Text>
         {messageHistory &&
           messageHistory.map((message) => {
-            return <Text italic>{message}</Text>;
+            return <Text fs="italic">{message}</Text>;
           })}
         <Button
           disabled={isNullEmptyOrUndefined(deploymentUrl)}

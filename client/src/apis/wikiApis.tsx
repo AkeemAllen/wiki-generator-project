@@ -1,12 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { DeploymentData, GenerationData, Wiki, WikiSettings } from "../types";
 
-export const useGetWikis = (onSuccess: (data: any) => void) => {
+export const useGetWikis = () => {
   return useQuery({
     queryKey: ["wikis"],
     queryFn: () =>
       fetch(`${import.meta.env.VITE_BASE_URL}/wikis`).then((res) => res.json()),
-    onSuccess,
     refetchOnWindowFocus: false,
   });
 };
@@ -18,7 +17,7 @@ type SettingsData = {
 
 export const useEditWikiSettings = (onSuccess: (data: any) => void) => {
   return useMutation({
-    mutationFn: ({ wikiName, settings }: SettingsData) => {
+    mutationFn: async ({ wikiName, settings }: SettingsData) => {
       const params = new URLSearchParams({ wiki_name: wikiName });
       const URL = `${import.meta.env.VITE_BASE_URL}/wikis/settings?${params}`;
 
@@ -50,7 +49,7 @@ export const useCreateWiki = (onSuccess: (data: any) => void) => {
 
 export const useDeleteWiki = (onSuccess: (data: any) => void) => {
   return useMutation({
-    mutationFn: (wikiName: string) => {
+    mutationFn: async (wikiName: string) => {
       const params = new URLSearchParams({ wiki_name: wikiName });
       const URL = `${import.meta.env.VITE_BASE_URL}/wikis/delete?${params}`;
 

@@ -12,7 +12,7 @@ import {
 import { useDisclosure, useInputState } from "@mantine/hooks";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { useUpdateEffect } from "usehooks-ts";
+import { useUpdateEffect } from "../hooks/useUpdateEffect";
 import {
   useAbilityStore,
   useItemsStore,
@@ -192,7 +192,7 @@ const PokemonCard = ({
   useEffect(() => {
     if (trainers && trainerName && trainers[trainerName]) {
       const pokemon = trainers[trainerName].pokemon.find(
-        (p) => p.name === pokemonName
+        (p) => p.name === pokemonName,
       );
       if (pokemon) {
         setItem(pokemon.item);
@@ -221,18 +221,18 @@ const PokemonCard = ({
       <Card
         withBorder
         shadow="sm"
-        sx={{
-          ":hover > #action-icon": {
-            display: "block",
-          },
-        }}
+        // style={{
+        //   ":hover > #action-icon": {
+        //     display: "block",
+        //   },
+        // }}
       >
         {Object.keys(trainers).length > 0 &&
           trainers[trainerName].is_important && (
             <ActionIcon
               variant="filled"
               id="action-icon"
-              sx={{
+              style={{
                 display: "none",
                 position: "absolute",
                 right: 50,
@@ -246,7 +246,7 @@ const PokemonCard = ({
         <ActionIcon
           variant="filled"
           id="action-icon"
-          sx={{
+          style={{
             display: "none",
             position: "absolute",
             right: 10,
@@ -265,7 +265,7 @@ const PokemonCard = ({
           />
         </Card.Section>
         <Box
-          sx={{
+          style={{
             border: "2px solid #e9ecef",
             borderRadius: "5px",
             textAlign: "center",

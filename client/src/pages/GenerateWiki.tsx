@@ -4,28 +4,28 @@ import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 import { useGeneratePokemon, useGenerateRoutes } from "../apis/wikiApis";
-import { PokemonVersions } from "../types";
+import { PokemonVersions, Wikis } from "../types";
 
 const GenerateWiki = () => {
   const [activeTab, setActiveTab] = useState<string | null>("generate-pokemon");
   const [rangeStart, setRangeStart] = useInputState<number>(0);
   const [rangeEnd, setRangeEnd] = useInputState<number>(0);
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
-  const [wikiList, __] = useLocalStorage("wikiList", {});
+  const [wikiList, __] = useLocalStorage<Wikis>("wikiList", {});
   const [versionGroup, setVersionGroup] = useInputState<string>(
-    wikiList[currentWiki]?.settings?.version_group
+    wikiList[currentWiki]?.settings?.version_group,
   );
 
   const {
     mutate: mutateGeneratePokemon,
-    isLoading: isLoadingGeneratePokemonData,
+    isPending: isPendingGeneratePokemonData,
   } = useGeneratePokemon((data: any) => {
     notifications.show({ message: data.message });
   });
 
   const {
     mutate: mutateGenerateRoutes,
-    isLoading: isLoadingGenerateRoutesData,
+    isPending: isPendingGenerateRoutesData,
   } = useGenerateRoutes((data: any) => {
     notifications.show({ message: data.message });
   });
@@ -46,7 +46,7 @@ const GenerateWiki = () => {
   };
 
   return (
-    <Tabs value={activeTab} onTabChange={setActiveTab}>
+    <Tabs value={activeTab} onChange={setActiveTab}>
       <Tabs.List>
         <Tabs.Tab value="generate-pokemon">Generate Pokemon Pages</Tabs.Tab>
         <Tabs.Tab value="generate-routes">Generate Routes Pages</Tabs.Tab>
@@ -87,7 +87,7 @@ const GenerateWiki = () => {
                 rangeStart >= rangeEnd || rangeStart <= 0 || rangeEnd <= 0
               }
               onClick={handleGeneratePokemonData}
-              loading={isLoadingGeneratePokemonData}
+              loading={isPendingGeneratePokemonData}
             >
               Generate
             </Button>
@@ -103,7 +103,7 @@ const GenerateWiki = () => {
           <Grid.Col>
             <Button
               onClick={handleGenerateRoutesData}
-              loading={isLoadingGenerateRoutesData}
+              loading={isPendingGenerateRoutesData}
             >
               Generate Routes
             </Button>

@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "usehooks-ts";
 import "./App.css";
 import MainAppshell from "./components/MainAppshell";
+import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
 
 function App() {
   const [currentWiki, setCurrentWiki] = useLocalStorage("currentWiki", "none");
@@ -18,7 +20,7 @@ function App() {
 
   return (
     <>
-      <MantineProvider withGlobalStyles withNormalizeCSS>
+      <MantineProvider>
         <Notifications position="top-right" />
         <MainAppshell />
       </MantineProvider>

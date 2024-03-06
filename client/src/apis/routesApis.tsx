@@ -2,15 +2,14 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocalStorage } from "usehooks-ts";
 import { useRouteStore } from "../stores";
 
-export const useGetRoutes = (onSuccess: (data: any) => void) => {
+export const useGetRoutes = () => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useQuery({
     queryKey: ["routes"],
     queryFn: () =>
       fetch(`${import.meta.env.VITE_BASE_URL}/game-routes/${currentWiki}`).then(
-        (res) => res.json()
+        (res) => res.json(),
       ),
-    onSuccess,
     refetchOnWindowFocus: false,
     enabled: false,
   });
@@ -19,7 +18,7 @@ export const useGetRoutes = (onSuccess: (data: any) => void) => {
 export const useAddNewRoute = (onSuccess: (data: any) => void) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
-    mutationFn: (routeName: string) => {
+    mutationFn: async (routeName: string) => {
       return fetch(
         `${import.meta.env.VITE_BASE_URL}/game-route/create/${currentWiki}`,
         {
@@ -28,7 +27,7 @@ export const useAddNewRoute = (onSuccess: (data: any) => void) => {
             new_route_name: routeName,
           }),
           headers: { "Content-Type": "application/json" },
-        }
+        },
       ).then((res) => res.json());
     },
     onSuccess,
@@ -39,7 +38,7 @@ export const useEditRoute = ({ routeName, body, onSuccess }: any) => {
   const routes = useRouteStore((state) => state.routes);
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const params = new URLSearchParams({ route_name: routeName });
       const URL = `${
         import.meta.env.VITE_BASE_URL
@@ -62,7 +61,7 @@ export const useEditRoute = ({ routeName, body, onSuccess }: any) => {
 export const useEditRouteName = (onSuccess: (data: any) => void) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
-    mutationFn: ({ routeNameToEdit, newRouteName }: any) => {
+    mutationFn: async ({ routeNameToEdit, newRouteName }: any) => {
       return fetch(
         `${
           import.meta.env.VITE_BASE_URL
@@ -74,7 +73,7 @@ export const useEditRouteName = (onSuccess: (data: any) => void) => {
             current_route_name: routeNameToEdit,
           }),
           headers: { "Content-Type": "application/json" },
-        }
+        },
       ).then((res) => res.json());
     },
     onSuccess,
@@ -84,7 +83,7 @@ export const useEditRouteName = (onSuccess: (data: any) => void) => {
 export const useDeleteRoute = (onSuccess: (data: any) => void) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
-    mutationFn: (routeName: string) => {
+    mutationFn: async (routeName: string) => {
       const params = new URLSearchParams({ route_name: routeName });
       const URL = `${
         import.meta.env.VITE_BASE_URL
@@ -102,7 +101,7 @@ export const useUpdateRoutePosition = (onSuccess: (data: any) => void) => {
   const routes = useRouteStore((state) => state.routes);
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
-    mutationFn: ({ routeNameToEdit, newPosition }: any) => {
+    mutationFn: async ({ routeNameToEdit, newPosition }: any) => {
       return fetch(
         `${
           import.meta.env.VITE_BASE_URL
@@ -114,7 +113,7 @@ export const useUpdateRoutePosition = (onSuccess: (data: any) => void) => {
             position: newPosition,
           }),
           headers: { "Content-Type": "application/json" },
-        }
+        },
       ).then((res) => res.json());
     },
     onSuccess,
@@ -124,7 +123,7 @@ export const useUpdateRoutePosition = (onSuccess: (data: any) => void) => {
 export const useDuplicateRoute = (onSuccess: (data: any) => void) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
-    mutationFn: ({ routeName, newRouteName }: any) => {
+    mutationFn: async ({ routeName, newRouteName }: any) => {
       return fetch(
         `${import.meta.env.VITE_BASE_URL}/game-route/duplicate/${currentWiki}`,
         {
@@ -134,7 +133,7 @@ export const useDuplicateRoute = (onSuccess: (data: any) => void) => {
             current_route_name: routeName,
             duplicated_route_name: newRouteName,
           }),
-        }
+        },
       ).then((res) => res.json());
     },
     onSuccess,
@@ -144,7 +143,7 @@ export const useDuplicateRoute = (onSuccess: (data: any) => void) => {
 export const useUpdateRoutePositions = (onSuccess: (data: any) => void) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
-    mutationFn: (organizeRoutesList: string[]) => {
+    mutationFn: async (organizeRoutesList: string[]) => {
       return fetch(
         `${
           import.meta.env.VITE_BASE_URL
@@ -153,7 +152,7 @@ export const useUpdateRoutePositions = (onSuccess: (data: any) => void) => {
           method: "PATCH",
           body: JSON.stringify(organizeRoutesList),
           headers: { "Content-Type": "application/json" },
-        }
+        },
       ).then((res) => res.json());
     },
     onSuccess,

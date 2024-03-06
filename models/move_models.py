@@ -8,9 +8,9 @@ class MachineVersion(BaseModel):
 
 
 class MoveDetails(BaseModel):
-    power: Optional[int]
-    pp: Optional[int]
-    accuracy: Optional[int]
-    type: Optional[str]
-    damage_class: Optional[str]
-    machine_details: Optional[List[MachineVersion]]
+    power: Optional[int] = None
+    pp: Optional[int] = None
+    accuracy: Optional[int] = None
+    type: Optional[str] = None
+    damage_class: Optional[str] = None
+    machine_details: Optional[List[MachineVersion]] = None

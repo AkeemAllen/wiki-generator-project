@@ -45,7 +45,7 @@ def generate_yaml(
             ],
             "name": "material",
             "favicon": "img/items/poke-ball.png",
-            "features": ["content.tabs.link"],
+            "features": ["content.tabs.link", "content.tooltips"],
         },
         "nav": [
             {"Home": "index.md"},
@@ -67,6 +67,9 @@ def generate_yaml(
         "plugins": [{"search": {"lang": "en"}}],
         "markdown_extensions": [
             "admonition",
+            "abbr",
+            "attr_list",
+            "pymdownx.snippets",
             {"pymdownx.tasklist": {"custom_checkbox": True}},
             "pymdownx.superfences",
             {"pymdownx.tabbed": {"alternate_style": True}},

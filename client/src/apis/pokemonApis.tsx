@@ -2,42 +2,40 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocalStorage } from "usehooks-ts";
 import { MoveChange, PokemonChanges, PreparationData } from "../types";
 
-export const useGetPokemon = (onSuccess: (data: any) => void) => {
+export const useGetPokemon = () => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useQuery({
     queryKey: ["pokemon"],
     queryFn: () =>
       fetch(`${import.meta.env.VITE_BASE_URL}/pokemon/${currentWiki}`).then(
-        (res) => res.json()
+        (res) => res.json(),
       ),
-    onSuccess,
     refetchOnWindowFocus: false,
     enabled: false,
   });
 };
 
-export const useGetPokemonByName = ({ pokemonName, onSuccess }: any) => {
+export const useGetPokemonByName = ({ pokemonName }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useQuery({
     queryKey: ["pokemon", pokemonName],
-    queryFn: () => {
+    queryFn: async () => {
       const params = new URLSearchParams({ pokemon_name_or_id: pokemonName });
       const URL = `${
         import.meta.env.VITE_BASE_URL
       }/pokemon/single/${currentWiki}?${params}`;
 
-      return fetch(URL).then((res) => res.json());
+      return fetch(URL, { method: "GET" }).then((res) => res.json());
     },
-    onSuccess,
     refetchOnWindowFocus: false,
     enabled: false,
   });
 };
 
-export const useGetPokemonById = ({ onSuccess, onError }: any) => {
+export const useGetPokemonById = ({ onSuccess }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
-    mutationFn: ({ pokemonId }: any) => {
+    mutationFn: async ({ pokemonId }: any) => {
       const params = new URLSearchParams({ pokemon_name_or_id: pokemonId });
       const URL = `${
         import.meta.env.VITE_BASE_URL
@@ -48,9 +46,9 @@ export const useGetPokemonById = ({ onSuccess, onError }: any) => {
       }).then((res) => res.json());
     },
     onSuccess,
-    onError,
   });
 };
+
 type SavePokemonProps = {
   pokemonName: string;
   pokemonChanges: PokemonChanges;
@@ -59,7 +57,7 @@ type SavePokemonProps = {
 export const useSavePokemonChanges = ({ onSuccess, onError }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
-    mutationFn: ({ pokemonName, pokemonChanges }: SavePokemonProps) => {
+    mutationFn: async ({ pokemonName, pokemonChanges }: SavePokemonProps) => {
       const params = new URLSearchParams({ pokemon_name: pokemonName });
       const URL = `${
         import.meta.env.VITE_BASE_URL
@@ -84,7 +82,7 @@ type AddMultipleMovesProps = {
 export const useAddMultipleMoves = ({ onSuccess, onError }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       pokemon_being_modified,
       moves_being_added,
     }: AddMultipleMovesProps) => {
@@ -97,7 +95,7 @@ export const useAddMultipleMoves = ({ onSuccess, onError }: any) => {
           method: "POST",
           body: JSON.stringify({ pokemon_being_modified, moves_being_added }),
           headers: { "Content-Type": "application/json" },
-        }
+        },
       ).then((res) => res.json());
     },
     onSuccess,
@@ -112,7 +110,7 @@ type ModifyLevelMovesProps = {
 export const useModifyLevelMoves = ({ onSuccess, onError }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
-    mutationFn: ({ pokemon_move_changes }: ModifyLevelMovesProps) => {
+    mutationFn: async ({ pokemon_move_changes }: ModifyLevelMovesProps) => {
       return fetch(
         `${
           import.meta.env.VITE_BASE_URL
@@ -121,7 +119,7 @@ export const useModifyLevelMoves = ({ onSuccess, onError }: any) => {
           method: "POST",
           body: JSON.stringify(pokemon_move_changes),
           headers: { "Content-Type": "application/json" },
-        }
+        },
       ).then((res) => res.json());
     },
     onSuccess,
@@ -132,7 +130,7 @@ export const useModifyLevelMoves = ({ onSuccess, onError }: any) => {
 export const usePreparePokemonData = ({ onSuccess, onError }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       range_end,
       range_start,
       wipe_current_data,
@@ -147,7 +145,7 @@ export const usePreparePokemonData = ({ onSuccess, onError }: any) => {
             wipe_current_data,
           }),
           headers: { "Content-Type": "application/json" },
-        }
+        },
       ).then((res) => res.json());
     },
     onSuccess,

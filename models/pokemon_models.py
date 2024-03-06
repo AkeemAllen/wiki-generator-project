@@ -1,23 +1,23 @@
 from enum import Enum
 from typing import Dict, List, Literal, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, RootModel
 
 
 class Stats(BaseModel):
-    hp: Optional[int]
-    attack: Optional[int]
-    defense: Optional[int]
-    sp_attack: Optional[int]
-    sp_defense: Optional[int]
-    speed: Optional[int]
+    hp: Optional[int] = None
+    attack: Optional[int] = None
+    defense: Optional[int] = None
+    sp_attack: Optional[int] = None
+    sp_defense: Optional[int] = None
+    speed: Optional[int] = None
 
 
 class MoveDetails(BaseModel):
-    power: Optional[int]
-    accuracy: Optional[int]
-    pp: Optional[int]
-    type: Optional[str]
-    damage_class: Optional[str]
+    power: Optional[int] = None
+    accuracy: Optional[int] = None
+    pp: Optional[int] = None
+    type: Optional[str] = None
+    damage_class: Optional[str] = None
 
 
 class MoveData(BaseModel):
@@ -26,38 +26,44 @@ class MoveData(BaseModel):
     delete: Optional[bool] = False
 
 
-class Move(BaseModel):
-    __root__: Dict[str, MoveData]
+class Move(RootModel):
+    root: Dict[str, MoveData]
+
+    def __iter__(self):
+        return iter(self.root)
+
+    def __getitem__(self, key):
+        return self.root[key]
 
 
 class Evolution(BaseModel):
-    level: Optional[int]
-    item: Optional[str]
-    other: Optional[str]
-    method: Optional[str]
-    evolved_pokemon: Optional[str]
+    level: Optional[int] = None
+    item: Optional[str] = None
+    other: Optional[str] = None
+    method: Optional[str] = None
+    evolved_pokemon: Optional[str] = None
     delete: Optional[bool] = False
 
 
 class PokemonChanges(BaseModel):
-    id: Optional[int]
-    types: Optional[list[str]]
-    abilities: Optional[list[str]]
-    stats: Optional[Stats]
-    moves: Optional[Move]
-    machine_moves: Optional[list[str]]
-    evolution: Optional[Evolution]
+    id: Optional[int] = None
+    types: Optional[list[str]] = None
+    abilities: Optional[list[str]] = None
+    stats: Optional[Stats] = None
+    moves: Optional[Move] = None
+    machine_moves: Optional[list[str]] = None
+    evolution: Optional[Evolution] = None
 
 
 class PokemonData(BaseModel):
-    id: Optional[int]
-    name: Optional[str]
-    types: Optional[list[str]]
-    abilities: Optional[list[str]]
-    stats: Optional[Stats]
-    moves: Optional[Move]
-    sprite: Optional[str]
-    evolution: Optional[Evolution]
+    id: Optional[int] = None
+    name: Optional[str] = None
+    types: Optional[list[str]] = None
+    abilities: Optional[list[str]] = None
+    stats: Optional[Stats] = None
+    moves: Optional[Move] = None
+    sprite: Optional[str] = None
+    evolution: Optional[Evolution] = None
 
 
 class PokemonVersions(Enum):
@@ -93,8 +99,8 @@ class MoveChange(BaseModel):
         "replace_by_level",
         "swap_moves",
     ]
-    secondary_move: Optional[str]
-    level: Optional[int]
+    secondary_move: Optional[str] = None
+    level: Optional[int] = None
 
 
 class Operation(Enum):

@@ -1,5 +1,6 @@
 import { useLocalStorage } from "usehooks-ts";
 import { useGetWikis } from "../apis/wikiApis";
+import { useUpdateEffect } from "../hooks/useUpdateEffect";
 
 const SelectWiki = () => {
   const [currentWiki, __] = useLocalStorage("currentWiki", "none");
@@ -8,7 +9,11 @@ const SelectWiki = () => {
     {}
   );
 
-  useGetWikis((data: any) => setWikiList(data));
+  const { data } = useGetWikis();
+
+  useUpdateEffect(() => {
+    setWikiList(data);
+  }, [data]);
 
   return (
     <>

@@ -18,7 +18,7 @@ const Settings = () => {
     "current" | "gen1" | "gen2"
   >(wikiList[currentWiki].settings.matchup_generation);
 
-  const { mutate, isLoading } = useEditWikiSettings((data: any) => {
+  const { mutate, isPending } = useEditWikiSettings((data: any) => {
     notifications.show({ message: data.message });
     setWikiList(data.wikis);
   });
@@ -63,7 +63,7 @@ const Settings = () => {
               },
             })
           }
-          loading={isLoading}
+          loading={isPending}
         >
           Save
         </Button>

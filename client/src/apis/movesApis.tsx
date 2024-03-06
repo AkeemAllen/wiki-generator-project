@@ -2,15 +2,14 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocalStorage } from "usehooks-ts";
 import { MoveDetails, PreparationData } from "../types";
 
-export const useGetMoves = (onSuccess: (data: any) => void) => {
+export const useGetMoves = () => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useQuery({
     queryKey: ["moves"],
     queryFn: () =>
       fetch(`${import.meta.env.VITE_BASE_URL}/moves/${currentWiki}`).then(
-        (res) => res.json()
+        (res) => res.json(),
       ),
-    onSuccess,
     refetchOnWindowFocus: false,
     enabled: false,
   });
@@ -20,7 +19,7 @@ export const useGetMovesByName = ({ moveName, onSuccess }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useQuery({
     queryKey: ["moves", moveName],
-    queryFn: () => {
+    queryFn: async () => {
       const params = new URLSearchParams({ move_name_or_id: moveName });
       const URL = `${
         import.meta.env.VITE_BASE_URL
@@ -28,7 +27,6 @@ export const useGetMovesByName = ({ moveName, onSuccess }: any) => {
 
       return fetch(URL).then((res) => res.json());
     },
-    onSuccess,
     refetchOnWindowFocus: false,
     enabled: false,
   });
@@ -49,7 +47,7 @@ export const useSaveMoveChanges = ({
 }: SaveMoveChangesProps) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const params = new URLSearchParams({ move_name: moveName });
       const URL = `${
         import.meta.env.VITE_BASE_URL
@@ -69,7 +67,7 @@ export const useSaveMoveChanges = ({
 export const usePrepareMoveData = ({ onSuccess, onError }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       range_end,
       range_start,
       wipe_current_data,
@@ -84,7 +82,7 @@ export const usePrepareMoveData = ({ onSuccess, onError }: any) => {
             wipe_current_data,
           }),
           headers: { "Content-Type": "application/json" },
-        }
+        },
       ).then((res) => res.json());
     },
     onSuccess,

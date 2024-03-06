@@ -6,7 +6,7 @@ import argparse
 import pokebase
 import requests
 import tqdm
-from snakemd import Document, InlineText, Table, Paragraph
+from snakemd import new_doc, Document, Inline, Table, Paragraph, Heading
 from models.pokemon_models import (
     PokemonData,
     MoveDetails,
@@ -117,13 +117,12 @@ def set_relevant_past_values(move_name, file_moves, version_group):
 
 
 def add_sprite(doc: Document, pokemon_data: PokemonData, dex_number: int):
-    doc.add_element(
+    doc.add_block(
         Paragraph(
             [
-                InlineText(
+                Inline(
                     f"{pokemon_data.name}",
-                    url=f"../img/pokemon/{get_pokemon_dex_formatted_name(dex_number)}.png",
-                    image=True,
+                    image=f"../img/pokemon/{get_pokemon_dex_formatted_name(dex_number)}.png",
                 )
             ]
         )
@@ -134,7 +133,7 @@ def create_type_table(doc: Document, pokemon_data: PokemonData):
     data = pokemon_data
     type_images = [get_markdown_image_for_type(_type) for _type in data.types]
 
-    doc.add_header("Types", 2)
+    doc.add_block(Heading("Types", 2))
     doc.add_table(
         ["Version", "Type"],
         [["Classic", " ".join(map(str, type_images))]],
@@ -192,7 +191,7 @@ def create_defenses_table(doc: Document, pokemon_data: PokemonData, wiki_name: s
             for pokemon_type in response["0.25"]
         ]
 
-    doc.add_header("Defenses", 2)
+    doc.add_block(Heading("Defenses", 2))
     doc.add_table(
         [
             "Immune x0",
@@ -218,12 +217,12 @@ def create_defenses_table(doc: Document, pokemon_data: PokemonData, wiki_name: s
 def create_ability_table(doc: Document, pokemon_data: PokemonData, file_abilities):
     data = pokemon_data
     abilities = [
-        f'<abbr title="{file_abilities[ability]["effect"]}">{ability.title()}</abbr>'
+        f'[{ability.title()}]("{file_abilities[ability]["effect"]}")'
         for ability in data.abilities
         if ability != ""
     ]
 
-    doc.add_header("Abilities", 2)
+    doc.add_block(Heading("Abilities", 2))
     doc.add_table(["Version", "Ability"], [["All", " / ".join(map(str, abilities))]])
 
 
@@ -232,7 +231,7 @@ def create_stats_table(doc: Document, pokemon_data: PokemonData):
 
     base_stat_total = sum(dict(data.stats).values())
 
-    doc.add_header("Base Stats", 2)
+    doc.add_block(Heading("Base Stats", 2))
     doc.add_table(
         ["Version", "HP", "Atk", "Def", "SAtk", "SDef", "Spd", "BST"],
         [
@@ -266,7 +265,7 @@ def create_evolution_table(doc: Document, pokemon_data: PokemonData):
         else:
             return ""
 
-    doc.add_header("Evolution Change", 2)
+    doc.add_block(Heading("Evolution Change", 2))
     doc.add_table(
         ["Method", "Item/Level/Note", "Evolved Pokemon"],
         [
@@ -287,7 +286,7 @@ def create_level_up_moves_table(
     data = pokemon_data
     moves = {}
 
-    for move_name, details in data.moves.__root__.items():
+    for move_name, details in data.moves.root.items():
         if (
             details.learn_method != "level-up"
             and "level-up" not in details.learn_method
@@ -297,7 +296,9 @@ def create_level_up_moves_table(
             continue
 
         try:
-            move_data = MoveDetails.parse_raw(json.dumps(file_moves[move_name]))
+            move_data = MoveDetails.model_validate_json(
+                json.dumps(file_moves[move_name])
+            )
         except ValidationError as err:
             print(f"Error parsing move {move_name} for {data.name}: {err}")
             continue
@@ -315,7 +316,7 @@ def create_level_up_moves_table(
         sorted(moves.items(), key=lambda x: x[1]["level_learned"], reverse=False)
     )
 
-    doc.add_header("Level Up Moves", 2)
+    doc.add_block(Heading("Level Up Moves", 2))
     doc.add_table(
         ["Level", "Name", "Power", "Accuracy", "PP", "Type", "Damage Class"],
         generate_moves_array(sorted_moves, table_type="level_up"),
@@ -332,7 +333,7 @@ def create_learnable_moves(
     data = pokemon_data
     moves = {}
 
-    for move_name, details in data.moves.__root__.items():
+    for move_name, details in data.moves.root.items():
         # TODO: Consider removing this check since any move could be a machine
         if file_moves[move_name]["machine_details"] is None:
             continue
@@ -358,7 +359,9 @@ def create_learnable_moves(
                     break
 
         try:
-            move_data = MoveDetails.parse_raw(json.dumps(file_moves[move_name]))
+            move_data = MoveDetails.model_validate_json(
+                json.dumps(file_moves[move_name])
+            )
 
         except ValidationError as err:
             print(f"Error parsing move {move_name} for {data.name}: {err}")
@@ -377,7 +380,7 @@ def create_learnable_moves(
         sorted(moves.items(), key=lambda x: x[1]["machine"], reverse=False)
     )
 
-    doc.add_header("Learnable Moves", 2)
+    doc.add_block(Heading("Learnable Moves", 2))
     doc.add_table(
         ["Machine", "Name", "Power", "Accuracy", "PP", "Type", "Damage Class"],
         generate_moves_array(sorted_moves, table_type="learnable"),
@@ -396,18 +399,26 @@ def generate_pages_from_pokemon_list(
     specific_changes = get_specific_changes_from_yaml(mkdocs_yaml_dict)
 
     for pokemon in tqdm.tqdm(pokemon_to_generate_page_for):
-        pokemon_data = PokemonData.parse_raw(json.dumps(file_pokemon[pokemon["name"]]))
+        pokemon_data = PokemonData.model_validate_json(
+            json.dumps(file_pokemon[pokemon["name"]])
+        )
 
         pokedex_markdown_file_name = get_pokemon_dex_formatted_name(
             pokemon["dex_number"]
         )
 
-        markdown_file_path = f"dist/{wiki_name}/docs/pokemon/"
+        markdown_file_path = (
+            f"dist/{wiki_name}/docs/pokemon/{pokedex_markdown_file_name}"
+        )
 
-        doc = Document(pokedex_markdown_file_name)
+        doc = new_doc()
 
-        doc.add_header(f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}")
-        doc.add_header(f"[Report Inaccurate Information](https://www.google.com)", 5)
+        doc.add_block(
+            Heading(f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}", 1)
+        )
+        doc.add_block(
+            Heading(f"[Report Inaccurate Information](https://www.google.com)", 5)
+        )
 
         add_sprite(doc, pokemon_data, pokemon["dex_number"])
         create_type_table(doc, pokemon_data)
@@ -418,7 +429,7 @@ def generate_pages_from_pokemon_list(
         create_level_up_moves_table(doc, file_moves, pokemon_data)
         create_learnable_moves(doc, version_group, file_moves, pokemon_data)
 
-        doc.output_page(markdown_file_path)
+        doc.dump(markdown_file_path)
 
         specific_change_entry = {
             f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}": f"pokemon/{pokedex_markdown_file_name}.md"
@@ -453,15 +464,21 @@ def generate_pages_from_range(
 
     for pokedex_number in tqdm.tqdm(pokemon_range):
         pokemon_name = pokebase.pokemon(pokedex_number).name
-        pokemon_data = PokemonData.parse_raw(json.dumps(pokemon[pokemon_name]))
+        pokemon_data = PokemonData.model_validate_json(
+            json.dumps(pokemon[pokemon_name])
+        )
 
         pokedex_markdown_file_name = get_pokemon_dex_formatted_name(pokedex_number)
 
-        markdown_file_path = f"dist/{wiki_name}/docs/pokemon/"
+        markdown_file_path = (
+            f"dist/{wiki_name}/docs/pokemon/{pokedex_markdown_file_name}"
+        )
 
-        doc = Document(pokedex_markdown_file_name)
+        doc = new_doc()
 
-        doc.add_header(f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}")
+        doc.add_block(
+            Heading(f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}", 1)
+        )
 
         add_sprite(doc, pokemon_data, pokedex_number)
         create_type_table(doc, pokemon_data)
@@ -476,7 +493,7 @@ def generate_pages_from_range(
         doc.add_paragraph("Use the link below to help use fix those!")
         doc.add_paragraph("[Report Inaccuracies](https://www.google.com)")
 
-        doc.output_page(markdown_file_path)
+        doc.dump(markdown_file_path)
 
         specific_change_entry = {
             f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}": f"pokemon/{pokedex_markdown_file_name}.md"

@@ -135,7 +135,7 @@ async def save_pokemon_changes(
             pokemon[pokemon_name]["stats"][stat] = value
 
     if changes.moves:
-        for move, value in changes.moves.__root__.items():
+        for move, value in changes.moves.root.items():
             if value.delete:
                 del pokemon[pokemon_name]["moves"][move]
                 continue

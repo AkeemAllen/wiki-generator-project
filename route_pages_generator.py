@@ -7,7 +7,7 @@ from typing import Dict
 import tqdm
 from models.game_route_models import TrainerInfo
 import yaml
-from snakemd import Document
+from snakemd import new_doc, Document, Heading
 from models.game_route_models import (
     AreaLevels,
     Encounters,
@@ -90,7 +90,7 @@ def get_encounter_table_rows(encounters: Encounters, area_levels: AreaLevels):
     max_number_of_pokemon_on_single_route = 0
     table_array_rows_for_encounters = []
 
-    for encounter_type, pokemon_encounter_list in encounters.__root__.items():
+    for encounter_type, pokemon_encounter_list in encounters.root.items():
         if len(pokemon_encounter_list) > max_number_of_pokemon_on_single_route:
             max_number_of_pokemon_on_single_route = len(pokemon_encounter_list)
 
@@ -105,7 +105,7 @@ def get_encounter_table_rows(encounters: Encounters, area_levels: AreaLevels):
 
         level_for_encounter_type = ""
         try:
-            level_for_encounter_type = f"lv. {area_levels.__root__[encounter_type]}"
+            level_for_encounter_type = f"lv. {area_levels.root[encounter_type]}"
         except KeyError:
             pass
 
@@ -135,8 +135,8 @@ def get_encounter_table_rows(encounters: Encounters, area_levels: AreaLevels):
 def create_encounter_table(
     route_name: str, route_directory: str, encounters, area_levels
 ):
-    doc = Document("wild_encounters")
-    doc.add_header(f"{route_name.capitalize()}", 1)
+    doc = new_doc()
+    doc.add_block(Heading(f"{route_name.capitalize()}", 1))
 
     table_rows, max_number_of_pokemon_on_single_route = get_encounter_table_rows(
         encounters, area_levels
@@ -149,7 +149,7 @@ def create_encounter_table(
         table_rows,
     )
 
-    doc.output_page(f"{route_directory}/")
+    doc.dump(f"{route_directory}/wild_encounters")
 
 
 # endregion
@@ -172,7 +172,7 @@ def get_trainer_table_rows(trainers: Trainers):
     max_number_of_pokemon_single_trainer = 0
     table_array_rows_for_trainers = []
 
-    for trainer_name, trainer_info in trainers.__root__.items():
+    for trainer_name, trainer_info in trainers.root.items():
         if len(trainer_info.pokemon) > max_number_of_pokemon_single_trainer:
             max_number_of_pokemon_single_trainer = len(trainer_info.pokemon)
 
@@ -197,17 +197,21 @@ def get_trainer_table_rows(trainers: Trainers):
 
 
 def create_trainer_with_diff_versions(trainers: Trainers, doc: Document):
-    for trainer_name, trainer_info in trainers.__root__.items():
+    for trainer_name, trainer_info in trainers.root.items():
         for version in trainer_info.trainer_versions:
             filtered_pokemon = []
             # breakpoint()
-            doc.add_paragraph(f'=== "{version.title()}"')
             for pokemon in trainer_info.pokemon:
                 if version in pokemon.trainer_version:
                     filtered_pokemon.append(pokemon)
 
+            if len(filtered_pokemon) == 0:
+                continue
+
+            doc.add_paragraph(f'=== "{version.title()}"')
+
             filtered_pokemon_trainer = Trainers(
-                __root__={
+                root={
                     trainer_name: TrainerInfo(
                         trainer_versions=trainer_info.trainer_versions,
                         is_important=trainer_info.is_important,
@@ -242,8 +246,8 @@ def create_regular_trainers(trainers: Trainers, doc: Document):
 def create_important_trainer_details_table(
     trainers: Trainers, doc: Document, file_abilities: Dict, file_items: Dict
 ):
-    for trainer_name, trainer_info in trainers.__root__.items():
-        doc.add_header(trainer_name.title(), 2)
+    for trainer_name, trainer_info in trainers.root.items():
+        doc.add_block(Heading(trainer_name.title(), 2))
         table_rows = []
         for pokemon in trainer_info.pokemon:
             item_entry = get_item_entry_markdown(pokemon.item)
@@ -296,14 +300,14 @@ def create_trainer_table(
     file_abilities: Dict,
     file_items: Dict,
 ):
-    doc = Document("trainers")
-    doc.add_header(f"{route_name.capitalize()}", 1)
+    doc = new_doc()
+    doc.add_block(Heading(f"{route_name.capitalize()}", 1))
 
     regular_trainers = {}
     trainers_with_diff_versions = {}
     important_trainers_without_diff_versions = {}
 
-    for trainer_name, trainer_info in trainers.__root__.items():
+    for trainer_name, trainer_info in trainers.root.items():
         if trainer_info.is_important and (
             trainer_info.trainer_versions is None or trainer_info.trainer_versions == []
         ):
@@ -317,13 +321,13 @@ def create_trainer_table(
         ):
             trainers_with_diff_versions[trainer_name] = trainer_info
 
-    regular_trainers = Trainers(__root__=regular_trainers)
-    trainers_with_diff_versions = Trainers(__root__=trainers_with_diff_versions)
+    regular_trainers = Trainers(root=regular_trainers)
+    trainers_with_diff_versions = Trainers(root=trainers_with_diff_versions)
     important_trainers_without_diff_versions = Trainers(
-        __root__=important_trainers_without_diff_versions
+        root=important_trainers_without_diff_versions
     )
 
-    if len(regular_trainers.__root__) > 0:
+    if len(regular_trainers.root) > 0:
         create_regular_trainers(regular_trainers, doc)
 
     create_trainer_with_diff_versions(trainers_with_diff_versions, doc)
@@ -332,14 +336,18 @@ def create_trainer_table(
         important_trainers_without_diff_versions, doc, file_abilities, file_items
     )
 
-    for trainer_name, trainer_info in trainers_with_diff_versions.__root__.items():
-        doc.add_header(trainer_name.title(), 2)
+    for trainer_name, trainer_info in trainers_with_diff_versions.root.items():
+        doc.add_block(Heading(trainer_name.title(), 2))
         for version in trainer_info.trainer_versions:
             filtered_pokemon = []
-            doc.add_paragraph(f'=== "{version.title()}"')
             for pokemon in trainer_info.pokemon:
                 if version in pokemon.trainer_version:
                     filtered_pokemon.append(pokemon)
+
+            if len(filtered_pokemon) == 0:
+                continue
+
+            doc.add_paragraph(f'=== "{version.title()}"')
 
             filtered_trainer_info = TrainerInfo(
                 trainer_versions=trainer_info.trainer_versions,
@@ -377,7 +385,7 @@ def create_trainer_table(
                 table_rows,
                 indent=4,
             )
-    doc.output_page(f"{route_directory}/")
+    doc.dump(f"{route_directory}/trainers")
 
 
 # endregion
@@ -393,7 +401,7 @@ def generate_routes(wiki_name: str):
         f"{data_folder_route}/{wiki_name}/routes.json", encoding="utf-8"
     ) as routes_file:
         routes = json.load(routes_file)
-        routes = Route.parse_raw(json.dumps(routes))
+        routes = Route.model_validate_json(json.dumps(routes))
         routes_file.close()
 
     with open(
@@ -408,7 +416,7 @@ def generate_routes(wiki_name: str):
         items = json.load(items_file)
         items_file.close()
 
-    sorted_routes = sorted(routes.__root__.items(), key=lambda route: route[1].position)
+    sorted_routes = sorted(routes.root.items(), key=lambda route: route[1].position)
 
     mkdoc_routes = []
     for route_name, route_properties in tqdm.tqdm(sorted_routes):

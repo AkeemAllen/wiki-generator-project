@@ -74,7 +74,7 @@ const GameRoutesDetails = () => {
           </Grid.Col>
         </Grid>
       )}
-      <Tabs mt={20} value={activeTab} onTabChange={setActiveTab}>
+      <Tabs mt={20} value={activeTab} onChange={setActiveTab}>
         <Tabs.List>
           <Tabs.Tab value="wild-encounters">Wild Encounters</Tabs.Tab>
           <Tabs.Tab value="trainer-encounters">Trainer Encounters</Tabs.Tab>

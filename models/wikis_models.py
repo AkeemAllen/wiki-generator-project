@@ -7,7 +7,7 @@ from models.pokemon_models import PokemonVersions
 
 class WikiSettings(BaseModel):
     version_group: PokemonVersions
-    deployment_url: Optional[str]
+    deployment_url: Optional[str] = None
     matchup_generation: Literal["current", "gen1", "gen2"] = "current"
 
 
@@ -18,11 +18,11 @@ class Wiki(BaseModel):
     author: str
     repo_url: str
     site_url: str
-    settings: Optional[WikiSettings]
+    settings: Optional[WikiSettings] = None
 
 
 class PreparationData(BaseModel):
-    wiki_name: Optional[str]
+    wiki_name: Optional[str] = None
     range_start: int
     range_end: int
     wipe_current_data: bool = False
@@ -30,9 +30,9 @@ class PreparationData(BaseModel):
 
 class GenerationData(BaseModel):
     wiki_name: str
-    version_group: Optional[PokemonVersions]
-    range_start: Optional[int]
-    range_end: Optional[int]
+    version_group: Optional[PokemonVersions] = None
+    range_start: Optional[int] = None
+    range_end: Optional[int] = None
 
 
 class DeploymentData(BaseModel):

@@ -34,7 +34,7 @@ const MovesTable = ({ moves, setMoves, searchTerm }: MovesTableProps) => {
 
   const handleMethodMoveChange = (
     method: string | string[],
-    move_name: string
+    move_name: string,
   ) => {
     setMoves((moves: Move) => {
       return {
@@ -73,7 +73,7 @@ const MovesTable = ({ moves, setMoves, searchTerm }: MovesTableProps) => {
 
   return (
     <>
-      <Table withBorder mt="lg">
+      <Table withRowBorders withTableBorder withColumnBorders mt="lg">
         <thead>
           <tr>
             <th>
@@ -102,7 +102,7 @@ const MovesTable = ({ moves, setMoves, searchTerm }: MovesTableProps) => {
                   <td>{moves[key].level_learned_at}</td>
                   <td>
                     <Button
-                      leftIcon={<IconEdit size={"1rem"} />}
+                      leftSection={<IconEdit size={"1rem"} />}
                       onClick={() => {
                         openEditMoveModal();
                         setMoveToEdit(key);
@@ -113,7 +113,7 @@ const MovesTable = ({ moves, setMoves, searchTerm }: MovesTableProps) => {
                   </td>
                   <td>
                     <Button
-                      leftIcon={<IconTrash size={"1rem"} />}
+                      leftSection={<IconTrash size={"1rem"} />}
                       onClick={() => deleteMove(key)}
                     >
                       Delete

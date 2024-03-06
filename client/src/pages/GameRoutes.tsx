@@ -8,7 +8,6 @@ import {
   ScrollArea,
   TextInput,
   Title,
-  createStyles,
 } from "@mantine/core";
 import { useDisclosure, useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -21,10 +20,11 @@ import {
   useDeleteRoute,
   useDuplicateRoute,
 } from "../apis/routesApis";
-import OrganizeRoutesModal from "../components/OrganizeRoutesModal";
+// import OrganizeRoutesModal from "../components/OrganizeRoutesModal";
 import { useMeasurePosition } from "../hooks/useMeasurePosition";
-import { usePositionReorder } from "../hooks/usePositionReorder";
+// import { usePositionReorder } from "../hooks/usePositionReorder";
 import { useRouteStore } from "../stores";
+import classes from "../styles/GameRoute.module.css";
 
 type RouteNameModalProps = {
   isOpen: boolean;
@@ -51,25 +51,25 @@ const RouteNameModal = ({
   );
 };
 
-const useStyles = createStyles((theme) => ({
-  box: {
-    backgroundColor:
-      theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
-    boxShadow: theme.shadows.sm,
-    border: `1px solid`,
-    color: theme.colorScheme === "dark" ? theme.white : theme.black,
-    borderColor:
-      theme.colorScheme === "dark"
-        ? theme.colors.dark[4]
-        : theme.colors.gray[2],
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.lg,
-    marginBottom: theme.spacing.md,
-  },
-}));
+// const useStyles = createStyles((theme) => ({
+//   box: {
+//     backgroundColor:
+//       theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
+//     boxShadow: theme.shadows.sm,
+//     border: `1px solid`,
+//     color: theme.colorScheme === "dark" ? theme.white : theme.black,
+//     borderColor:
+//       theme.colorScheme === "dark"
+//         ? theme.colors.dark[4]
+//         : theme.colors.gray[2],
+//     borderRadius: theme.radius.md,
+//     padding: theme.spacing.lg,
+//     marginBottom: theme.spacing.md,
+//   },
+// }));
 
 const Routes = () => {
-  const { classes } = useStyles();
+  // const { classes } = useStyles();
   const [newRouteName, setNewRouteName] = useInputState<string>("");
   const [
     newRouteNameModalOpen,
@@ -85,7 +85,7 @@ const Routes = () => {
   const routes = useRouteStore((state) => state.routes);
   const setRoutes = useRouteStore((state) => state.setRoutes);
 
-  const [order, updatePosition, updateOrder, setOrder] = usePositionReorder([]);
+  // const [order, updatePosition, updateOrder, setOrder] = usePositionReorder([]);
 
   const { mutate: addNewRoute } = useAddNewRoute((data) => {
     setRoutes(data.routes);
@@ -110,22 +110,22 @@ const Routes = () => {
     });
   });
 
-  useEffect(() => {
-    setOrder(
-      Object.keys(routes).map((routeName, index) => {
-        return {
-          routeName,
-          position: routes[routeName].position,
-        };
-      })
-    );
-  }, [routes]);
+  // useEffect(() => {
+  //   setOrder(
+  //     Object.keys(routes).map((routeName, index) => {
+  //       return {
+  //         routeName,
+  //         position: routes[routeName].position,
+  //       };
+  //     }),
+  //   );
+  // }, [routes]);
 
   return (
     <>
       <Grid mb={50}>
         <Grid.Col span={2}>
-          <Button leftIcon={<IconPlus />} onClick={openNewRouteNameModal}>
+          <Button leftSection={<IconPlus />} onClick={openNewRouteNameModal}>
             Add Route
           </Button>
         </Grid.Col>
@@ -159,7 +159,7 @@ const Routes = () => {
           )} */}
           {Object.keys(routes)
             .filter((routeName) =>
-              routeName.toLowerCase().includes(searchTerm.toLowerCase())
+              routeName.toLowerCase().includes(searchTerm.toLowerCase()),
             )
             .map((routeName, index) => {
               return (
@@ -221,7 +221,7 @@ const Routes = () => {
         onClose={closeOrganizeRoutesModal}
         size={500}
       >
-        <OrganizeRoutesModal />
+        {/* <OrganizeRoutesModal /> */}
       </Modal>
     </>
   );

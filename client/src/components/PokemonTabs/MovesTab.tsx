@@ -15,8 +15,8 @@ import { useDisclosure, useHotkeys, useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import { useRef, useState } from "react";
-import { useUpdateEffect } from "usehooks-ts";
 import { useModifyLevelMoves } from "../../apis/pokemonApis";
+import { useUpdateEffect } from "../../hooks/useUpdateEffect";
 import { useMovesStore } from "../../stores";
 import {
   Move,
@@ -26,7 +26,7 @@ import {
   PokemonData,
 } from "../../types";
 import MovesTable from "../MovesTable";
-import classes from "./MovesTab.module.css";
+import classes from "../../styles/MovesTab.module.css";
 
 type MovesTabProps = {
   pokemonData: PokemonData;
@@ -82,7 +82,7 @@ const MovesTab = ({
   const handleMoveSetChange = (
     index: number,
     change: "move_name" | "level" | "operation" | "secondary_move",
-    value: string | number
+    value: string | number,
   ) => {
     setMoveSetChangeList((moveSetChangeList) => {
       const newMoveSetChangeList = [...moveSetChangeList];
@@ -139,7 +139,7 @@ const MovesTab = ({
       ["alt+enter", saveLevelMoveChanges],
       ["alt+s", () => seachMovesRef.current?.focus()],
     ],
-    []
+    [],
   );
 
   return (
@@ -147,14 +147,14 @@ const MovesTab = ({
       <SimpleGrid cols={3} mt="50px">
         <Title order={2}>Moves</Title>
         <TextInput
-          icon={<IconSearch size={"1rem"} />}
+          leftSection={<IconSearch size={"1rem"} />}
           placeholder="Search Moves"
           onChange={setSearchTerm}
           value={searchTerm}
           ref={seachMovesRef}
         />
         <Box w={200}>
-          <Button leftIcon={<IconPlus size={"1rem"} />} onClick={open}>
+          <Button leftSection={<IconPlus size={"1rem"} />} onClick={open}>
             Modify MoveSet
           </Button>
         </Box>
@@ -173,7 +173,7 @@ const MovesTab = ({
       >
         <SimpleGrid cols={1}>
           <Button onClick={addNewRow}>Add Row</Button>
-          <Table withBorder>
+          <Table withRowBorders withTableBorder withColumnBorders>
             <thead>
               <tr>
                 <th>Operation</th>
@@ -198,7 +198,7 @@ const MovesTab = ({
                           handleMoveSetChange(
                             index,
                             "operation",
-                            event.currentTarget.value
+                            event.currentTarget.value,
                           )
                         }
                         classNames={{ input: classes.input }}
