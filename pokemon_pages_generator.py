@@ -1,12 +1,21 @@
 import cProfile
 import json
+import os
 import pstats
 import yaml
 import argparse
 import pokebase
 import requests
 import tqdm
-from snakemd import new_doc, Document, Inline, Table, Paragraph, Heading
+from snakemd import (
+    new_doc,
+    Document,
+    Inline,
+    Table,
+    Paragraph,
+    Heading,
+    Element,
+)
 from models.pokemon_models import (
     PokemonData,
     MoveDetails,
@@ -474,10 +483,15 @@ def generate_pages_from_range(
             f"dist/{wiki_name}/docs/pokemon/{pokedex_markdown_file_name}"
         )
 
-        doc = new_doc()
+        doc: Document = new_doc()
 
         doc.add_block(
             Heading(f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}", 1)
+        )
+
+        doc.add_paragraph(f'!!! note "Noticing Inaccuracies?"')
+        doc.add_raw(
+            f"\tUse this google form to report inaccurate data. <a target='blank' href='https://docs.google.com/forms/d/e/1FAIpQLSdlJ2TgPQHehY8J8UPIsHLTyfALUCNDpO9JwVUpV0GBdjeznw/viewform'>Report Here</a>"
         )
 
         add_sprite(doc, pokemon_data, pokedex_number)
@@ -488,10 +502,6 @@ def generate_pages_from_range(
         create_evolution_table(doc, pokemon_data)
         create_level_up_moves_table(doc, file_moves, pokemon_data)
         create_learnable_moves(doc, version_group, file_moves, pokemon_data)
-
-        doc.add_header("Noticing Any Inaccuracies?", 2)
-        doc.add_paragraph("Use the link below to help use fix those!")
-        doc.add_paragraph("[Report Inaccuracies](https://www.google.com)")
 
         doc.dump(markdown_file_path)
 
