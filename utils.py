@@ -1,5 +1,9 @@
-from models.game_route_models import TrainerOrWildPokemon
+import json
+from models.game_route_models import TrainerPokemonOrWildPokemon
 import global_var
+
+
+data_folder_route = "data"
 
 
 def get_pokemon_dex_formatted_name(pokedex_number):
@@ -51,7 +55,7 @@ def generate_move_string(moves):
 
 
 def get_bottom_value_for_pokemon(
-    pokemon: TrainerOrWildPokemon, is_trainer_mapping=False
+    pokemon: TrainerPokemonOrWildPokemon, is_trainer_mapping=False
 ):
     bottom_value = ""
     if is_trainer_mapping:
@@ -64,3 +68,30 @@ def get_bottom_value_for_pokemon(
 
 def obj_dict(obj):
     return obj.__dict__
+
+
+def generate_pokemon_entry_markdown(
+    trainer_or_wild_pokemon: TrainerPokemonOrWildPokemon, is_trainer_mapping=False
+):
+    with open(
+        f"{data_folder_route}/{global_var.g_wiki_name}/pokemon.json", encoding="utf-8"
+    ) as pokemon_file:
+        pokemon = json.load(pokemon_file)
+        pokemon_file.close()
+
+    pokemon_markdown = (
+        f"{get_markdown_image_for_pokemon(pokemon, trainer_or_wild_pokemon.name)} <br/>"
+        f"{get_link_to_pokemon_page(pokemon, trainer_or_wild_pokemon.name)} <br/>"
+        f"{get_bottom_value_for_pokemon(trainer_or_wild_pokemon, is_trainer_mapping)}"
+    )
+
+    return pokemon_markdown
+
+
+def map_pokemon_entry_to_markdown(pokemon, is_trainer_mapping=False):
+    pokemon_list_markdown = map(
+        lambda pokemon: f"{generate_pokemon_entry_markdown(pokemon, is_trainer_mapping)}",
+        pokemon,
+    )
+    pokemon_list_markdown = list(pokemon_list_markdown)
+    return pokemon_list_markdown

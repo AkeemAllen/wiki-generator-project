@@ -1,0 +1,31 @@
+.pokemonCard {
+    &:hover {
+        cursor: pointer;
+    }
+
+    &:hover .actionIcon {
+        display: block;
+    }
+}
+
+.actionIcon {
+    display: none;
+    position: absolute;
+    z-index: 1;
+}
+
+.editIcon {
+    right: 50px;
+    top: 10px;
+}
+
+.deleteIcon {
+    right: 10px;
+    top: 10px;
+}
+
+.nameBox {
+    border: 2px solid #e9ecef;
+    border-radius: 5px;
+    text-align: center;
+}

@@ -34,7 +34,7 @@ const MovesTable = ({ moves, setMoves, searchTerm }: MovesTableProps) => {
 
   const handleMethodMoveChange = (
     method: string | string[],
-    move_name: string,
+    move_name: string
   ) => {
     setMoves((moves: Move) => {
       return {
@@ -73,34 +73,36 @@ const MovesTable = ({ moves, setMoves, searchTerm }: MovesTableProps) => {
 
   return (
     <>
-      <Table withRowBorders withTableBorder withColumnBorders mt="lg">
-        <thead>
-          <tr>
-            <th>
+      <Table withRowBorders withTableBorder withColumnBorders={false} mt="lg">
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>
               <Title order={4}>Move</Title>
-            </th>
-            <th>
+            </Table.Th>
+            <Table.Th>
               <Title order={4}>Learn Method</Title>
-            </th>
-            <th>
+            </Table.Th>
+            <Table.Th>
               <Title order={4}>Learn level</Title>
-            </th>
-            <th />
-            <th />
-          </tr>
-        </thead>
-        <tbody>
+            </Table.Th>
+            <Table.Th />
+            <Table.Th />
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
           {/**There might be better ways of sorting here versus using .filter and .map */}
           {Object.keys(moves)
             .filter((key: string) => moves[key].delete !== true)
             .filter((key: string) => key.includes(searchTerm))
             .map((key: string, index: number) => {
               return (
-                <tr key={index}>
-                  <td>{key}</td>
-                  <td>{displayLearnMethod(moves[key].learn_method)}</td>
-                  <td>{moves[key].level_learned_at}</td>
-                  <td>
+                <Table.Tr key={index}>
+                  <Table.Td>{key}</Table.Td>
+                  <Table.Td>
+                    {displayLearnMethod(moves[key].learn_method)}
+                  </Table.Td>
+                  <Table.Td>{moves[key].level_learned_at}</Table.Td>
+                  <Table.Td>
                     <Button
                       leftSection={<IconEdit size={"1rem"} />}
                       onClick={() => {
@@ -110,19 +112,19 @@ const MovesTable = ({ moves, setMoves, searchTerm }: MovesTableProps) => {
                     >
                       Edit
                     </Button>
-                  </td>
-                  <td>
+                  </Table.Td>
+                  <Table.Td>
                     <Button
                       leftSection={<IconTrash size={"1rem"} />}
                       onClick={() => deleteMove(key)}
                     >
                       Delete
                     </Button>
-                  </td>
-                </tr>
+                  </Table.Td>
+                </Table.Tr>
               );
             })}
-        </tbody>
+        </Table.Tbody>
       </Table>
 
       <Modal
@@ -151,7 +153,7 @@ const MovesTable = ({ moves, setMoves, searchTerm }: MovesTableProps) => {
             mb="lg"
             label="Level"
             value={moves[moveToEdit]?.level_learned_at}
-            onChange={(e: number) => handleLevelMoveChange(e, moveToEdit)}
+            onChange={(e) => handleLevelMoveChange(e as number, moveToEdit)}
           />
         )}
         <Button onClick={closeEditMoveModal}>Close</Button>

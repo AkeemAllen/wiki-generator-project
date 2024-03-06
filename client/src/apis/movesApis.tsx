@@ -8,14 +8,14 @@ export const useGetMoves = () => {
     queryKey: ["moves"],
     queryFn: () =>
       fetch(`${import.meta.env.VITE_BASE_URL}/moves/${currentWiki}`).then(
-        (res) => res.json(),
+        (res) => res.json()
       ),
     refetchOnWindowFocus: false,
     enabled: false,
   });
 };
 
-export const useGetMovesByName = ({ moveName, onSuccess }: any) => {
+export const useGetMovesByName = ({ moveName }: any) => {
   const [currentWiki, _] = useLocalStorage("currentWiki", "none");
   return useQuery({
     queryKey: ["moves", moveName],
@@ -82,7 +82,7 @@ export const usePrepareMoveData = ({ onSuccess, onError }: any) => {
             wipe_current_data,
           }),
           headers: { "Content-Type": "application/json" },
-        },
+        }
       ).then((res) => res.json());
     },
     onSuccess,

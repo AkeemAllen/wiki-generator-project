@@ -20,32 +20,32 @@ const StatsInputs = ({ stats, setStats }: StatsInputProps) => {
         <NumberInput
           label="HP"
           value={stats.hp}
-          onChange={(e: number) => handleStatsChange(e, "hp")}
+          onChange={(e) => handleStatsChange(e as number, "hp")}
         />
         <NumberInput
           label="Attack"
           value={stats.attack}
-          onChange={(e: number) => handleStatsChange(e, "attack")}
+          onChange={(e) => handleStatsChange(e as number, "attack")}
         />
         <NumberInput
           label="Defense"
           value={stats.defense}
-          onChange={(e: number) => handleStatsChange(e, "defense")}
+          onChange={(e) => handleStatsChange(e as number, "defense")}
         />
         <NumberInput
           label="Special Attack"
           value={stats.sp_attack}
-          onChange={(e: number) => handleStatsChange(e, "sp_attack")}
+          onChange={(e) => handleStatsChange(e as number, "sp_attack")}
         />
         <NumberInput
           label="Special Defense"
           value={stats.sp_defense}
-          onChange={(e: number) => handleStatsChange(e, "sp_defense")}
+          onChange={(e) => handleStatsChange(e as number, "sp_defense")}
         />
         <NumberInput
           label="Speed"
           value={stats.speed}
-          onChange={(e: number) => handleStatsChange(e, "speed")}
+          onChange={(e) => handleStatsChange(e as number, "speed")}
         />
       </SimpleGrid>
     </>

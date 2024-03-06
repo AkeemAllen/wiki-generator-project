@@ -1,4 +1,4 @@
-import { AppShell, Burger, Grid, Menu, Text } from "@mantine/core";
+import { AppShell, Grid, Menu, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
   IconArrowBackUp,

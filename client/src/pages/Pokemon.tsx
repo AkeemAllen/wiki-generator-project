@@ -6,7 +6,6 @@ import {
   NumberInput,
   Progress,
   Tabs,
-  Text,
 } from "@mantine/core";
 import { useHotkeys, useInputState } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -33,21 +32,25 @@ const Pokemon = () => {
   const [currentId, setCurrentId] = useState<number | null>(null);
   const [pokemonData, setPokemonData] = useState<PokemonData | null>(null);
   const [pokemonChanges, setPokemonChanges] = useState<PokemonChanges | null>(
-    null,
+    null
   );
   const [activeTab, setActiveTab] = useState<string | null>(
-    "stats-abilities-evo",
+    "stats-abilities-evo"
   );
   const [activePokemonTab, setActivePokemonTab] = useState<string | null>(
-    "prepare-pokemon-data",
+    "prepare-pokemon-data"
   );
 
-  const { refetch, data: pokemonSearchData } = useGetPokemonByName({
+  const {
+    refetch,
+    data: pokemonSearchData,
+    isRefetching,
+  } = useGetPokemonByName({
     pokemonName,
   });
 
   const { mutate: fetchById } = useGetPokemonById({
-    onSuccess: (data: any) => {
+    onSuccess: (data: PokemonData) => {
       setPokemonData(data);
       setPokemonName(data.name);
       setCurrentId(data.id);
@@ -56,7 +59,6 @@ const Pokemon = () => {
 
   const { mutate: mutatePokemon } = useSavePokemonChanges({
     onSuccess: () => {
-      console.log("Save Ran");
       notifications.show({
         message: "Changes Saved",
       });
@@ -76,7 +78,7 @@ const Pokemon = () => {
   const nextPokemon = () => {
     // use a hasNext function instead of strict ids
     const nextPokemon = pokemonList.find(
-      (p) => p.id === (currentId as number) + 1,
+      (p) => p.id === (currentId as number) + 1
     );
     if (nextPokemon) {
       setPokemonData(null);
@@ -89,7 +91,7 @@ const Pokemon = () => {
 
   const prevPokemon = () => {
     const prevPokemon = pokemonList.find(
-      (p) => p.id === (currentId as number) - 1,
+      (p) => p.id === (currentId as number) - 1
     );
     if (prevPokemon) {
       setPokemonData(null);
@@ -129,7 +131,12 @@ const Pokemon = () => {
       setPokemonData(pokemonSearchData);
       setCurrentId(pokemonSearchData.id);
     }
-  }, [pokemonSearchData]);
+    /** If Search is clicked a second time, the handleSearch function is ran.
+     * This will clear the pokemonData and the screen will go blank until new data is received.
+     * However, the refetch doesn't return new data, leaving pokemonSearchData unchanged which doesn't trigger the useeffect.
+     * Add this isRefetching condition to trigger the useEffect when the refetch is done.
+     */
+  }, [pokemonSearchData, isRefetching]);
 
   return (
     <Tabs value={activePokemonTab} onChange={setActivePokemonTab}>
@@ -215,8 +222,7 @@ const Pokemon = () => {
         <MultiplePokemon />
       </Tabs.Panel>
       <Tabs.Panel value="prepare-pokemon-data">
-        <Text>Prepare Data</Text>
-        {/* <DataPreparationTab /> */}
+        <DataPreparationTab />
       </Tabs.Panel>
     </Tabs>
   );
@@ -282,7 +288,7 @@ const DataPreparationTab = () => {
       <Grid.Col span={6}>
         <NumberInput
           label="Range Start"
-          onChange={(value: number) => setRangeStart(value)}
+          onChange={(value) => setRangeStart(value as number)}
           value={rangeStart}
           min={0}
         />
@@ -290,7 +296,7 @@ const DataPreparationTab = () => {
       <Grid.Col span={6}>
         <NumberInput
           label="Range End"
-          onChange={(value: number) => setRangeEnd(value)}
+          onChange={(value) => setRangeEnd(value as number)}
           value={rangeEnd}
           min={0}
         />

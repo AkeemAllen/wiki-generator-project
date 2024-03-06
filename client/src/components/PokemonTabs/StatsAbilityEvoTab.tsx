@@ -119,7 +119,7 @@ const StatsAbilitiesEvoTab = ({
           </SimpleGrid>
         </Grid.Col>
         <Grid.Col>
-          <Box sx={{ width: 700 }}>
+          <Box style={{ width: 700 }}>
             <SimpleGrid cols={3}>
               <NativeSelect
                 label="Evolution Method"
@@ -133,8 +133,8 @@ const StatsAbilitiesEvoTab = ({
                   value={evolution.level}
                   min={1}
                   max={100}
-                  onChange={(e: number) =>
-                    setEvolution({ ...evolution, level: e })
+                  onChange={(e) =>
+                    setEvolution({ ...evolution, level: e as number })
                   }
                 />
               )}
@@ -144,6 +144,7 @@ const StatsAbilitiesEvoTab = ({
                   value={evolution.item}
                   onChange={(e) => setEvolution({ ...evolution, item: e })}
                   data={items === undefined ? [] : items}
+                  limit={10}
                 />
               )}
               {evolution.method === "other" && (
@@ -168,6 +169,7 @@ const StatsAbilitiesEvoTab = ({
                         ? []
                         : pokemonList.map((p) => p.name)
                     }
+                    limit={10}
                   />
                 )}
             </SimpleGrid>

@@ -1,45 +1,62 @@
 import { Modal, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { TrainerInfo, Trainers } from "../../types";
+import { useMemo } from "react";
+import { useEditTrainers } from "../../apis/routesApis";
+import { useRouteStore } from "../../stores";
 
 type UpdateSpriteModalProps = {
   opened: boolean;
   close: () => void;
-  trainer: { trainerName: string; info: TrainerInfo };
-  trainers: Trainers;
-  updateTrainer: (trainerName: string, trainerInfo: TrainerInfo) => void;
+  spriteName?: string;
+  trainerName: string;
+  routeName: string;
 };
 
 const UpdateSpriteModal = ({
   opened,
   close,
-  trainer,
-  trainers,
-  updateTrainer,
+  spriteName,
+  trainerName,
+  routeName,
 }: UpdateSpriteModalProps) => {
+  const routes = useRouteStore((state) => state.routes);
+  const setRoutes = useRouteStore((state) => state.setRoutes);
+  const { mutate: submitTrainers } = useEditTrainers((data) =>
+    setRoutes(data.routes)
+  );
+
+  const trainers = useMemo(
+    () => routes[routeName]?.important_trainers,
+    [routes]
+  );
+
+  const editSprite = (newSprite: string) => {
+    const currentTrainers = { ...trainers };
+    currentTrainers[trainerName].sprite_name = newSprite;
+    submitTrainers({
+      routeName,
+      important_trainers: currentTrainers,
+    });
+    notifications.show({ message: "Sprite Changed Successfully" });
+  };
+
   return (
     <Modal
       opened={opened}
       onClose={close}
+      title="Edit Sprite"
       withCloseButton={false}
-      title="Sprite Name"
     >
       <TextInput
         label="Use the names for the sprites found here: https://play.pokemonshowdown.com/sprites/trainers/"
         placeholder="Set a sprite name"
-        defaultValue={trainers[trainer.trainerName]?.sprite_name}
+        defaultValue={spriteName}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             const { value } = e.target as HTMLInputElement;
             e.preventDefault();
             e.stopPropagation();
-            updateTrainer(trainer.trainerName, {
-              ...trainer.info,
-              sprite_name: value,
-            });
-            notifications.show({
-              message: "Sprite name updated successfully",
-            });
+            editSprite(value);
             close();
           }
         }}

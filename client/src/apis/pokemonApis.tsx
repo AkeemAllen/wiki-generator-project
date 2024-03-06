@@ -8,7 +8,7 @@ export const useGetPokemon = () => {
     queryKey: ["pokemon"],
     queryFn: () =>
       fetch(`${import.meta.env.VITE_BASE_URL}/pokemon/${currentWiki}`).then(
-        (res) => res.json(),
+        (res) => res.json()
       ),
     refetchOnWindowFocus: false,
     enabled: false,
@@ -95,7 +95,7 @@ export const useAddMultipleMoves = ({ onSuccess, onError }: any) => {
           method: "POST",
           body: JSON.stringify({ pokemon_being_modified, moves_being_added }),
           headers: { "Content-Type": "application/json" },
-        },
+        }
       ).then((res) => res.json());
     },
     onSuccess,
@@ -119,7 +119,7 @@ export const useModifyLevelMoves = ({ onSuccess, onError }: any) => {
           method: "POST",
           body: JSON.stringify(pokemon_move_changes),
           headers: { "Content-Type": "application/json" },
-        },
+        }
       ).then((res) => res.json());
     },
     onSuccess,
@@ -145,7 +145,7 @@ export const usePreparePokemonData = ({ onSuccess, onError }: any) => {
             wipe_current_data,
           }),
           headers: { "Content-Type": "application/json" },
-        },
+        }
       ).then((res) => res.json());
     },
     onSuccess,

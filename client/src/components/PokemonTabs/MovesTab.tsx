@@ -18,6 +18,7 @@ import { useRef, useState } from "react";
 import { useModifyLevelMoves } from "../../apis/pokemonApis";
 import { useUpdateEffect } from "../../hooks/useUpdateEffect";
 import { useMovesStore } from "../../stores";
+import classes from "../../styles/MovesTab.module.css";
 import {
   Move,
   MoveChange,
@@ -26,7 +27,6 @@ import {
   PokemonData,
 } from "../../types";
 import MovesTable from "../MovesTable";
-import classes from "../../styles/MovesTab.module.css";
 
 type MovesTabProps = {
   pokemonData: PokemonData;
@@ -82,7 +82,7 @@ const MovesTab = ({
   const handleMoveSetChange = (
     index: number,
     change: "move_name" | "level" | "operation" | "secondary_move",
-    value: string | number,
+    value: string | number
   ) => {
     setMoveSetChangeList((moveSetChangeList) => {
       const newMoveSetChangeList = [...moveSetChangeList];
@@ -139,7 +139,7 @@ const MovesTab = ({
       ["alt+enter", saveLevelMoveChanges],
       ["alt+s", () => seachMovesRef.current?.focus()],
     ],
-    [],
+    []
   );
 
   return (
@@ -171,17 +171,17 @@ const MovesTab = ({
         centered
         size={"lg"}
       >
-        <SimpleGrid cols={1}>
+        <SimpleGrid cols={1} mt={20}>
           <Button onClick={addNewRow}>Add Row</Button>
-          <Table withRowBorders withTableBorder withColumnBorders>
-            <thead>
-              <tr>
-                <th>Operation</th>
-                <th>Move</th>
-                <th>Level</th>
-                <th>Secondary Move</th>
-                <th></th>
-              </tr>
+          <Table withTableBorder withRowBorders withColumnBorders={false}>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Operation</Table.Th>
+                <Table.Th>Move</Table.Th>
+                <Table.Th>Level</Table.Th>
+                <Table.Th>Secondary Move</Table.Th>
+                <Table.Th></Table.Th>
+              </Table.Tr>
               {moveSetChangeList.map((moveChange, index) => {
                 const {
                   operation,
@@ -190,23 +190,23 @@ const MovesTab = ({
                   level,
                 } = moveChange;
                 return (
-                  <tr key={index}>
-                    <td>
+                  <Table.Tr key={index}>
+                    <Table.Td>
                       <NativeSelect
                         value={operation}
                         onChange={(event) =>
                           handleMoveSetChange(
                             index,
                             "operation",
-                            event.currentTarget.value,
+                            event.currentTarget.value
                           )
                         }
                         classNames={{ input: classes.input }}
                         rightSection={<div></div>}
                         data={Object.values(Operation)}
                       />
-                    </td>
-                    <td>
+                    </Table.Td>
+                    <Table.Td>
                       <Autocomplete
                         value={moveName}
                         onChange={(value) =>
@@ -217,9 +217,10 @@ const MovesTab = ({
                         }}
                         error={movesList.indexOf(moveName) === -1}
                         data={movesList}
+                        limit={10}
                       />
-                    </td>
-                    <td>
+                    </Table.Td>
+                    <Table.Td>
                       <NumberInput
                         value={level}
                         onChange={(value) =>
@@ -234,8 +235,8 @@ const MovesTab = ({
                         min={1}
                         max={100}
                       />
-                    </td>
-                    <td>
+                    </Table.Td>
+                    <Table.Td>
                       <Autocomplete
                         value={secondaryMove ?? ""}
                         onChange={(value) =>
@@ -252,20 +253,21 @@ const MovesTab = ({
                           operation === Operation.REPLACE_BY_LEVEL
                         }
                         data={movesList}
+                        limit={10}
                       />
-                    </td>
-                    <td>
+                    </Table.Td>
+                    <Table.Td>
                       <ActionIcon variant="subtle">
                         <IconTrash
                           size={"1rem"}
                           onClick={() => removeRow(index)}
                         />
                       </ActionIcon>
-                    </td>
-                  </tr>
+                    </Table.Td>
+                  </Table.Tr>
                 );
               })}
-            </thead>
+            </Table.Thead>
           </Table>
           <Button
             onClick={saveLevelMoveChanges}
