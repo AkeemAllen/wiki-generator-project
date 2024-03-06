@@ -62,7 +62,7 @@ def get_encounter_table_rows(encounters: Encounters, area_levels: AreaLevels):
 
     # Add empty strings to the end of each row if the number of pokemon is less than the max
     for row in table_array_rows_for_encounters:
-        if len(row) < max_number_of_pokemon_on_single_route:
+        if len(row) < max_number_of_pokemon_on_single_route + 1:
             while range(len(row), max_number_of_pokemon_on_single_route + 1):
                 row.append("")
 
