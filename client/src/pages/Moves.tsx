@@ -124,7 +124,6 @@ const Moves = () => {
         )}
       </Tabs.Panel>
       <Tabs.Panel value="prepare-move-data">
-        <p>Prepare Data</p>
         <MovePreparationTab movesList={movesList} setMovesList={setMovesList} />
       </Tabs.Panel>
     </Tabs>

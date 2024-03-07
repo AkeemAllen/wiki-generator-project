@@ -133,6 +133,16 @@ export type Routes = {
   [key: string]: RouteProperties;
 };
 
+export type ItemProperties = {
+  effect: string;
+  sprite: string;
+  location?: string;
+};
+
+export type Items = {
+  [key: string]: ItemProperties;
+};
+
 export type WikiSettings = {
   version_group: string;
   deployment_url: string;

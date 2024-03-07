@@ -3,10 +3,12 @@ import { useDisclosure } from "@mantine/hooks";
 import {
   IconArrowBackUp,
   IconBallBasketball,
+  IconBottleFilled,
   IconDisc,
   IconDotsVertical,
   IconGitBranch,
   IconSettings,
+  IconSitemap,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -164,14 +166,24 @@ const MainAppshell = () => {
                 />
               </Link>
 
+              <Link to={"/items"} style={{ textDecoration: "none" }}>
+                <NavButton
+                  text="Items"
+                  color="blue"
+                  isActive={pathname.includes("/items")}
+                  icon={<IconBottleFilled size={"1rem"} />}
+                />
+              </Link>
+
               <Link to={"/game-routes"} style={{ textDecoration: "none" }}>
                 <NavButton
                   text="Game Routes"
                   color="blue"
                   isActive={pathname.includes("/game-routes")}
-                  icon={<IconGitBranch size={"1rem"} />}
+                  icon={<IconSitemap size={"1rem"} />}
                 />
               </Link>
+
               <Link to={"/generate-wiki"} style={{ textDecoration: "none" }}>
                 <NavButton
                   text="Generate Wiki Pages"
@@ -189,6 +201,7 @@ const MainAppshell = () => {
                   icon={<IconArrowBackUp size={"1rem"} />}
                 />
               </Link>
+
               <Link to={"/settings"} style={{ textDecoration: "none" }}>
                 <NavButton
                   text="Wiki Settings"

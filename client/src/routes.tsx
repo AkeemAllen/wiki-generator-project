@@ -6,6 +6,7 @@ import GameRoutesDetails, {
   loader as routeLoader,
 } from "./pages/GameRoutesDetails";
 import GenerateWiki from "./pages/GenerateWiki";
+import Items from "./pages/Items";
 import Moves from "./pages/Moves";
 import Pokemon from "./pages/Pokemon";
 import SelectWiki from "./pages/SelectWiki";
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: "moves",
         element: <Moves />,
+      },
+      {
+        path: "items",
+        element: <Items />,
       },
       {
         path: "game-routes",
