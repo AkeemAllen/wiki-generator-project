@@ -143,6 +143,14 @@ export type Items = {
   [key: string]: ItemProperties;
 };
 
+export type AbilityProperties = {
+  effect: string;
+};
+
+export type Abilities = {
+  [key: string]: AbilityProperties;
+};
+
 export type WikiSettings = {
   version_group: string;
   deployment_url: string;

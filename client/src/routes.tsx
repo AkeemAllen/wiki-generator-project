@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
+import Abilities from "./pages/Abilities";
 import Backups from "./pages/Backups";
 import GameRoutes from "./pages/GameRoutes";
 import GameRoutesDetails, {
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
       {
         path: "items",
         element: <Items />,
+      },
+      {
+        path: "abilities",
+        element: <Abilities />,
       },
       {
         path: "game-routes",

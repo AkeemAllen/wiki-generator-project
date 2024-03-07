@@ -1,6 +1,7 @@
 import { AppShell, Grid, Menu, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
+  IconAdjustmentsUp,
   IconArrowBackUp,
   IconBallBasketball,
   IconBottleFilled,
@@ -172,6 +173,15 @@ const MainAppshell = () => {
                   color="blue"
                   isActive={pathname.includes("/items")}
                   icon={<IconBottleFilled size={"1rem"} />}
+                />
+              </Link>
+
+              <Link to={"/abilities"} style={{ textDecoration: "none" }}>
+                <NavButton
+                  text="Abilities"
+                  color="blue"
+                  isActive={pathname.includes("/abilities")}
+                  icon={<IconAdjustmentsUp size={"1rem"} />}
                 />
               </Link>
 
