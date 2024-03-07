@@ -489,9 +489,9 @@ def generate_pages_from_range(
             Heading(f"{pokedex_markdown_file_name} - {pokemon_data.name.title()}", 1)
         )
 
-        doc.add_paragraph(f'!!! note "Noticing Inaccuracies?"')
+        doc.add_paragraph(f'!!! note "Help Us Improve This Wiki!"')
         doc.add_raw(
-            f"\tUse this google form to report inaccurate data."
+            f"\tNoticing any inaccurate information? Use this google form to report them."
             " <a target='blank' href='https://docs.google.com/forms/d/e/1FAIpQLSdlJ2TgPQHehY8J8UPIsHLTyfALUCNDpO9JwVUpV0GBdjeznw/viewform'>Report Here</a>"
         )
 
