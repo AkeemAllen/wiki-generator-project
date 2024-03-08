@@ -1,7 +1,15 @@
-from pydantic import ConfigDict, BaseModel
+from typing import Dict, Literal, Optional
+from pydantic import BaseModel, RootModel
 
 
-class NatureBase(BaseModel):
-    id: int
-    name: str
-    model_config = ConfigDict(from_attributes=True)
+class NatureProperties(BaseModel):
+    increased_stat: Optional[
+        Literal["attack", "defense", "special-attack", "special-defense", "speed"]
+    ]
+    decreased_stat: Optional[
+        Literal["attack", "defense", "special-attack", "special-defense", "speed"]
+    ]
+
+
+class Natures(RootModel):
+    root: Dict[str, NatureProperties]
