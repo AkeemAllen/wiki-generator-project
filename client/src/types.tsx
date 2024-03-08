@@ -151,6 +151,29 @@ export type Abilities = {
   [key: string]: AbilityProperties;
 };
 
+export type NatureProperties = {
+  increased_stat?:
+    | "attack"
+    | "defense"
+    | "special-attack"
+    | "special-defense"
+    | "speed"
+    | "None"
+    | null;
+  decreased_stat?:
+    | "attack"
+    | "defense"
+    | "special-attack"
+    | "special-defense"
+    | "speed"
+    | "None"
+    | null;
+};
+
+export type Natures = {
+  [key: string]: NatureProperties;
+};
+
 export type WikiSettings = {
   version_group: string;
   deployment_url: string;

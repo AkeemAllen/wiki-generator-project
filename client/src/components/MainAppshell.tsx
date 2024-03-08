@@ -10,6 +10,7 @@ import {
   IconGitBranch,
   IconSettings,
   IconSitemap,
+  IconTree,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -182,6 +183,15 @@ const MainAppshell = () => {
                   color="blue"
                   isActive={pathname.includes("/abilities")}
                   icon={<IconAdjustmentsUp size={"1rem"} />}
+                />
+              </Link>
+
+              <Link to={"/natures"} style={{ textDecoration: "none" }}>
+                <NavButton
+                  text="Natures"
+                  color="blue"
+                  isActive={pathname.includes("/natures")}
+                  icon={<IconTree size={"1rem"} />}
                 />
               </Link>
 

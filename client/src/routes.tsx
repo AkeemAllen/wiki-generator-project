@@ -9,6 +9,7 @@ import GameRoutesDetails, {
 import GenerateWiki from "./pages/GenerateWiki";
 import Items from "./pages/Items";
 import Moves from "./pages/Moves";
+import Natures from "./pages/Natures";
 import Pokemon from "./pages/Pokemon";
 import SelectWiki from "./pages/SelectWiki";
 import Settings from "./pages/Setting";
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: "items",
         element: <Items />,
+      },
+      {
+        path: "natures",
+        element: <Natures />,
       },
       {
         path: "abilities",
