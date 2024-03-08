@@ -191,7 +191,7 @@ def prepare_ability_data(wiki_name: str):
 
 def prepare_nature_data(wiki_name: str):
     nature_range = range(1, 26)
-    natures = []
+    natures = {}
 
     for nature_id in tqdm.tqdm(nature_range):
         response = requests.get(f"https://pokeapi.co/api/v2/nature/{nature_id}")
@@ -205,7 +205,16 @@ def prepare_nature_data(wiki_name: str):
             print(f"Nature with id {nature_id} failed: {err}")
             continue
 
-        natures.append(nature["name"])
+        if nature["decreased_stat"] is None:
+            nature["decreased_stat"] = {"name": None}
+
+        if nature["increased_stat"] is None:
+            nature["increased_stat"] = {"name": None}
+
+        natures[nature["name"]] = {
+            "increased_stat": nature["increased_stat"]["name"],
+            "decreased_stat": nature["decreased_stat"]["name"],
+        }
 
     fh = open(f"{data_folder_route}/{wiki_name}/natures.json", "w")
     fh.write(json.dumps(natures))
